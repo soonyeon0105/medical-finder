@@ -1,0 +1,191 @@
+{
+ "generated": "2026-11-17 01:44:43 KST",
+ "source": "raw",
+ "items_with_data": 13,
+ "counts": {
+  "api_codes": 943,
+  "clcd_codes": 714,
+  "hosp_list_rows": 13650,
+  "duplicate_rows_removed": {
+   "codes": 943,
+   "hosp_list": 0,
+   "clcd": 500
+  },
+  "items_in_catalog": 13,
+  "items_with_data": 13,
+  "items_without_data": 0,
+  "hospital_rows_used": 13650,
+  "kosis_items": 13
+ },
+ "per_item": [
+  {
+   "code": "HE1010001",
+   "name": "뇌 MRI",
+   "n": 932,
+   "coverage": {
+    "collected": 932,
+    "total": 932,
+    "complete": true
+   },
+   "avg": 499182,
+   "kosis_avg": 379927,
+   "displayed": true
+  },
+  {
+   "code": "HE1090000",
+   "name": "경추 MRI",
+   "n": 1055,
+   "coverage": {
+    "collected": 1055,
+    "total": 1055,
+    "complete": true
+   },
+   "avg": 494679,
+   "kosis_avg": 386020,
+   "displayed": true
+  },
+  {
+   "code": "HE1110000",
+   "name": "요천추 MRI",
+   "n": 1055,
+   "coverage": {
+    "collected": 1055,
+    "total": 1055,
+    "complete": true
+   },
+   "avg": 494280,
+   "kosis_avg": 387639,
+   "displayed": true
+  },
+  {
+   "code": "HE1200000",
+   "name": "무릎 관절 MRI",
+   "n": 1059,
+   "coverage": {
+    "collected": 1059,
+    "total": 1059,
+    "complete": true
+   },
+   "avg": 493949,
+   "kosis_avg": 395060,
+   "displayed": true
+  },
+  {
+   "code": "EB4410000",
+   "name": "복부 초음파",
+   "n": 683,
+   "coverage": {
+    "collected": 683,
+    "total": 683,
+    "complete": true
+   },
+   "avg": 120583,
+   "kosis_avg": 72426,
+   "displayed": true
+  },
+  {
+   "code": "EB4210000",
+   "name": "유방 초음파",
+   "n": 900,
+   "coverage": {
+    "collected": 900,
+    "total": 900,
+    "complete": true
+   },
+   "avg": 120704,
+   "kosis_avg": 90376,
+   "displayed": true
+  },
+  {
+   "code": "EB4140000",
+   "name": "갑상선 초음파",
+   "n": 1304,
+   "coverage": {
+    "collected": 1304,
+    "total": 1304,
+    "complete": true
+   },
+   "avg": 93976,
+   "kosis_avg": 51727,
+   "displayed": true
+  },
+  {
+   "code": "EA0010000",
+   "name": "진정내시경 환자관리료 Ⅰ",
+   "n": 339,
+   "coverage": {
+    "collected": 339,
+    "total": 339,
+    "complete": true
+   },
+   "avg": 75294,
+   "kosis_avg": 53036,
+   "displayed": true
+  },
+  {
+   "code": "UB0010051",
+   "name": "지르코니아 임플란트",
+   "n": 420,
+   "coverage": {
+    "collected": 420,
+    "total": 420,
+    "complete": true
+   },
+   "avg": 1431604,
+   "kosis_avg": 1125982,
+   "displayed": true
+  },
+  {
+   "code": "SZ0840000",
+   "name": "체외충격파치료",
+   "n": 1804,
+   "coverage": {
+    "collected": 1804,
+    "total": 1804,
+    "complete": true
+   },
+   "avg": 93181,
+   "kosis_avg": 87575,
+   "displayed": true
+  },
+  {
+   "code": "MY1420000",
+   "name": "증식치료(사지)",
+   "n": 1141,
+   "coverage": {
+    "collected": 1141,
+    "total": 1141,
+    "complete": true
+   },
+   "avg": 72390,
+   "kosis_avg": 67466,
+   "displayed": true
+  },
+  {
+   "code": "MX1220000",
+   "name": "도수치료",
+   "n": 1617,
+   "coverage": {
+    "collected": 1617,
+    "total": 1617,
+    "complete": true
+   },
+   "avg": 93558,
+   "kosis_avg": 117374,
+   "displayed": true
+  },
+  {
+   "code": "MZ0070000",
+   "name": "신장분사치료",
+   "n": 1341,
+   "coverage": {
+    "collected": 1341,
+    "total": 1341,
+    "complete": true
+   },
+   "avg": 51308,
+   "kosis_avg": 41472,
+   "displayed": true
+  }
+ ]
+}

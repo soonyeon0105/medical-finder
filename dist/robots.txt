@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://medical-finder.pages.dev/sitemap.xml

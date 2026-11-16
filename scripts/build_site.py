@@ -1,0 +1,1343 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+메디컬·비급여 시세 비교 파인더 — 국내(/ko/) 정적 사이트 빌더 (M-03 뼈대)
+
+입력
+  data/catalog_items.json      핵심 13개 항목 카탈로그
+  data/hira_dataset.json       prepare_data.py 산출물(실데이터 또는 픽스처). 없으면 픽스처 모드로 동작
+
+출력 (dist/)
+  /ko/                    랜딩 + 계산기
+  /ko/calc/               계산기(전체 옵션)
+  /ko/items/              항목 13개 목록
+  /ko/items/{slug}/       항목 상세
+  /ko/insurance/          1~5세대 실손 정리(2026 개편 반영)
+  /ko/guide/              이용 안내 · 데이터 출처 · 범위 고지
+  /assets/*, robots.txt, sitemap.xml, 404.html
+
+사용법: python3 scripts/build_site.py [--out DIR] [--base URL] [--live]
+  --live 를 주지 않으면 '테스트 픽스처 프리뷰' 모드로 빌드한다(배너 표시 + noindex).
+"""
+from __future__ import annotations
+
+import argparse
+import html
+import json
+import shutil
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA = BASE_DIR / "data"
+ASSETS = BASE_DIR / "assets"
+DIST = BASE_DIR / "dist"
+
+SITE_NAME = "메디컬 비급여 시세 파인더"
+SITE_BASE = "https://medical-finder.pages.dev"   # --base 로 교체
+OWNER = "내 손안에 복지 (9welfare)"
+BUILD_TS = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M KST")
+DATA_DATE = "2026-11-17"          # 오픈API 수집·조회일
+DATA_PERIOD = "건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17"
+KOSIS_PERIOD = "통계청 KOSIS 2026년(자료갱신 2026-10-23)"
+KOSIS_APPROVAL = "354006"
+
+PREVIEW = True     # --live 로 끌 수 있다
+DATASET: dict | None = None      # data/hira_dataset.json (없으면 가격 미표시)
+HOSPITALS: dict | None = None    # data/hospitals.json (병원급 기관 목록)
+
+NAV = [
+    ("/ko/calc/", "실손 계산기", "계산기"),
+    ("/ko/items/", "비급여 항목", "항목"),
+    ("/ko/insurance/", "1~5세대 실손", "세대별"),
+    ("/ko/guide/", "이용 안내", "안내"),
+]
+
+SCOPE_LINE = ("병원급 이상 심평원 공개 가격 기준(공공누리 제1유형) · 동네 의원 개별 가격은 공개 범위 외이므로 "
+              "방문 전 확인 (참고용 전국 의원 평균·중간값은 통계청 KOSIS 통계 기준)")
+SCOPE_LONG = (
+    "이 서비스의 가격은 건강보험심사평가원이 공공데이터포털로 공개하는 <b>병원급 이상</b> 의료기관"
+    "(상급종합·종합병원·병원·요양병원·정신병원·치과병원·한방병원)의 비급여 진료비입니다. "
+    "동네 <b>의원·치과의원·한의원</b>의 <b>개별 기관 가격은 공개 API 제공 범위가 아니어서 표시하지 않으며</b>, "
+    "방문 전 유선 확인을 안내합니다. 대신 <b>전국 의원급 규모의 평균·중간값</b>만 통계청 KOSIS"
+    "(승인번호 354006, 심평원 작성) 공개 통계표에서 수집해 <b>참고값</b>으로 함께 보여 줍니다."
+)
+
+GEN_TABLE = [
+    ("1세대", "~2009.9",
+     "입원 0%(전액 보장) · 통원 5,000원 공제",
+     "입원 0%(전액 보장) · 통원 5,000원 공제",
+     "상품·시기별 약관 차이가 가장 큼"),
+    ("2세대", "2009.10~2017.3",
+     "표준형 20% · 선택형Ⅱ 10%",
+     "20%",
+     "통원 Max(20%, 의원 1만·병원 1.5만·종합/상급 2만)"),
+    ("3세대(착한실손)", "2017.4~2021.6",
+     "20%",
+     "기본 20% · 특약 30%",
+     "특약(도수·체외충격파·증식·비급여 주사·MRI) 통원 Max(30%, 2만원) · 갱신 15년"),
+    ("4세대", "2021.7~2026.4",
+     "입원 20% · 통원 Max(20%, 1·2만원)",
+     "입원 30% · 통원 Max(30%, 3만원)",
+     "통원 회당 보장 20만원 · 연 5천만원 · 비급여 차등할증"),
+    ("5세대", "2026.5.6 출시~",
+     "입원 20% · 통원 Max(건보 본인부담률, 20%, 1·2만원)",
+     "특약1(중증) 입원 30% · 통원 Max(30%, 3만원) / 특약2(비중증) 입원 50% · 통원 Max(50%, 5만원)",
+     "특약1 연 5천만·통원 회당 20만 / 특약2 연 1천만·통원 일당 20만·입원 회당 300만"),
+]
+
+EXCLUDED5 = [
+    ("근골격계 물리치료", "도수치료(2026.7 관리급여 전환)·신장분사치료 등", "MZ0070000"),
+    ("체외충격파치료", "어깨 석회화·족저근막염 등", "SZ0840000"),
+    ("비급여 주사제", "증식치료·신경성형술 등 주사 계열", "MY1420000"),
+    ("미등재 신의료기술", "첨단재생의료 등 미등재 기술", None),
+    ("D등급 치료", "한국보건의료연구원 재평가 D등급(권고하지 않음)", None),
+]
+
+
+def esc(x) -> str:
+    return html.escape(str(x), quote=True)
+
+
+def won(n) -> str:
+    if n is None:
+        return "—"
+    return f"{int(n):,}원"
+
+
+def ds_item(code: str) -> dict | None:
+    for it in (DATASET or {}).get("items", []):
+        if it["code"] == code:
+            return it
+    return None
+
+
+def default_amount(item: dict) -> int:
+    """계산기 초기 금액 — 실데이터가 있으면 병원급 중간값, 없으면 카탈로그 예시값."""
+    if item.get("payment") == "관리급여":
+        return int(item["price_fixture"])
+    ds = ds_item(item["code"])
+    if ds and ds.get("has_data") and (ds.get("stats") or {}).get("price"):
+        return int(ds["stats"]["price"]["median"] or ds["stats"]["price"]["avg"])
+    return int(item["price_fixture"])
+
+
+# ------------------------------------------------------------------ 공통 레이아웃
+def breadcrumb_html(crumbs: list[tuple[str, str]]) -> str:
+    parts = []
+    for i, (href, label) in enumerate(crumbs):
+        if i:
+            parts.append('<span>›</span>')
+        if href:
+            parts.append(f'<a href="{esc(href)}">{esc(label)}</a>')
+        else:
+            parts.append(f'<span aria-current="page">{esc(label)}</span>')
+    return f'<nav class="breadcrumb" aria-label="위치"><div class="wrap">{"".join(parts)}</div></nav>'
+
+
+def breadcrumb_jsonld(crumbs: list[tuple[str, str]]) -> dict:
+    items = []
+    for i, (href, label) in enumerate(crumbs, start=1):
+        url = SITE_BASE + href if href else SITE_BASE + "/ko/"
+        items.append({"@type": "ListItem", "position": i, "name": label, "item": url})
+    return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": items}
+
+
+def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, str]],
+           jsonld: list[dict] | None = None, current: str = "") -> str:
+    canonical = SITE_BASE + path
+    nav_html = "".join(
+        f'<a href="{esc(href)}"{" aria-current=\"page\"" if href == current else ""}>'
+        f'<span class="full">{esc(label)}</span><span class="abbr">{esc(short)}</span></a>'
+        for href, label, short in NAV)
+    robots = ('<meta name="robots" content="noindex,nofollow">' if PREVIEW
+              else '<meta name="robots" content="index,follow">')
+    banner = (
+        '<div class="preview-banner" id="preview-banner" role="note">'
+        '<span class="pb-dot"></span><strong>테스트 픽스처 프리뷰</strong> · '
+        '화면의 금액은 UI 동작 확인용 <strong>예시</strong>이며 실제 심평원 공개 가격이 아닙니다. '
+        'data.go.kr 인증키를 연결하면 실제 수집 데이터로 대체됩니다.'
+        '</div>' if PREVIEW else "")
+    scope_strip = ('<div class="scope-strip"><div class="wrap">' + SCOPE_LINE + '</div></div>')
+    ld = ""
+    for obj in (jsonld or []):
+        ld += f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
+    return f"""<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(title)}</title>
+<meta name="description" content="{esc(desc)}">
+{robots}
+<link rel="canonical" href="{esc(canonical)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{esc(SITE_NAME)}">
+<meta property="og:title" content="{esc(title)}">
+<meta property="og:description" content="{esc(desc)}">
+<meta property="og:url" content="{esc(canonical)}">
+<meta name="theme-color" content="#0f766e">
+<link rel="stylesheet" href="/assets/style.css">
+{ld}
+</head>
+<body>
+{banner}
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="/ko/"><span class="mark" aria-hidden="true">🏥</span><span class="txt">{esc(SITE_NAME)}</span></a>
+    <nav class="nav" aria-label="주요 메뉴">{nav_html}</nav>
+  </div>
+</header>
+{breadcrumb_html(crumbs)}
+<main id="main">
+{scope_strip}
+{body}
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <b>{esc(SITE_NAME)}</b><br>
+        병원급 이상 비급여 공개가와 1~5세대 실손 보장액을 함께 계산하는 중립 정보 사이트입니다.
+        특정 병원 추천·예약·상담 알선은 하지 않습니다.
+      </div>
+      <div>
+        <b>바로가기</b><br>
+        <a href="/ko/calc/">실손 계산기</a><br>
+        <a href="/ko/items/">비급여 항목 13개</a><br>
+        <a href="/ko/insurance/">1~5세대 실손 정리</a><br>
+        <a href="/ko/guide/">이용 안내 · 데이터 출처</a><br>
+        <a href="/ko/privacy/">개인정보처리방침 · 면책</a>
+      </div>
+      <div>
+        <b>데이터</b><br>
+        건강보험심사평가원 비급여진료비정보조회서비스<br>
+        공공데이터포털 15001700 · 공공누리 제1유형<br>
+        통계청 KOSIS 승인번호 {esc(KOSIS_APPROVAL)}(의원·치과의원 규모, 2026)<br>
+        <span class="muted">{esc(DATA_PERIOD)} · 빌드 {esc(BUILD_TS)}</span>
+      </div>
+    </div>
+    <div class="legal">
+      본 사이트의 계산 결과는 입력값과 공개된 제도 기준으로 산출한 <b>추정치</b>이며, 실제 보험금 지급액은
+      가입 상품·약관·청구 이력에 따라 달라집니다. 의료기관 가격은 인력·시설·장비에 따라 달라질 수 있고
+      변경 보고의 행정 처리 기간 때문에 실시간 반영되지 않을 수 있습니다.
+      본 사이트는 병원급 이상 공개 가격만 다루며 의원급 <b>개별</b> 가격은 제공하지 않습니다
+      (전국 의원급 평균·중간값은 통계청 KOSIS 통계 기준 참고값).
+      의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
+      <a href="/ko/privacy/">개인정보처리방침 · 면책 고지</a>
+      {esc(OWNER)} · {esc(BUILD_TS)} 빌드.
+    </div>
+  </div>
+</footer>
+<script src="/assets/calc.js" defer></script>
+<script src="/assets/med-data.js" defer></script>
+<script src="/assets/app.js" defer></script>
+</body>
+</html>
+"""
+
+
+# ------------------------------------------------------------------ 계산기 블록
+def calc_block(items: list[dict], default_code: str, heading: str = "1~5세대 실손 보장액 계산",
+               sub: str = "항목·금액·입원/통원만 고르면 5개 세대를 한 번에 비교합니다.") -> str:
+    opts = "".join(
+        f'<option value="{esc(it["code"])}">{esc(it["name"])} ({esc(it["code"])})</option>' for it in items)
+    first = next((it for it in items if it["code"] == default_code), items[0])
+    return f"""
+<section class="calc" data-calc aria-labelledby="calc-title">
+  <div class="calc-head">
+    <h2 id="calc-title">{esc(heading)}</h2>
+    <p>{esc(sub)}</p>
+    <div class="scope-note" style="margin-bottom:14px">
+      {SCOPE_LINE}
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="field">
+      <label for="item-select">비급여 항목</label>
+      <select id="item-select">{opts}<option value="direct">직접 입력 (금액만)</option></select>
+    </div>
+    <div class="field">
+      <label for="amount-input">진료비 금액 <span class="hint">(병원에서 받은 비급여 금액)</span>
+        <span class="chip-inline" id="amount-chip">예시 금액</span></label>
+      <div class="amount-row">
+        <input type="number" id="amount-input" inputmode="numeric" min="0" step="1000"
+               value="{default_amount(first)}" aria-describedby="item-hint">
+        <span class="unit">원</span>
+      </div>
+      <div class="row-note" id="item-hint">{esc(first['name'])} · {esc(first['summary'])}</div>
+    </div>
+    <div class="field">
+      <span class="label" id="visit-label">입원 / 통원</span>
+      <div class="seg two" id="visit-group" role="group" aria-labelledby="visit-label">
+        <button type="button" data-visit="out" aria-pressed="true">통원(외래)</button>
+        <button type="button" data-visit="in" aria-pressed="false">입원</button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="label" id="inst-label">의료기관 종별 <span class="hint">(공제액 계산 기준)</span></span>
+      <div class="seg" id="inst-group" role="group" aria-labelledby="inst-label">
+        <button type="button" data-inst="tertiary" aria-pressed="true">상급종합</button>
+        <button type="button" data-inst="general" aria-pressed="false">종합병원</button>
+        <button type="button" data-inst="hospital" aria-pressed="false">병원</button>
+        <button type="button" data-inst="clinic" aria-pressed="false">의원(참고)</button>
+      </div>
+      <div class="row-note">의원은 공개 API 범위가 아니며, 종별 공제액 계산을 위한 참고 선택입니다.</div>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <span class="label" id="severe-label">중증(산정특례) 질환 치료</span>
+        <div class="seg two" id="severe-group" role="group" aria-labelledby="severe-label">
+          <button type="button" data-severe="0" aria-pressed="true">아니오</button>
+          <button type="button" data-severe="1" aria-pressed="false">예</button>
+        </div>
+        <div class="row-note">5세대 특약1(중증)/특약2(비중증) 구분에만 적용됩니다.</div>
+      </div>
+      <div class="field">
+        <label for="gen2-select">2세대 가입유형</label>
+        <select id="gen2-select">
+          <option value="standard">표준형 (급여 80%)</option>
+          <option value="select2">선택형Ⅱ (급여 90%)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="rounds-row" style="display:none">
+      <label for="rounds-input">관리급여 시행 횟수 <span class="hint">(1회 {won(43850)} · 연 15회/예외 24회)</span></label>
+      <input type="number" id="rounds-input" inputmode="numeric" min="1" max="24" step="1" value="1">
+    </div>
+    <div class="field" id="severe-cum-row" style="display:none">
+      <label for="severe-cum-input">올해 중증 입원 자기부담 누적액 <span class="hint">(선택 · 5세대 연 500만원 상한 계산)</span></label>
+      <div class="amount-row">
+        <input type="number" id="severe-cum-input" inputmode="numeric" min="0" step="10000" value="">
+        <span class="unit">원</span>
+      </div>
+    </div>
+    <div class="managed-box" id="managed-box"></div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-head">
+      <h3>세대별 예상 보장액</h3>
+      <span class="sub" id="result-meta">조건을 확인하는 중</span>
+    </div>
+    <div id="result-summary"></div>
+    <div class="cmp-wrap">
+      <table class="cmp" id="result-table">
+        <caption class="sr-only">1세대부터 5세대까지 같은 조건에서의 예상 보장액 비교</caption>
+        <thead>
+          <tr>
+            <th scope="col">세대</th>
+            <th scope="col">자기부담 기준</th>
+            <th scope="col">예상 보장액</th>
+            <th scope="col">환자 최종 부담</th>
+            <th scope="col">적용 규칙 · 한도</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="5" style="color:#667085">계산 결과를 불러오는 중…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="warn-list" id="result-warnings" style="display:none"></ul>
+    <p class="calc-foot">
+      ※ 예상 보장액은 공개된 제도 기준으로 계산한 추정치입니다. 실제 지급액은 가입 약관, 자기부담금 누적,
+      청구 이력에 따라 달라집니다. 연간 한도(5세대 특약1 5천만원 / 특약2 1천만원 등)는 누적 청구가 필요해
+      안내로만 표시합니다.
+    </p>
+    <details class="rule">
+      <summary>계산 기준 자세히 보기</summary>
+      <ul class="limits" style="font-size:12.5px">
+        <li>1세대: 입원 100%, 통원 5,000원 공제 후 100% (표준형 기준 · 약관 차이 있음)</li>
+        <li>2세대: 비급여 80% · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액</li>
+        <li>3세대: 기본 비급여 20% · 특약(도수·체외충격파·증식·비급여 주사·MRI)은 통원 Max(30%, 2만원)</li>
+        <li>4세대: 비급여 입원 30% · 통원 Max(30%, 3만원), 통원 회당 보장 20만원 한도</li>
+        <li>5세대: 특약1(중증) 입원 30%·통원 Max(30%, 3만원) / 특약2(비중증) 입원 50%·통원 Max(50%, 5만원),
+          제외 항목은 보장 0원</li>
+        <li>도수치료: 2026.7.1부터 관리급여 — 1회 43,850원(종별 동일), 본인부담률 95%로 급여 규칙 적용</li>
+      </ul>
+    </details>
+  </div>
+</section>
+"""
+
+
+def gen_table_html() -> str:
+    rows = "".join(
+        f"<tr><th scope=\"row\">{esc(n)}<br><span style=\"font-weight:500;color:#667085\">{esc(p)}</span></th>"
+        f"<td data-label=\"급여 자기부담\">{esc(g)}</td>"
+        f"<td data-label=\"비급여 자기부담\">{esc(b)}</td>"
+        f"<td data-label=\"통원 공제 · 한도\">{esc(l)}</td></tr>"
+        for n, p, g, b, l in GEN_TABLE)
+    return f"""
+<div class="table-wrap">
+  <table class="plain stack">
+    <thead><tr><th scope="col">세대</th><th scope="col">급여 자기부담</th><th scope="col">비급여 자기부담</th><th scope="col">통원 공제 · 한도</th></tr></thead>
+    <tbody>{rows}</tbody>
+  </table>
+</div>
+<p class="calc-foot">표의 %는 모두 <b>자기부담률</b>(환자가 부담하는 비중)입니다.
+<b>Max(A, B)</b>는 '비율 A로 계산한 금액'과 '최소공제액 B' 중 <b>큰 금액을 공제</b>한다는 뜻입니다.
+상품별 약관(연간 한도·자기부담금 누적·갱신 조건)에 따라 실제 금액은 달라집니다.</p>
+"""
+
+
+def faq_html(faqs: list[tuple[str, str]]) -> str:
+    return '<div class="faq">' + "".join(
+        f'<details><summary>{esc(q)}</summary><div class="a">{esc(a)}</div></details>' for q, a in faqs
+    ) + "</div>"
+
+
+def faq_jsonld(faqs: list[tuple[str, str]]) -> dict:
+    return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faqs
+        ],
+    }
+
+
+def ds_item(code: str) -> dict | None:
+    for it in (DATASET or {}).get("items", []):
+        if it["code"] == code:
+            return it
+    return None
+
+
+def kosis_card(it: dict) -> str:
+    """KOSIS(승인번호 354006) 의원급 참고 카드 — 실제 수집한 통계표 값만 표시한다."""
+    ds = ds_item(it["code"])
+    kk = (ds or {}).get("kosis")
+    if not kk:
+        return ""
+    table_nm = kk.get("table", "의원 비급여 진료비용")
+    path = " › ".join(kk.get("path") or [])
+    caveat = (f'<div class="notice amber" style="margin-top:10px">{esc(kk["caveat"])}</div>'
+              if kk.get("caveat") else "")
+    hosp_avg = (((ds or {}).get("stats") or {}).get("price") or {}).get("avg")
+    diff = ""
+    if hosp_avg and kk.get("avg"):
+        gap = int(hosp_avg) - int(kk["avg"])
+        pct = round(gap / int(kk["avg"]) * 100, 1) if kk["avg"] else 0
+        diff = (f'<p class="calc-foot">같은 항목의 병원급 평균 {won(hosp_avg)} 대비 '
+                f'{"+" if gap >= 0 else "−"}{abs(gap):,}원({abs(pct)}%) 차이입니다. '
+                '병원급과 의원급은 모집단이 달라 단순 우열 비교로 쓸 수 없습니다.</p>')
+    return f"""
+<div class="card kosis" data-kosis>
+  <h3>참고: 전국 의원급 평균·중간값 <span class="pill violet">통계청 KOSIS</span></h3>
+  <div class="row-note" style="margin-bottom:10px">{esc(table_nm)} · {esc(path)}</div>
+  <div class="kpi-row" style="grid-template-columns:repeat(2,1fr)">
+    <div class="kpi"><div class="k">평균</div><div class="v">{won(kk.get('avg'))}</div></div>
+    <div class="kpi"><div class="k">중간값</div><div class="v">{won(kk.get('median'))}</div></div>
+    <div class="kpi"><div class="k">최저</div><div class="v" style="font-size:14px">{won(kk.get('min'))}</div></div>
+    <div class="kpi"><div class="k">최고</div><div class="v" style="font-size:14px">{won(kk.get('max'))}</div></div>
+  </div>
+  {caveat}
+  {diff}
+  <p class="calc-foot">출처: <b>통계청 국가통계포털 KOSIS 승인번호 {esc(KOSIS_APPROVAL)}</b>(작성기관 건강보험심사평가원) ·
+    {esc(table_nm)} · {esc(KOSIS_PERIOD)}. 로그인·API키 없이 공개된 통계표에서 직접 수집한 값입니다.<br>
+    <b>동네 의원의 개별 가격은 공개 대상이 아니며</b>, 위 값은 전국 의원급 규모의 통계(최저·최고·평균·중간)입니다.
+    방문할 의원의 실제 비용은 전화로 확인하세요.</p>
+</div>
+"""
+
+
+def hospital_table(it: dict) -> str:
+    """병원급 기관별 공개가 — 시도/종별 필터 + 검색(데이터는 /assets/hospitals.json)."""
+    ds = ds_item(it["code"])
+    if not ds or not ds.get("has_data"):
+        return ""
+    st = ds["stats"]
+    sidos = sorted((st.get("by_sido") or {}).keys())
+    cls = sorted((st.get("by_clcd") or {}).keys())
+    sido_opts = "".join(f'<option value="{esc(s)}">{esc(s)}</option>' for s in sidos)
+    cl_opts = "".join(f'<option value="{esc(c)}">{esc(c)}</option>' for c in cls)
+    rows = "".join(
+        f"<tr><td>{esc(h['name'])}</td><td>{esc(h['clCdNm'])}</td>"
+        f"<td>{esc(h['sido'])} {esc(h['sggu'])}</td><td class=\"num\">{won(h['min'])}</td>"
+        f"<td class=\"num\">{won(h['max'])}</td></tr>" for h in (st.get("hospitals") or [])[:12])
+    return f"""
+<div class="card" data-hosp data-code="{esc(it['code'])}">
+  <h3>병원급 기관별 공개가 <span class="pill teal">전수 {st['n']:,}곳</span></h3>
+  <div class="hosp-filters">
+    <label class="sr-only" for="hosp-sido-{esc(it['slug'])}">시도</label>
+    <select data-hosp-sido id="hosp-sido-{esc(it['slug'])}"><option value="">전체 시도</option>{sido_opts}</select>
+    <label class="sr-only" for="hosp-cl-{esc(it['slug'])}">종별</label>
+    <select data-hosp-cl id="hosp-cl-{esc(it['slug'])}"><option value="">전체 종별</option>{cl_opts}</select>
+    <input type="search" data-hosp-q placeholder="병원명 검색" aria-label="병원명 검색">
+  </div>
+  <div class="table-wrap">
+    <table class="plain hosp-table" style="font-size:12.5px">
+      <thead><tr><th scope="col">기관</th><th scope="col">종별</th><th scope="col">지역</th>
+        <th scope="col" class="num">최저</th><th scope="col" class="num">최고</th></tr></thead>
+      <tbody data-hosp-body>{rows}</tbody>
+    </table>
+  </div>
+  <p class="hosp-count" data-hosp-count>낮은 금액 순 상위 12곳을 먼저 보여 줍니다. 필터를 선택하면 전체 {st['n']:,}곳에서 다시 찾습니다.</p>
+  <button type="button" class="btn ghost sm" data-hosp-more>더 보기 (50곳씩)</button>
+  <p class="calc-foot">기관명·종별·지역·금액은 심평원 공개 원본 그대로이며 <b>추천·순위 매김·예약 알선이 아닙니다</b>(의료법 제27조).
+    표시 금액은 기관이 신고한 비급여 최저·최고가로, 실제 청구액·할인·보험 적용은 방문 전 확인이 필요합니다.</p>
+</div>
+"""
+
+
+def price_block(item: dict) -> str:
+    """수집된 실제 가격이 있으면 시세 표를, 없으면 정직한 상태 안내를 그린다."""
+    ds = ds_item(item["code"])
+    if ds and ds.get("has_data") and ds.get("stats"):
+        st = ds["stats"]
+        p = st["price"]
+        cl = "".join(
+            f"<tr><th scope=\"row\">{esc(k)}</th><td class=\"num\">{v['n']}</td>"
+            f"<td class=\"num\">{won(v['avg'])}</td><td class=\"num\">{won(v['median'])}</td>"
+            f"<td class=\"num\">{won(v['min'])} ~ {won(v['max'])}</td></tr>"
+            for k, v in (st.get("by_clcd") or {}).items())
+        sd_rows = "".join(
+            f"<tr><th scope=\"row\">{esc(k)}</th><td class=\"num\">{v['n']}</td>"
+            f"<td class=\"num\">{won(v['avg'])}</td><td class=\"num\">{won(v['median'])}</td></tr>"
+            for k, v in sorted((st.get("by_sido") or {}).items(), key=lambda kv: -kv[1]["n"])[:9])
+        cov = ds.get("coverage") or {}
+        complete = cov.get("complete")
+        cov_html = (
+            f'<div class="data-coverage"><span class="pill teal">전수 수집</span> '
+            f'{cov["collected"]:,}/{cov["total"]:,}곳 응답(100%) · {esc(DATA_PERIOD)}</div>'
+            if complete else
+            f'<div class="data-coverage"><span class="pill amber">부분 수집</span> '
+            f'{cov.get("collected", 0):,}/{cov.get("total") or 0:,}곳 응답 기준이며 전체 수집 후 시세가 달라질 수 있습니다.</div>')
+        mat = ds.get("material") or {}
+        mat_html = (f'<div class="notice" style="margin-top:10px">{esc(mat.get("note") or "")}</div>'
+                    if mat.get("note") else "")
+        return f"""
+<div class="card">
+  <h3>심평원 병원급 공개가 시세</h3>
+  {cov_html}
+  <div class="kpi-row" style="grid-template-columns:repeat(2,1fr)">
+    <div class="kpi"><div class="k">기관 수</div><div class="v">{st['n']:,}곳</div></div>
+    <div class="kpi"><div class="k">평균</div><div class="v">{won(p['avg'])}</div></div>
+    <div class="kpi"><div class="k">최저 / 최고</div><div class="v" style="font-size:13.5px">{won(p['min'])} / {won(p['max'])}</div></div>
+    <div class="kpi"><div class="k">중간 / 최빈</div><div class="v" style="font-size:13.5px">{won(p['median'])} / {won(p['mode'] or 0)}</div></div>
+  </div>
+  <div class="table-wrap">
+    <table class="plain" style="font-size:12.5px">
+      <thead><tr><th scope="col">종별</th><th scope="col" class="num">기관</th><th scope="col" class="num">평균</th>
+        <th scope="col" class="num">중간</th><th scope="col" class="num">최저~최고</th></tr></thead>
+      <tbody>{cl}</tbody>
+    </table>
+  </div>
+  <details class="rule" style="margin-top:8px">
+    <summary>시도별 요약 보기</summary>
+    <div class="table-wrap">
+      <table class="plain" style="font-size:12.5px">
+        <thead><tr><th scope="col">시도</th><th scope="col" class="num">기관</th><th scope="col" class="num">평균</th><th scope="col" class="num">중간</th></tr></thead>
+        <tbody>{sd_rows}</tbody>
+      </table>
+    </div>
+    <p class="calc-foot">시도는 기관 응답의 시도명을 그대로 집계했습니다(전남광주 통합 표기).</p>
+  </details>
+  {mat_html}
+  <p class="calc-foot">기준: 병원급 이상 공개 자료 · 산출 {p['basis']}</p>
+</div>
+"""
+
+    fix = ""
+    if ds and ds.get("raw_stats_preview"):
+        n = ds["raw_stats_preview"].get("n", 0)
+        fix = (f'<br><span style="color:#b45309"><b>파이프라인 검증용 픽스처</b>: {n}개 기관 행이 정상 정제되었으나 '
+               '실제 공개가가 아니므로 화면에는 표시하지 않습니다.</span>')
+    return f"""
+<div class="card">
+  <h3>가격 데이터 상태</h3>
+  <div class="data-status">
+    <div class="row"><span class="dot off"></span><div>
+      <b>심평원 공개 가격</b> — 이 항목의 실수집 데이터가 없어 금액을 표시하지 않습니다.
+      수집 파이프라인(<code>scripts/fetch_hira.py</code> → <code>scripts/prepare_data.py</code>)을 실행하면
+      기관별 최저·최고·평균·중간 금액이 이 자리에 채워집니다.{fix}
+    </div></div>
+    <div class="row"><span class="dot on"></span><div><b>항목 코드</b> — <code>{esc(item['code'])}</code>
+      ({esc(item['official_mid'])} &gt; {esc(item['official_sub'])}
+      {('&gt; ' + esc(item['official_dtl'])) if item['official_dtl'] else ''})</div></div>
+    <div class="row"><span class="dot on"></span><div><b>공개 범위</b> — 병원급 이상(상급종합·종합병원·병원·요양병원·정신병원·치과병원·한방병원).
+      {esc('치과병원만 공개 대상' if item['code'].startswith('UB') else '의원은 공개 범위 밖')}.</div></div>
+  </div>
+</div>
+"""
+
+
+def _unused_data_status(item: dict) -> str:
+    return f"""
+<div class="card">
+  <h3>가격 데이터 상태</h3>
+  <div class="data-status">
+    <div class="row"><span class="dot off"></span><div>
+      <b>심평원 공개 가격</b> — {'수집 데이터 표시 중' if live else
+      'data.go.kr 인증키 발급 전이라 금액을 표시하지 않습니다.'}
+      키를 넣고 <code>scripts/fetch_hira.py</code> → <code>scripts/prepare_data.py</code>를 실행하면
+      기관별 최저·최고·평균·중간 금액이 이 자리에 채워집니다.
+    </div></div>
+    <div class="row"><span class="dot on"></span><div><b>항목 코드</b> — <code>{esc(item['code'])}</code>
+      ({esc(item['official_mid'])} &gt; {esc(item['official_sub'])}
+      {('&gt; ' + esc(item['official_dtl'])) if item['official_dtl'] else ''})</div></div>
+    <div class="row"><span class="dot on"></span><div><b>공개 범위</b> — 병원급 이상(상급종합·종합병원·병원·요양병원·치과병원·한방병원).
+      {esc('치과의원은 범위 밖' if item['code'].startswith('UB') else '의원은 범위 밖')}.</div></div>
+  </div>
+</div>
+"""
+
+
+# ------------------------------------------------------------------ 페이지
+def compare_table_html(items: list[dict]) -> str:
+    """홈 비교표 — 병원급 실수집 평균과 KOSIS 의원급 통계를 나란히 보여 준다."""
+    rows = []
+    for it in items:
+        ds = ds_item(it["code"]) or {}
+        st = ds.get("stats") or {}
+        price = st.get("price") or {}
+        kk = ds.get("kosis") or {}
+        h_avg = won(price.get("avg")) if price else "—"
+        h_n = f"{st.get('n'):,}곳" if st.get("n") else "—"
+        c_avg = won(kk.get("avg")) if kk else "—"
+        c_mid = won(kk.get("median")) if kk else "—"
+        rows.append(
+            f"<tr><th scope=\"row\"><a href=\"/ko/items/{esc(it['slug'])}/\">{esc(it['name'])}</a></th>"
+            f"<td class=\"num\">{h_avg}<br><span class=\"muted\">{h_n}</span></td>"
+            f"<td class=\"num\">{c_avg}<br><span class=\"muted\">중간 {c_mid}</span></td>"
+            f"<td data-label=\"비고\">{'관리급여 95% 전환' if it['payment'] == '관리급여' else ('5세대 제외' if it['excluded5'] else '비중증 보장')}</td></tr>")
+    return f"""
+<div class="table-wrap">
+  <table class="plain stack" data-compare-table>
+    <thead><tr><th scope="col">항목</th><th scope="col">병원급 평균(기관)</th>
+      <th scope="col">전국 의원급 평균(중간값)</th><th scope="col">5세대 처리</th></tr></thead>
+    <tbody>{''.join(rows)}</tbody>
+  </table>
+</div>
+"""
+
+
+def page_landing(items: list[dict]) -> str:
+    cards = "".join(f"""
+      <a class="item-card" href="/ko/items/{esc(it['slug'])}/">
+        <div class="top"><span class="nm">{esc(it['name'])}</span>
+          {'<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
+           else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
+                 else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else ''))}</div>
+        <div class="cd">{esc(it['code'])}</div>
+        <div class="sm">{esc(it['summary'])}</div>
+      </a>""" for it in items)
+
+    faqs = [
+        ("비급여 가격은 어디까지 비교할 수 있나요?",
+         "건강보험심사평가원이 공공데이터포털로 공개하는 병원급 이상(상급종합·종합병원·병원·요양병원·치과병원·한방병원) "
+         "비급여 진료비입니다. 동네 의원·치과의원·한의원 가격은 공개 API 제공 범위가 아니어서 표시하지 않습니다."),
+        ("5세대 실손은 언제부터 가입할 수 있나요?",
+         "2026년 5월 6일부터 판매가 시작되었습니다. 중증 비급여(특약1)와 비중증 비급여(특약2)로 나뉘고, "
+         "근골격계 물리치료·체외충격파·비급여 주사제 등은 특약2 보장 대상에서 제외됩니다."),
+        ("도수치료는 이제 비급여가 아닌가요?",
+         "2026년 7월 1일부터 관리급여(선별급여)로 전환되어 1회 43,850원(종별 동일), 본인부담률 95%가 적용됩니다. "
+         "비급여 특약이 아니라 급여로 계산해야 합니다."),
+        ("계산 결과와 실제 보험금이 다른 이유는?",
+         "가입 시기·상품(표준형/선택형)·약관의 연간 한도·자기부담금 누적·청구 이력에 따라 달라집니다. "
+         "이 계산기는 공개된 제도 기준의 추정치를 보여줍니다."),
+    ]
+
+    body = f"""
+<section class="hero">
+  <div class="wrap">
+    <h1>비급여 진료비, <em>내 실손보험으로</em><br>얼마나 돌려받을까?</h1>
+    <p class="lede">병원급 이상 심평원 공개가와 1~5세대 실손 보장액을 한 화면에서 비교합니다.
+      2026년 5월 출시된 <b>5세대 실손</b>과 2026년 7월 <b>도수치료 관리급여 전환</b>까지 반영했습니다.</p>
+    <div class="pills">
+      <span class="pill teal">병원급 이상 공개가</span>
+      <span class="pill blue">1~5세대 동시 비교</span>
+      <span class="pill violet">5세대 특약1·2 반영</span>
+      <span class="pill amber">도수치료 관리급여 95%</span>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="k">핵심 항목</div><div class="v">{len(items)}개</div></div>
+      <div class="kpi"><div class="k">실손 세대</div><div class="v">1~5세대</div></div>
+      <div class="kpi"><div class="k">공개 대상</div><div class="v">병원급 이상</div></div>
+      <div class="kpi"><div class="k">라이선스</div><div class="v">공공누리 1유형</div></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn" href="#calc">바로 계산하기</a>
+      <a class="btn ghost" href="/ko/insurance/">세대별 보장 비교표</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="calc">
+  <div class="wrap">
+    <div class="grid g2">
+      <div>{calc_block(items, 'HE1010001')}</div>
+      <div>
+        <div class="card prose">
+          <h2 style="font-size:17px">이 계산기가 다른 이유</h2>
+          <ul style="font-size:13.5px">
+            <li><b>5세대 특약1·2 분리 반영</b> — 중증(산정특례) 여부에 따라 입원 30%/50%, 통원 Max(30%,3만)/Max(50%,5만)이 갈립니다.</li>
+            <li><b>5세대 보장 제외 표시</b> — 근골격계 물리치료·체외충격파·비급여 주사제는 <b>0원(보장 제외)</b>으로 명확히 표시합니다.</li>
+            <li><b>도수치료 관리급여</b> — 2026.7.1부터 1회 43,850원·본인부담 95%를 급여 규칙으로 계산합니다.</li>
+            <li><b>통원 회당 한도 반영</b> — 4세대·5세대의 회당 보장한도(20만원)에 걸리면 그 사실을 표시합니다.</li>
+          </ul>
+          <div class="notice" style="margin-top:10px">
+            병원 <b>공개가</b>와 실손 <b>보장액</b>은 다른 값입니다. 위 표의 '환자 최종 부담'은
+            공개가에서 예상 보장액을 뺀 금액입니다.
+          </div>
+        </div>
+        <div class="card">
+          <h3>5세대에서 보장되지 않는 항목</h3>
+          <ul style="font-size:13px;padding-left:18px">
+            {''.join(f'<li><b>{esc(n)}</b> — {esc(d)}</li>' for n, d, _ in EXCLUDED5)}
+          </ul>
+          <p class="calc-foot">산정특례 대상 질환 치료로서 의학적 인과관계가 인정되는 경우의 판단은 보험사 심사 영역입니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>병원급 공개가 vs 전국 의원급 통계</h2>
+    <p class="section-lead">왼쪽 숫자는 심평원 오픈API에서 <b>전수 수집한 병원급 이상</b> 기관들의 평균이고,
+      오른쪽은 <b>통계청 KOSIS(승인번호 354006)</b>의 <b>전국 의원·치과의원 규모</b> 통계입니다.
+      동네 의원 개별 가격은 공개 대상이 아니어서 이 통계로만 참고합니다.</p>
+    {compare_table_html(items)}
+    <p class="calc-foot">병원급: {esc(DATA_PERIOD)} · 의원급: {esc(KOSIS_PERIOD)}. 두 값은 집계 모집단이 달라
+      같은 항목이라도 직접 비교 대상이 아닙니다. 도수치료는 2026-07-01 관리급여 전환으로 1회 43,850원 정액입니다.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>핵심 비급여 {len(items)}개 항목</h2>
+    <p class="section-lead">심평원 공식 코드로 묶은 항목입니다. 항목을 누르면 그 항목의 세대별 처리를 볼 수 있습니다.
+      (비급여 공개 코드 943건 가운데 먼저 다루는 13개입니다.)</p>
+    <div class="item-grid">{cards}</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>1~5세대 실손 한눈에</h2>
+    <p class="section-lead">2026년 5월 6일 5세대 실손 출시와 2026년 7월 도수치료 관리급여 전환을 반영한 표입니다.</p>
+    {gen_table_html()}
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>데이터 범위와 출처</h2>
+    <div class="grid g2">
+      <div class="card prose">
+        <div class="scope-note">{SCOPE_LONG}</div>
+        <h3 style="margin-top:14px">출처</h3>
+        <ul style="font-size:13.5px">
+          <li>건강보험심사평가원 <b>비급여진료비정보조회서비스</b> (공공데이터포털 15001700) — 이용허락범위 <b>공공누리 제1유형(출처표시)</b></li>
+          <li>금융위원회 2026-05-06 보도자료 — 5세대 실손의료보험 출시</li>
+          <li>보건복지부 2026-07-01 보도자료 · 심평원 고시 2026-134~137호 — 도수치료 관리급여 전환</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>이 사이트가 하지 않는 것</h3>
+        <ul style="font-size:13.5px">
+          <li>특정 병원 추천·예약·상담 연결 (의료법 제27조 환자 유인·알선 금지)</li>
+          <li>의원급 가격 표시 (공개 범위 외)</li>
+          <li>확인되지 않은 가격의 추정·보간 표시</li>
+        </ul>
+        <a class="btn ghost sm" href="/ko/guide/">이용 안내 자세히</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>자주 묻는 질문</h2>
+    {faq_html(faqs)}
+  </div>
+</section>
+"""
+    jsonld = [
+        {"@context": "https://schema.org", "@type": "WebSite",
+         "name": SITE_NAME, "url": SITE_BASE + "/ko/",
+         "inLanguage": "ko",
+         "publisher": {"@type": "Organization", "name": OWNER}},
+        breadcrumb_jsonld([("/ko/", "홈")]),
+        faq_jsonld(faqs),
+        {"@context": "https://schema.org", "@type": "ItemList",
+         "name": "핵심 비급여 항목",
+         "numberOfItems": len(items),
+         "itemListElement": [
+             {"@type": "ListItem", "position": i, "name": it["name"],
+              "url": SITE_BASE + f"/ko/items/{it['slug']}/"}
+             for i, it in enumerate(items, start=1)]},
+    ]
+    return layout("/ko/", f"{SITE_NAME} · 1~5세대 실손 계산기와 병원급 이상 비급여 공개가",
+                  "병원급 이상 심평원 비급여 공개가와 1~5세대 실손(2026년 5세대·도수치료 관리급여 포함) 보장액을 한 번에 비교하는 계산기.",
+                  body, [("/ko/", "홈")], jsonld, current="/ko/")
+
+
+def page_calc(items: list[dict]) -> str:
+    faqs = [
+        ("5세대에서 비급여가 0원으로 나오는 이유는?",
+         "근골격계 물리치료(도수치료 등)·체외충격파치료·비급여 주사제·미등재 신의료기술·D등급 치료는 "
+         "5세대 비중증 비급여(특약2) 보장 대상에서 제외됩니다. 다만 산정특례 대상 질환 치료로서 특약1에 해당하면 보장될 수 있습니다."),
+        ("4세대 통원에서 보장액이 20만원으로 잘리는 이유는?",
+         "4세대 비급여는 통원 회당 보장한도 20만원이 있습니다. 진료비가 커도 회당 보장액은 20만원까지입니다."),
+        ("도수치료를 선택하면 왜 금액이 43,850원으로 바뀌나요?",
+         "2026년 7월 1일부터 관리급여로 전환되어 종별 구분 없이 1회 43,850원의 수가가 적용됩니다. "
+         "횟수를 늘리면 총액이 자동으로 계산됩니다."),
+    ]
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>1~5세대 실손 보장액 계산기</h1>
+      <p class="section-lead">같은 비급여 진료비라도 가입 세대에 따라 돌려받는 금액이 크게 다릅니다.
+        조건을 고르면 5개 세대를 한 번에 비교합니다.</p>
+      <div class="meta">
+        <span class="pill teal">2026.5.6 5세대 반영</span>
+        <span class="pill blue">도수치료 관리급여 95%</span>
+        <span class="pill line">병원급 이상 공개가 기준</span>
+      </div>
+    </div>
+    <div class="calc-page">
+      {calc_block(items, 'HE1010001', heading="조건 입력",
+                  sub="항목을 고르고 금액·입원/통원·종별을 지정하면 세대별 보장액이 바로 갱신됩니다.")}
+    </div>
+    <div class="card prose" style="margin-top:18px">
+      <h2 style="font-size:17px">자주 묻는 질문</h2>
+      {faq_html(faqs)}
+    </div>
+  </div>
+</section>
+"""
+    jsonld = [breadcrumb_jsonld([("/ko/", "홈"), ("/ko/calc/", "실손 계산기")]), faq_jsonld(faqs)]
+    return layout("/ko/calc/", f"실손 1~5세대 보장액 계산기 · {SITE_NAME}",
+                  "비급여 진료비를 입력하면 1세대부터 5세대까지 실손 예상 보장액과 환자 최종 부담을 한 번에 비교합니다.",
+                  body, [("/ko/", "홈"), ("/ko/calc/", "실손 계산기")], jsonld, current="/ko/calc/")
+
+
+def page_items(items: list[dict]) -> str:
+    cards = "".join(f"""
+      <a class="item-card" href="/ko/items/{esc(it['slug'])}/">
+        <div class="top"><span class="nm">{esc(it['name'])}</span>
+          {'<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
+           else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
+                 else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else '<span class="pill">기본</span>'))}</div>
+        <div class="cd">{esc(it['code'])}</div>
+        <div class="sm">{esc(it['summary'])}</div>
+      </a>""" for it in items)
+    rows = "".join(
+        f"<tr><th scope=\"row\"><a href=\"/ko/items/{esc(it['slug'])}/\">{esc(it['name'])}</a></th>"
+        f"<td data-label=\"코드\"><code>{esc(it['code'])}</code></td>"
+        f"<td data-label=\"심평원 분류\">{esc(it['official_mid'])} &gt; {esc(it['official_sub'])}</td>"
+        f"<td data-label=\"5세대\">{'보장 제외' if it['excluded5'] else ('관리급여 95%' if it['payment'] == '관리급여' else '비중증 보장')}</td></tr>"
+        for it in items)
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>비급여 항목 {len(items)}개</h1>
+      <p class="section-lead">심평원 공식 분류 코드 기준입니다. 항목별로 세대별 계산 방식과 5세대 처리 여부가 다릅니다.</p>
+    </div>
+    <div class="item-grid">{cards}</div>
+    <h2 style="margin-top:28px">항목 코드 표</h2>
+    <div class="table-wrap">
+      <table class="plain stack">
+        <thead><tr><th scope="col">항목</th><th scope="col">코드</th><th scope="col">심평원 분류</th><th scope="col">5세대</th></tr></thead>
+        <tbody>{rows}</tbody>
+      </table>
+    </div>
+    <p class="calc-foot">수면내시경은 시술 자체가 급여라 비급여 공개 대상이 아니며, 공개 항목은
+      <b>진정내시경 환자관리료</b>입니다. 지르코니아 임플란트는 치과병원만 공개 대상입니다.</p>
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), ("/ko/items/", "비급여 항목")]),
+        {"@context": "https://schema.org", "@type": "ItemList", "name": "비급여 항목",
+         "numberOfItems": len(items),
+         "itemListElement": [{"@type": "ListItem", "position": i, "name": it["name"],
+                              "url": SITE_BASE + f"/ko/items/{it['slug']}/"} for i, it in enumerate(items, 1)]},
+    ]
+    return layout("/ko/items/", f"비급여 항목 13개 코드 정리 · {SITE_NAME}",
+                  "뇌·척추·관절 MRI, 초음파, 진정내시경, 지르코니아 임플란트, 체외충격파, 증식치료, 도수치료, 신장분사치료의 심평원 코드와 5세대 실손 처리.",
+                  body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목")], jsonld, current="/ko/items/")
+
+
+def page_item(it: dict, items: list[dict]) -> str:
+    sib = [x for x in items if x["code"] != it["code"]][:4]
+    sib_html = "".join(f'<a class="item-card" href="/ko/items/{esc(x["slug"])}/"><div class="top">'
+                       f'<span class="nm">{esc(x["name"])}</span></div><div class="cd">{esc(x["code"])}</div>'
+                       f'<div class="sm">{esc(x["summary"])}</div></a>' for x in sib)
+    if it["payment"] == "관리급여":
+        gen5_cell = ('<b>비급여 특약 대상 아님</b> — 2026.7.1 관리급여 전환으로 급여 항목입니다. '
+                     '5세대는 급여 통원 자기부담률을 건강보험 본인부담률(95%)에 연동해 실손 보장이 5% 수준입니다.')
+        pay_pill = '<span class="pill blue">관리급여 95%</span>'
+    elif it["excluded5"]:
+        gen5_cell = (f'<b>비중증 비급여 보장 제외</b> — 사유: {esc(it["excluded5"])}. '
+                     '특약2에서 보장하지 않아 예상 보장액이 0원입니다.')
+        pay_pill = '<span class="pill red">5세대 제외</span>'
+    else:
+        gen5_cell = ('<b>비중증 비급여(특약2)로 보장</b> — 입원 50% · 통원 Max(50%, 5만원). '
+                     '산정특례(중증) 질환 치료면 특약1(입원 30%·통원 Max(30%, 3만원))이 적용됩니다.')
+        pay_pill = '<span class="pill">비중증 보장</span>'
+    special3 = ('해당 — 3세대는 비급여 기본 특약으로 분리되어 통원 시 Max(30%, 2만원) 공제'
+                if it["special3"] and it["payment"] != "관리급여" else
+                ('2026.7 이전 비급여 시절 특약 대상이었으나, 지금은 급여로 계산' if it["payment"] == "관리급여"
+                 else "해당 없음 — 기본 비급여로 20% 공제"))
+    top_notice = ""
+    if it["payment"] == "관리급여":
+        top_notice = (
+            '<div class="notice amber" role="note" style="margin-bottom:16px" data-managed-notice>'
+            '<b>2026년 7월 1일부터 도수치료는 관리급여(선별급여)입니다.</b> '
+            '1회 <b>43,850원</b>(종별 가산 없이 동일) · 환자 본인부담률 <b>95%</b> → 1회 부담 41,658원, '
+            '주 2회·연간 15회(수술·골절 등 예외 24회) 한도. '
+            '<br><b>아래 병원급 공개가는 2026년 비급여 공개자료 기준</b>이라 7월 전환 이후 실제 청구액과 다릅니다. '
+            '지금은 비급여 특약이 아니라 <b>급여 수가 43,850원</b>으로 계산하세요.</div>')
+    calc_amt = default_amount(it)
+
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>{esc(it['name'])}</h1>
+      <p class="section-lead">{esc(it['summary'])}</p>
+      <div class="meta">
+        <span class="pill line"><code>{esc(it['code'])}</code></span>
+        {pay_pill}
+        {'<span class="pill violet">3세대 특약</span>' if it['special3'] and it['payment'] != '관리급여' else ''}
+      </div>
+    </div>
+    {top_notice}
+    <div class="grid g2">
+      <div>
+        <div class="card prose">
+          <h2 style="font-size:17px">무엇을 비교하는 항목인가</h2>
+          <p>{esc(it['summary'])}</p>
+          <h3>확인할 점</h3>
+          <p style="font-size:13.5px">{esc(it['watch'])}</p>
+          <h3>3세대(착한실손) 처리</h3>
+          <p style="font-size:13.5px">{esc(special3)}</p>
+          <h3>5세대 처리</h3>
+          <p style="font-size:13.5px">{gen5_cell}</p>
+          <a class="btn sm" href="/ko/calc/?item={esc(it['code'])}&amount={calc_amt}">이 항목으로 계산하기</a>
+          <p class="calc-foot">링크를 누르면 금액이 <b>{won(calc_amt)}</b>로 채워집니다.
+            실제 청구 금액으로 바꿔 계산하세요.</p>
+        </div>
+        <div class="card prose">
+          <h2 style="font-size:17px">자주 묻는 질문</h2>
+          {faq_html([(q, a) for q, a in it['faq']])}
+        </div>
+      </div>
+      <div>
+        {price_block(it)}
+        {kosis_card(it)}
+        {hospital_table(it)}
+        <div class="card">
+          <h3>심평원 공식 분류</h3>
+          <table class="plain" style="font-size:12.5px">
+            <tbody>
+              <tr><th scope="row">중분류</th><td>{esc(it['official_mid'])}</td></tr>
+              <tr><th scope="row">소분류</th><td>{esc(it['official_sub'])}</td></tr>
+              <tr><th scope="row">상세분류</th><td>{esc(it['official_dtl'] or '—')}</td></tr>
+              <tr><th scope="row">항목 코드</th><td><code>{esc(it['code'])}</code></td></tr>
+            </tbody>
+          </table>
+          <p class="calc-foot">치료재료 포함 여부·판독료 조건은 대부분 오픈API 상세설명(<code>cmmtTxt</code>)이 비어 있어
+            화면에서 단정하지 않고, 방문 전 유선 확인을 안내합니다.</p>
+        </div>
+        <div class="card">
+          <h3>같이 보는 항목</h3>
+          <div class="grid" style="gap:8px">{sib_html}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), ("/ko/items/", "비급여 항목"), (f"/ko/items/{it['slug']}/", it["name"])]),
+        faq_jsonld([(q, a) for q, a in it["faq"]]),
+        {"@context": "https://schema.org", "@type": "MedicalProcedure",
+         "name": it["name"], "code": {"@type": "MedicalCode", "code": it["code"],
+                                      "codingSystem": "건강보험심사평가원 비급여 항목코드"},
+         "description": it["summary"]},
+    ]
+    return layout(f"/ko/items/{it['slug']}/",
+                  f"{it['name']} ({it['code']}) 비급여 가격·실손 보장 · {SITE_NAME}",
+                  f"{it['name']}의 심평원 공식 분류와 코드, 3세대·5세대 실손 처리 방식, 관리급여 여부를 정리했습니다.",
+                  body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목"), (f"/ko/items/{it['slug']}/", it["name"])],
+                  jsonld, current="/ko/items/")
+
+
+def page_insurance() -> str:
+    five = [
+        ("특약1 · 중증 비급여", "산정특례 대상 질환(암·뇌혈관·심장·희귀난치) 치료",
+         "입원 30% (상급·종합병원 입원 연 자기부담 상한 500만원)", "Max(30%, 3만원)",
+         "연 5천만원 · 통원 회당 20만원"),
+        ("특약2 · 비중증 비급여", "그 외 비급여 치료",
+         "입원 50% (병·의원 회당 300만원 한도)", "Max(50%, 5만원)",
+         "연 1천만원 · 통원 일당 20만원 · 이용량 할인·할증"),
+    ]
+    five_rows = "".join(
+        f"<tr><th scope=\"row\">{esc(a)}<br><span style=\"font-weight:500;color:#667085\">{esc(b)}</span></th>"
+        f"<td data-label=\"입원\">{esc(c)}</td><td data-label=\"통원\">{esc(d)}</td>"
+        f"<td data-label=\"한도\">{esc(e)}</td></tr>" for a, b, c, d, e in five)
+    faqs = [
+        ("5세대 실손에 갈아타면 무조건 유리한가요?",
+         "아닙니다. 5세대는 보험료가 4세대 대비 약 30% 낮지만 비중증 비급여 자기부담률이 50%로 높아지고 "
+         "근골격계 물리치료·체외충격파·비급여 주사제는 보장에서 빠집니다. 비급여 이용이 잦다면 불리할 수 있습니다."),
+        ("1·2세대 가입자는 어떻게 되나요?",
+         "2026년 11월부터 초기 실손(2013년 3월 이전 약관변경 조건이 없는 계약) 가입자를 위한 선택형 할인 특약과 "
+         "계약전환 할인 제도가 시행됩니다. 기존 계약을 유지한 채 불필요한 보장을 빼고 보험료를 낮추거나, "
+         "5세대로 전환하며 일정 기간 할인을 받을 수 있습니다."),
+        ("도수치료는 세대별로 얼마나 돌려받나요?",
+         "2026.7.1부터 관리급여(1회 43,850원, 본인부담 95%)로 급여 항목이 되었습니다. 급여 보장률이 높은 1·2세대는 "
+         "보장 폭이 크지만, 5세대는 급여 통원 자기부담률을 건강보험 본인부담률(95%)에 연동해 실손 보장이 5% 수준입니다."),
+    ]
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>1~5세대 실손보험 정리 (2026년 기준)</h1>
+      <p class="section-lead">같은 병원비라도 가입 세대에 따라 환자 부담이 크게 달라집니다. 계산기와 함께 보세요.</p>
+    </div>
+    {gen_table_html()}
+
+    <h2 style="margin-top:30px">5세대 실손의 두 특약 (2026.5.6 출시)</h2>
+    <div class="table-wrap">
+      <table class="plain stack">
+        <thead><tr><th scope="col">구분</th><th scope="col">입원</th><th scope="col">통원</th><th scope="col">한도</th></tr></thead>
+        <tbody>{five_rows}</tbody>
+      </table>
+    </div>
+    <div class="notice" style="margin-top:12px">
+      5세대 비중증 비급여에서 <b>보장하지 않는 항목</b>: 미용·성형 등 + 미등재 신의료기술 + 근골격계 물리치료·체외충격파치료·비급여 주사제.
+      한국보건의료연구원 재평가 <b>D등급</b> 치료는 특약1·2 모두에서 제외됩니다.
+    </div>
+
+    <h2 style="margin-top:30px">도수치료 관리급여 (2026.7.1 시행)</h2>
+    <div class="card prose">
+      <ul style="font-size:13.5px">
+        <li>1회 <b>43,850원</b> 단일 수가 — 요양기관 종별 가산 없음(모든 기관 동일)</li>
+        <li>본인부담률 <b>95%</b> → 1회 환자 부담 <b>41,658원</b></li>
+        <li>주 2회, 연간 총 <b>15회</b> / 수술·골절 등 뚜렷한 관절 구축·강직 소견 시 최대 <b>24회</b></li>
+        <li>질환 치료 목적이 아닌 피로 회복·체형교정 목적은 비급여이며 실손 보장 대상이 아님</li>
+      </ul>
+      <a class="btn sm" href="/ko/calc/?item=MX1220000&visit=out&inst=hospital">도수치료로 계산해 보기</a>
+    </div>
+
+    <h2 style="margin-top:30px">자주 묻는 질문</h2>
+    {faq_html(faqs)}
+  </div>
+</section>
+"""
+    jsonld = [breadcrumb_jsonld([("/ko/", "홈"), ("/ko/insurance/", "1~5세대 실손")]), faq_jsonld(faqs)]
+    return layout("/ko/insurance/", f"1~5세대 실손보험 보장 비교 (2026년 5세대·도수치료 관리급여) · {SITE_NAME}",
+                  "1세대부터 5세대까지 실손보험의 급여·비급여 자기부담률과 한도를 표로 정리했습니다. 5세대 특약1·2와 도수치료 관리급여 포함.",
+                  body, [("/ko/", "홈"), ("/ko/insurance/", "1~5세대 실손")], jsonld, current="/ko/insurance/")
+
+
+def page_guide() -> str:
+    faqs = [
+        ("가격은 언제 갱신되나요?",
+         "심평원 비급여 공개 자료는 연 1회(매년 9월) 전면 갱신되고, 기관 변경 보고분이 수시 반영됩니다. "
+         "이 사이트는 수집 파이프라인을 주기적으로 실행해 갱신하며, 화면에 오픈API 조회일과 자료 기준을 함께 표시합니다."),
+        ("왜 의원 가격은 없나요?",
+         "공공데이터포털 15001700(비급여진료비정보조회서비스)은 의료법에 따라 <b>병원급 이상</b> 기관의 비급여만 제공합니다. "
+         "의원·치과의원·한의원의 <b>개별 기관 가격</b>은 공개 API 대상이 아니어서 표시하지 않습니다. "
+         "대신 전국 의원급 <b>평균·중간값</b>만 통계청 KOSIS(승인번호 354006) 공개 통계표에서 받아 참고로 보여 줍니다."),
+        ("치료재료·판독료가 포함된 가격인가요?",
+         "오픈API의 상세설명(<code>cmmtTxt</code>)은 943개 코드 중 1건만 값이 있어 포함 여부를 단정할 수 없습니다. "
+         "그래서 화면에는 '치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인 필요'로 안내합니다."),
+        ("계산 결과를 보험금 청구에 그대로 쓸 수 있나요?",
+         "아니요. 제도 기준 추정치이며, 실제 지급액은 가입 약관과 청구 이력에 따라 달라집니다. "
+         "정확한 금액은 보험사에 문의하세요."),
+    ]
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>이용 안내 · 데이터 출처</h1>
+      <p class="section-lead">이 사이트가 무엇을 근거로, 어디까지 다루는지 정리했습니다.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card prose">
+        <h2 style="font-size:17px">데이터 출처와 라이선스</h2>
+        <ul style="font-size:13.5px">
+          <li><b>건강보험심사평가원 비급여진료비정보조회서비스</b> — 공공데이터포털 15001700,
+            이용허락범위 <b>공공누리 제1유형(출처표시)</b>. 상업적 이용과 변경이 허용됩니다.</li>
+          <li><b>통계청 국가통계포털 KOSIS 승인번호 354006</b>(작성기관 건강보험심사평가원) —
+            의원·치과의원 비급여 진료비용 2026년 통계표에서 평균·중간값을 직접 수집(출처 표시).</li>
+          <li><b>금융위원회 2026-05-06 보도자료</b> — 5세대 실손의료보험 출시 내용(특약1·2, 한도, 제외 항목).</li>
+          <li><b>보건복지부 2026-07-01 보도자료 · 심평원 고시 2026-134~137호</b> — 도수치료 관리급여 전환.</li>
+        </ul>
+        <h3>수집 구조</h3>
+        <ol style="font-size:13.5px">
+          <li>항목 코드 목록 — <code>getNonPaymentItemCodeList2</code> (치료재료·부가조건 문구 <code>cmmtTxt</code> 포함)</li>
+          <li>항목별 병원 목록 — <code>getNonPaymentItemHospList2</code> (기관별 <code>minPrc</code>·<code>maxPrc</code>)</li>
+          <li>기관 상세 — <code>getNonPaymentItemHospDtlList</code> (<code>ykiho</code> 필요)</li>
+          <li>종별·지역 통계 — <code>getNonPaymentItemClcdList</code> · <code>getNonPaymentItemSidoCdList</code></li>
+        </ol>
+        <p style="font-size:13.5px">수집한 원본은 <code>data/raw/</code> 에 그대로 보관하고, 정제 단계에서
+          의원급 행과 0원·공란 행을 버린 뒤 평균·중간·최빈을 계산합니다.</p>
+        <h3>수집 상태 (2026-11-17 실행)</h3>
+        <div class="table-wrap">
+          <table class="plain stack" style="font-size:12.5px">
+            <thead><tr><th scope="col">오퍼레이션</th><th scope="col">응답</th><th scope="col">수집 결과</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><code>getNonPaymentItemCodeList2</code></th>
+                <td data-label="응답"><span class="pill teal">전수</span></td>
+                <td data-label="수집 결과">비급여 항목 코드 <b>943/943건</b></td></tr>
+              <tr><th scope="row"><code>getNonPaymentItemHospList2</code></th>
+                <td data-label="응답"><span class="pill teal">전수</span></td>
+                <td data-label="수집 결과">핵심 13개 항목 <b>13,650곳</b> 전수 수집(항목별 100% 응답)</td></tr>
+              <tr><th scope="row"><code>getNonPaymentItemClcdList</code></th>
+                <td data-label="응답"><span class="pill amber">지연 504</span></td>
+                <td data-label="수집 결과">응답 35~44초·재호출 504로 실패 → 같은 날 수집한 714건 스냅샷 사용</td></tr>
+              <tr><th scope="row"><code>getNonPaymentItemSidoCdList</code></th>
+                <td data-label="응답"><span class="pill amber">2페이지 504</span></td>
+                <td data-label="수집 결과">사용하지 않고 기관 행의 시도명으로 직접 집계</td></tr>
+              <tr><th scope="row">KOSIS 354006 (의원·치과의원)</th>
+                <td data-label="응답"><span class="pill teal">전수</span></td>
+                <td data-label="수집 결과">2026년 통계표에서 13개 항목 평균·중간·최저·최고 수집(로그인·API키 불필요)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="calc-foot">위 상태는 2026-11-17 확인 시점의 값이며, 제공기관 사정으로 달라질 수 있습니다.
+          통계 오퍼레이션이 응답하지 않아도 기관별 응답만으로 평균·중간·최빈을 계산합니다.</p>
+
+        <h3>가격을 표시하지 않는 경우</h3>
+        <p style="font-size:13.5px">수집되지 않았거나, 공개 범위 밖(의원급)이거나, 금액이 비어 있는 경우에는
+          추정값을 만들지 않고 비워 둡니다.</p>
+      </div>
+      <div>
+        <div class="card prose">
+          <h2 style="font-size:17px">범위 고지</h2>
+          <div class="scope-note">{SCOPE_LONG}</div>
+          <h3 style="margin-top:14px">계산의 가정</h3>
+          <ul style="font-size:13px">
+            <li>입력한 금액은 병원이 공개한 <b>비급여 진료비</b>(또는 관리급여 수가)입니다.</li>
+            <li>급여 본인부담금이 입력값에 섞여 있으면 결과가 실제와 달라집니다.</li>
+            <li>연간 한도는 누적 청구 이력이 필요해 계산에 넣지 않고 안내로 표시합니다.</li>
+            <li>상품별 약관 차이(1세대 표준형/특약, 2세대 선택형 등)는 대표 유형만 반영합니다.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>법적 안전선</h3>
+          <ul style="font-size:13px">
+            <li>의료법 제27조에 따라 특정 의료기관의 <b>환자 유인·알선·광고</b>를 하지 않습니다.</li>
+            <li>병원 추천, 예약 대행, 상담 연결 기능을 두지 않습니다.</li>
+            <li>제휴·광고로 순위를 바꾸지 않습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <h2 style="margin-top:30px">자주 묻는 질문</h2>
+    {faq_html(faqs)}
+  </div>
+</section>
+"""
+    jsonld = [breadcrumb_jsonld([("/ko/", "홈"), ("/ko/guide/", "이용 안내")]), faq_jsonld(faqs)]
+    return layout("/ko/guide/", f"이용 안내 · 데이터 출처 · {SITE_NAME}",
+                  "심평원 비급여 공개 API(15001700·공공누리 제1유형) 기반 수집 구조와 공개 범위, 계산의 가정과 한계를 안내합니다.",
+                  body, [("/ko/", "홈"), ("/ko/guide/", "이용 안내")], jsonld, current="/ko/guide/")
+
+
+def page_privacy() -> str:
+    faqs = [
+        ("계산기에 입력한 금액이 서버로 전송되나요?",
+         "아니요. 계산은 방문자 브라우저에서 JavaScript로만 이루어지며 입력값은 전송·저장되지 않습니다. "
+         "주소창의 조건 값도 화면을 새로고짐하지 않고 공유할 수 있게 붙이는 용도입니다."),
+        ("쿠키나 추적 도구를 쓰나요?",
+         "현재 자체 쿠키·회원가입·로그인·분석 스크립트를 두지 않았습니다. 정적 호스팅 사업자(Cloudflare Pages)의 "
+         "접속 기록은 해당 사업자 정책에 따라 처리됩니다."),
+        ("데이터를 상업적으로 쓸 수 있는 라이선스인가요?",
+         "심평원 비급여 자료는 공공누리 제1유형(출처표시)으로 상업적 이용과 변경이 허용됩니다. "
+         "KOSIS 통계는 출처를 표시해 이용합니다. 두 출처 모두 화면과 이 페이지에 명시했습니다."),
+    ]
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>개인정보처리방침 · 면책 고지</h1>
+      <p class="section-lead">이 사이트가 어떤 정보를 다루고, 어떤 데이터를 어떤 근거로 보여 주는지 정리했습니다.
+        시행일 {esc(DATA_DATE)}.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card prose">
+        <h2 style="font-size:17px">1. 개인정보 처리</h2>
+        <ul style="font-size:13.5px">
+          <li><b>수집하는 개인정보: 없음.</b> 회원가입·로그인·결제·상담 신청 기능을 두지 않으며,
+            이름·전화번호·이메일·주민번호 등을 입력받지 않습니다.</li>
+          <li><b>계산기 입력값</b>은 방문자 브라우저 안에서만 처리되고 전송·저장되지 않습니다(서버 없음).</li>
+          <li><b>진료기록·처방·보험증권 정보</b>를 요구하지 않습니다. 진단·치료 목적의 의료 서비스가 아닙니다.</li>
+          <li>문의가 필요한 경우에도 별도 개인정보를 수집하지 않는 창구만 둡니다.</li>
+        </ul>
+        <h3>2. 데이터 출처와 라이선스</h3>
+        <ul style="font-size:13.5px">
+          <li><b>건강보험심사평가원 비급여진료비정보조회서비스</b> (공공데이터포털 15001700) —
+            이용허락범위 <b>공공누리 제1유형(출처표시)</b>. 병원급 이상 기관의 비급여 공개가.</li>
+          <li><b>통계청 국가통계포털 KOSIS 승인번호 {esc(KOSIS_APPROVAL)}</b>(작성기관 건강보험심사평가원) —
+            의원·치과의원 비급여 진료비용 통계표({esc(KOSIS_PERIOD)}). 의원급은 이 <b>전국 통계</b>만 참고로 표시합니다.</li>
+          <li>5세대 실손·관리급여 제도 근거: 금융위원회 2026-05-06 보도자료, 보건복지부 2026-07-01 보도자료.
+            계산 규칙은 공개된 제도 기준을 코드로 옮긴 것입니다.</li>
+        </ul>
+        <h3>3. 데이터 이용 원칙</h3>
+        <ul style="font-size:13.5px">
+          <li>수집하지 못한 값·확인되지 않은 가격은 <b>추정·보간하지 않고 비워 둡니다.</b></li>
+          <li>가격 표시는 기관이 신고한 <b>비급여 최저·최고가</b>이며, 실제 청구액·할인·보험 적용과 다를 수 있습니다.</li>
+          <li>공공누리 제4유형으로 배포되는 엑셀 파일은 제품 데이터로 쓰지 않으며, 병원급 가격은 오픈API,
+            의원급 규모 값은 KOSIS 공개 통계표에서만 수집합니다.</li>
+        </ul>
+      </div>
+      <div class="card prose">
+        <h2 style="font-size:17px">4. 면책 고지</h2>
+        <ul style="font-size:13.5px">
+          <li>이 사이트는 <b>정보 제공 사이트</b>이며 의료기관이 아니고, 진단·치료·처방을 하지 않습니다.
+            증상이 있으면 의료기관을 방문하세요.</li>
+          <li>실손보험 계산 결과는 입력값과 공개된 제도 기준으로 산출한 <b>추정치</b>입니다.
+            실제 보험금 지급액은 가입 상품·약관·자기부담금 누적·청구 이력에 따라 달라집니다.</li>
+          <li>의료기관 가격은 인력·시설·장비·판독 조건에 따라 달라지며, 변경 보고의 행정 처리 기간 때문에
+            실시간으로 반영되지 않습니다.</li>
+          <li><b>의료법 제27조</b>에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
+            기관 목록은 공개가 순 나열이며 추천·순위가 아닙니다. 예약·상담 연결 기능도 두지 않습니다.</li>
+          <li>본 사이트의 정보 이용으로 발생한 결정과 결과에 대한 책임은 이용자에게 있습니다.</li>
+        </ul>
+        <h3>5. 위치정보</h3>
+        <p style="font-size:13.5px">지도·좌표 기반 기능을 제공하지 않으며, 병원정보서비스의 좌표값도 화면에 쓰지 않습니다
+          (위치기반서비스사업 신고 전 노출 보류). 주소·종별·전화번호 수준의 텍스트 정보만 사용합니다.</p>
+        <h3>6. 문의</h3>
+        <p style="font-size:13.5px">데이터 오류·정정 요청은 아래 운영 주소로 접수합니다. 개인정보를 받지 않으므로
+          접수 시 개인정보를 보내지 마세요.<br>
+          <span class="muted">{esc(OWNER)} · {esc(SITE_BASE)}</span></p>
+      </div>
+    </div>
+    <h2 style="margin-top:30px">자주 묻는 질문</h2>
+    {faq_html(faqs)}
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), ("/ko/privacy/", "개인정보처리방침")]),
+        {"@context": "https://schema.org", "@type": "WebPage", "name": "개인정보처리방침 · 면책 고지",
+         "inLanguage": "ko", "url": SITE_BASE + "/ko/privacy/",
+         "isPartOf": {"@type": "WebSite", "name": SITE_NAME, "url": SITE_BASE + "/ko/"}},
+        faq_jsonld(faqs),
+    ]
+    return layout("/ko/privacy/", f"개인정보처리방침 · 면책 고지 · {SITE_NAME}",
+                  "개인정보를 수집하지 않는 계산 사이트의 처리방침과 면책 고지, 심평원 공공누리 제1유형·통계청 KOSIS 데이터 출처를 밝힙니다.",
+                  body, [("/ko/", "홈"), ("/ko/privacy/", "개인정보처리방침")], jsonld)
+
+
+# ------------------------------------------------------------------ 빌드
+def write(path: str, text: str) -> None:
+    target = DIST / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(text, encoding="utf-8")
+
+
+def build(out: Path, base: str, live: bool) -> dict:
+    global DIST, SITE_BASE, PREVIEW, DATASET
+    DIST = out
+    SITE_BASE = base.rstrip("/")
+    PREVIEW = not live
+
+    if DIST.exists():
+        shutil.rmtree(DIST)
+    DIST.mkdir(parents=True)
+
+    items = json.loads((DATA / "catalog_items.json").read_text(encoding="utf-8"))["items"]
+    ds_path = DATA / "hira_dataset.json"
+    DATASET = json.loads(ds_path.read_text(encoding="utf-8")) if ds_path.exists() else None
+    hs_path = DATA / "hospitals.json"
+    globals()["HOSPITALS"] = json.loads(hs_path.read_text(encoding="utf-8")) if hs_path.exists() else None
+
+    pages = {
+        "ko/index.html": page_landing(items),
+        "ko/calc/index.html": page_calc(items),
+        "ko/items/index.html": page_items(items),
+        "ko/insurance/index.html": page_insurance(),
+        "ko/guide/index.html": page_guide(),
+        "ko/privacy/index.html": page_privacy(),
+    }
+    for it in items:
+        pages[f"ko/items/{it['slug']}/index.html"] = page_item(it, items)
+
+    for path, text in pages.items():
+        write(path, text)
+
+    # 자산
+    (DIST / "assets").mkdir(parents=True, exist_ok=True)
+    for name in ("style.css", "calc.js", "app.js"):
+        shutil.copyfile(ASSETS / name, DIST / "assets" / name)
+    if (DATA / "hospitals.json").exists():
+        shutil.copyfile(DATA / "hospitals.json", DIST / "assets" / "hospitals.json")
+    med_items = []
+    for it in items:
+        ds = ds_item(it["code"]) or {}
+        st = ds.get("stats") or {}
+        entry = dict(it)
+        entry.update({
+            "amount_default": default_amount(it),
+            "has_data": bool(ds.get("has_data")),
+            "n": st.get("n"),
+            "avg": (st.get("price") or {}).get("avg"),
+            "median": (st.get("price") or {}).get("median"),
+        })
+        med_items.append(entry)
+    med_data = {"preview": PREVIEW, "items": med_items,
+                "generated": BUILD_TS, "data_date": DATA_DATE,
+                "data_period": DATA_PERIOD}
+    write("assets/med-data.js",
+          "window.MED_CATALOG=" + json.dumps(med_data, ensure_ascii=False) + ";\n"
+          "window.MED_PREVIEW=" + ("true" if PREVIEW else "false") + ";\n")
+
+    # 루트 → /ko/
+    write("index.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<title>{esc(SITE_NAME)}</title><link rel="canonical" href="{esc(SITE_BASE)}/ko/">
+<meta name="robots" content="{'noindex' if PREVIEW else 'index,follow'}">
+<meta http-equiv="refresh" content="0; url=/ko/">
+<script>location.replace('/ko/');</script></head>
+<body><p><a href="/ko/">국내 비급여·실손 파인더로 이동</a></p></body></html>""")
+
+    write("404.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>페이지를 찾을 수 없습니다 · {esc(SITE_NAME)}</title>
+<link rel="stylesheet" href="/assets/style.css"><meta name="robots" content="noindex"></head>
+<body><main class="section"><div class="wrap"><h1>404 — 페이지를 찾을 수 없습니다</h1>
+<p class="section-lead">주소가 바뀌었거나 아직 준비되지 않은 페이지입니다.</p>
+<a class="btn" href="/ko/">홈으로</a> <a class="btn ghost" href="/ko/calc/">계산기로</a></div></main></body></html>""")
+
+    # robots / sitemap
+    if PREVIEW:
+        write("robots.txt", "User-agent: *\nDisallow: /\n# 테스트 픽스처 프리뷰 빌드 (--live 로 색인 허용)\n")
+    else:
+        write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE_BASE}/sitemap.xml\n")
+    urls = [("/ko/", "1.0")] + [(p.replace("ko/", "/ko/").replace("/index.html", "/"), "0.9")
+                                for p in pages if p != "ko/index.html"]
+    sm = ['<?xml version="1.0" encoding="UTF-8"?>',
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for path, prio in urls:
+        sm.append(f"<url><loc>{SITE_BASE}{path}</loc><lastmod>{DATA_DATE}</lastmod>"
+                  f"<changefreq>weekly</changefreq><priority>{prio}</priority></url>")
+    sm.append("</urlset>")
+    write("sitemap.xml", "\n".join(sm))
+
+    return {"pages": len(pages) + 2, "items": len(items), "preview": PREVIEW,
+            "out": str(DIST), "urls": [u[0] for u in urls]}
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="메디컬 파인더 정적 사이트 빌드")
+    ap.add_argument("--out", default=str(DIST))
+    ap.add_argument("--base", default=SITE_BASE)
+    ap.add_argument("--live", action="store_true", help="프리뷰 배너·noindex 를 끄고 배포용으로 빌드")
+    args = ap.parse_args()
+    info = build(Path(args.out), args.base, args.live)
+    print(json.dumps(info, ensure_ascii=False, indent=1))
+
+
+if __name__ == "__main__":
+    main()

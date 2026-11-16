@@ -1,0 +1,23 @@
+# 빌드 산출물 — Cloudflare Pages 가 dist/ 를 그대로 서빙하므로 dist/ 는 커밋한다.
+__pycache__/
+*.pyc
+
+# 인증키·원본 수집물 (절대 커밋 금지)
+.env
+.env.*
+data/config.json
+data/raw/
+data/fixtures/
+
+# 검사 산출물
+scripts/verify_result.json
+scripts/crosscheck_result.json
+screenshots/
+*.log
+
+# 브라우저 라이브러리 보정용 (로컬 환경 전용)
+.deps/
+
+# M-03 확인용 실데이터 빌드
+dist-live/
+data/hira_dataset.live_probe.json

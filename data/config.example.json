@@ -1,0 +1,4 @@
+{
+  "hira_service_key": "data.go.kr 에서 발급받은 인증키(Encoding 키 그대로 사용)",
+  "note": "이 파일을 data/config.json 으로 복사해 값을 채우거나, 환경변수 HIRA_SERVICE_KEY 를 사용하세요. config.json 은 .gitignore 에 포함되어 커밋되지 않습니다."
+}
