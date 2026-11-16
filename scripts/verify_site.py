@@ -367,8 +367,12 @@ def main() -> int:
             d.goto(base + "/ko/", wait_until="load")
             d.wait_for_selector("[data-calc][data-ready='1']")
             d.wait_for_timeout(300)
-            d.evaluate("document.querySelector('[data-compare-table]').scrollIntoView({block:'center'})")
-            d.wait_for_timeout(250)
+            d.evaluate("""() => {
+                const el = document.querySelector('[data-compare-table]');
+                const y = el.getBoundingClientRect().top + window.scrollY - 70;
+                window.scrollTo(0, y);
+            }""")
+            d.wait_for_timeout(400)
             shot(d, "desktop-1440-compare")
             d.goto(base + "/ko/privacy/", wait_until="load")
             check("개인정보처리방침 렌더", "개인정보처리방침" in d.inner_text("h1"))
