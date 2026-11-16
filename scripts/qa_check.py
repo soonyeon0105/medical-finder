@@ -44,11 +44,13 @@ def main() -> int:
     ap.add_argument("--dist", default=str(BASE / "dist"))
     ap.add_argument("--live", action="store_true",
                     help="라이브 빌드 기준으로 검사(프리뷰 배너·noindex 가 없어야 통과)")
+    ap.add_argument("--base", default="https://medical-finder-kr.pages.dev",
+                    help="canonical·sitemap 기준 사이트 주소(빌드 --base 와 같게)")
     args = ap.parse_args()
     live = args.live
     dist = Path(args.dist)
     pages = sorted(dist.rglob("*.html"))
-    site_base = "https://medical-finder.pages.dev"
+    site_base = args.base.rstrip("/")
     print(f"페이지 {len(pages)}개 검사" + (" · LIVE 모드" if live else " · 프리뷰 모드") + "\n")
 
     # ---------------------------------------------------------- A. 범위·표현 가드레일

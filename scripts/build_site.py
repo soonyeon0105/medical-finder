@@ -42,6 +42,19 @@ DATA_PERIOD = "건강보험심사평가원 2026년 비급여 공개 자료 기�
 KOSIS_PERIOD = "통계청 KOSIS 2026년(자료갱신 2026-10-23)"
 KOSIS_APPROVAL = "354006"
 
+# ---------------------------------------------------------------- 분석 태그 (GA4)
+GA4_ID = "G-9EQ04J49YZ"
+GA4_SNIPPET = (
+    "<!-- Google Analytics 4 (GA4) · 방문 통계 -->\n"
+    f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>\n'
+    "<script>\n"
+    "window.dataLayer = window.dataLayer || [];\n"
+    "function gtag(){dataLayer.push(arguments);}\n"
+    "gtag('js', new Date());\n"
+    f"gtag('config', '{GA4_ID}', {{ anonymize_ip: true }});\n"
+    "</script>"
+)
+
 PREVIEW = True     # --live 로 끌 수 있다
 DATASET: dict | None = None      # data/hira_dataset.json (없으면 가격 미표시)
 HOSPITALS: dict | None = None    # data/hospitals.json (병원급 기관 목록)
@@ -178,6 +191,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta property="og:url" content="{esc(canonical)}">
 <meta name="theme-color" content="#0f766e">
 <link rel="stylesheet" href="/assets/style.css">
+{GA4_SNIPPET}
 {ld}
 </head>
 <body>
@@ -1152,8 +1166,11 @@ def page_privacy() -> str:
          "아니요. 계산은 방문자 브라우저에서 JavaScript로만 이루어지며 입력값은 전송·저장되지 않습니다. "
          "주소창의 조건 값도 화면을 새로고짐하지 않고 공유할 수 있게 붙이는 용도입니다."),
         ("쿠키나 추적 도구를 쓰나요?",
-         "현재 자체 쿠키·회원가입·로그인·분석 스크립트를 두지 않았습니다. 정적 호스팅 사업자(Cloudflare Pages)의 "
-         "접속 기록은 해당 사업자 정책에 따라 처리됩니다."),
+         "방문 통계를 위해 Google Analytics 4(GA4)만 사용합니다. GA4는 페이지 경로, 유입 경로, 기기·브라우저 종류, "
+         "대략적인 지역, 방문 시각 같은 이용 통계를 수집하며 이름·전화번호·이메일 같은 개인 식별 정보는 수집하지 않습니다. "
+         "계산기에 입력한 금액은 GA4로도 전송하지 않습니다. 쿠키를 원하지 않으면 브라우저 설정에서 쿠키를 차단하거나 "
+         "Google Analytics 차단 브라우저 확장을 쓰면 됩니다(계산 기능은 그대로 동작합니다). "
+         "정적 호스팅 사업자(Cloudflare Pages)의 접속 기록은 해당 사업자 정책에 따라 처리됩니다."),
         ("데이터를 상업적으로 쓸 수 있는 라이선스인가요?",
          "심평원 비급여 자료는 공공누리 제1유형(출처표시)으로 상업적 이용과 변경이 허용됩니다. "
          "KOSIS 통계는 출처를 표시해 이용합니다. 두 출처 모두 화면과 이 페이지에 명시했습니다."),
@@ -1172,8 +1189,11 @@ def page_privacy() -> str:
         <ul style="font-size:13.5px">
           <li><b>수집하는 개인정보: 없음.</b> 회원가입·로그인·결제·상담 신청 기능을 두지 않으며,
             이름·전화번호·이메일·주민번호 등을 입력받지 않습니다.</li>
-          <li><b>계산기 입력값</b>은 방문자 브라우저 안에서만 처리되고 전송·저장되지 않습니다(서버 없음).</li>
+          <li><b>계산기 입력값</b>은 방문자 브라우저 안에서만 처리되고 전송·저장되지 않습니다(서버 없음).
+            입력 금액은 방문 통계로도 보내지 않습니다.</li>
           <li><b>진료기록·처방·보험증권 정보</b>를 요구하지 않습니다. 진단·치료 목적의 의료 서비스가 아닙니다.</li>
+          <li><b>방문 통계(Google Analytics 4)</b>만 수집합니다. 페이지 경로·기기·브라우저·대략적 지역·방문 시각 수준이며
+            개인을 식별하는 정보는 다루지 않습니다(아래 4항 참고).</li>
           <li>문의가 필요한 경우에도 별도 개인정보를 수집하지 않는 창구만 둡니다.</li>
         </ul>
         <h3>2. 데이터 출처와 라이선스</h3>
@@ -1192,9 +1212,21 @@ def page_privacy() -> str:
           <li>공공누리 제4유형으로 배포되는 엑셀 파일은 제품 데이터로 쓰지 않으며, 병원급 가격은 오픈API,
             의원급 규모 값은 KOSIS 공개 통계표에서만 수집합니다.</li>
         </ul>
+        <h3>4. 쿠키 · 방문 통계 (Google Analytics 4)</h3>
+        <ul style="font-size:13.5px">
+          <li>이 사이트는 Google Analytics 4(측정 ID <b>{GA4_ID}</b>)로 방문 통계를 수집합니다.
+            수집 항목은 페이지 경로, 유입 경로(검색·참조), 기기·브라우저·화면 크기, 대략적인 지역(IP는 저장 전 잘라냅니다),
+            방문 시각, 계산기 사용 같은 버튼·화면 조작 기록입니다.</li>
+          <li>이름·전화번호·이메일 같은 <b>개인 식별 정보는 수집하지 않으며</b>, 광고 목적의 개인 맞춤·재마케팅에 쓰지 않습니다
+            (광고 제품 미사용 · IP 익명화 설정).</li>
+          <li>계산기에 입력한 금액·보험 세대 같은 값은 통계로 전송하지 않습니다.</li>
+          <li>GA4는 <code>_ga</code> 등 쿠키를 사용합니다. 브라우저에서 쿠키를 차단하거나 Google Analytics 차단 확장을 쓰면
+            수집되지 않으며, 계산 기능은 그대로 동작합니다.</li>
+          <li>처리는 Google LLC(미국)가 운영하는 Google Analytics 정책을 따릅니다.</li>
+        </ul>
       </div>
       <div class="card prose">
-        <h2 style="font-size:17px">4. 면책 고지</h2>
+        <h2 style="font-size:17px">5. 면책 고지</h2>
         <ul style="font-size:13.5px">
           <li>이 사이트는 <b>정보 제공 사이트</b>이며 의료기관이 아니고, 진단·치료·처방을 하지 않습니다.
             증상이 있으면 의료기관을 방문하세요.</li>
@@ -1206,10 +1238,10 @@ def page_privacy() -> str:
             기관 목록은 공개가 순 나열이며 추천·순위가 아닙니다. 예약·상담 연결 기능도 두지 않습니다.</li>
           <li>본 사이트의 정보 이용으로 발생한 결정과 결과에 대한 책임은 이용자에게 있습니다.</li>
         </ul>
-        <h3>5. 위치정보</h3>
+        <h3>6. 위치정보</h3>
         <p style="font-size:13.5px">지도·좌표 기반 기능을 제공하지 않으며, 병원정보서비스의 좌표값도 화면에 쓰지 않습니다
           (위치기반서비스사업 신고 전 노출 보류). 주소·종별·전화번호 수준의 텍스트 정보만 사용합니다.</p>
-        <h3>6. 문의</h3>
+        <h3>7. 문의</h3>
         <p style="font-size:13.5px">데이터 오류·정정 요청은 아래 운영 주소로 접수합니다. 개인정보를 받지 않으므로
           접수 시 개인정보를 보내지 마세요.<br>
           <span class="muted">{esc(OWNER)} · {esc(SITE_BASE)}</span></p>
@@ -1228,7 +1260,7 @@ def page_privacy() -> str:
         faq_jsonld(faqs),
     ]
     return layout("/ko/privacy/", f"개인정보처리방침 · 면책 고지 · {SITE_NAME}",
-                  "개인정보를 수집하지 않는 계산 사이트의 처리방침과 면책 고지, 심평원 공공누리 제1유형·통계청 KOSIS 데이터 출처를 밝힙니다.",
+                  "계산 입력값은 전송하지 않고 GA4 방문 통계만 쓰는 처리방침과 면책 고지, 심평원 공공누리 제1유형·통계청 KOSIS 데이터 출처를 밝힙니다.",
                   body, [("/ko/", "홈"), ("/ko/privacy/", "개인정보처리방침")], jsonld)
 
 

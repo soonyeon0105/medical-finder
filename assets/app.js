@@ -12,6 +12,13 @@
   function $all(root, sel) { return Array.prototype.slice.call(root.querySelectorAll(sel)); }
 
   function fmt(n) { return MedCalc.won(n); }
+
+  // ------------------------------------------------ 분석 이벤트(GA4, 선택적)
+  // gtag 가 없거나 차단돼도 계산 동작에는 영향이 없다.
+  function track(name, params) {
+    if (typeof window.gtag !== 'function') { return; }
+    try { window.gtag('event', name, params || {}); } catch (e) { /* 무시 */ }
+  }
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) { n.className = cls; }
@@ -269,17 +276,31 @@
       } catch (e) { /* 무시 */ }
     }
 
+    var calcTracked = false;
+    function trackCalc() {
+      if (calcTracked) { return; }
+      calcTracked = true;
+      track('calc_use', {
+        item_code: state.item,
+        visit: state.visit,
+        institution: state.inst,
+        payment: (currentItem() || {}).payment || 'direct'
+      });
+    }
+
     // ---------------------------------------------------- 이벤트
     sel.addEventListener('change', function () {
       state.item = sel.value;
       state.rounds = 1;
       if (state.item !== 'direct') { state.amount = defAmount(itemByCode(state.item)); }
       syncItemUi(true); syncSegButtons(); render();
+      trackCalc();
     });
     amountInput.addEventListener('input', function () {
       var v = parseInt(String(amountInput.value).replace(/[^0-9]/g, ''), 10);
       state.amount = isNaN(v) ? 0 : v;
       render();
+      trackCalc();
     });
     if (roundsInput) {
       roundsInput.addEventListener('input', function () {
@@ -287,6 +308,7 @@
         state.amount = MedCalc.managedTotal(state.rounds);
         amountInput.value = state.amount;
         render();
+        trackCalc();
       });
     }
     if (cumInput) {
@@ -297,15 +319,15 @@
       });
     }
     $all(root, '#visit-group button').forEach(function (b) {
-      b.addEventListener('click', function () { state.visit = b.dataset.visit; syncSegButtons(); render(); });
+      b.addEventListener('click', function () { state.visit = b.dataset.visit; syncSegButtons(); render(); trackCalc(); });
     });
     $all(root, '#inst-group button').forEach(function (b) {
-      b.addEventListener('click', function () { state.inst = b.dataset.inst; syncSegButtons(); render(); });
+      b.addEventListener('click', function () { state.inst = b.dataset.inst; syncSegButtons(); render(); trackCalc(); });
     });
     $all(root, '#severe-group button').forEach(function (b) {
       b.addEventListener('click', function () {
         state.severe = Number(b.dataset.severe);
-        syncItemUi(false); syncSegButtons(); render();
+        syncItemUi(false); syncSegButtons(); render(); trackCalc();
       });
     });
     var g2 = $(root, '#gen2-select');
@@ -321,8 +343,16 @@
     root.setAttribute('data-ready', '1');
   }
 
+  // ---------------------------------------------------- 항목 상세 조회(GA4)
+  function initItemViewTracking() {
+    var m = /\/items\/([^/]+)\/?$/.exec(location.pathname || '');
+    if (!m) { return; }
+    track('item_view', { item_slug: m[1], location: 'item_detail' });
+  }
+
   function boot() {
     Array.prototype.slice.call(document.querySelectorAll('[data-calc]')).forEach(init);
+    initItemViewTracking();
     initHospTables();
   }
 
@@ -383,7 +413,16 @@
           if (moreBtn) { moreBtn.style.display = list.length > shown ? '' : 'none'; }
         }
         [sidoSel, clSel].forEach(function (elm) {
-          if (elm) { elm.addEventListener('change', function () { shown = 50; render(); }); }
+          if (elm) {
+            elm.addEventListener('change', function () {
+              shown = 50; render();
+              track('hospital_filter', {
+                item_code: code,
+                sido: sidoSel ? sidoSel.value : '',
+                clinic_type: clSel ? clSel.value : ''
+              });
+            });
+          }
         });
         if (qInput) {
           qInput.addEventListener('input', function () { shown = 50; render(); });

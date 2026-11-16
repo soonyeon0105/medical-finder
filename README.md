@@ -96,6 +96,14 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
 - `/ko/privacy/` — 개인정보처리방침 · 면책 고지 · 데이터 출처
 - `/404.html`
 
+## 방문 통계 (GA4 · Cloudflare)
+
+- **GA4**: 측정 ID `G-9EQ04J49YZ` — 모든 페이지 `<head>` 에 `gtag.js` + `gtag('config', …, { anonymize_ip: true })`.
+- **이벤트**: `calc_use`(계산기 첫 조작: 항목·입원/통원·종별·급여구분), `hospital_filter`(기관 목록 시도·종별 필터),
+  `item_view`(항목 상세 조회, `item_slug`). 금액·개인 입력값은 전송하지 않는다.
+- **고지**: `/ko/privacy/` 4항(쿠키·방문 통계)과 FAQ 에 수집 항목·쿠키(`_ga`)·거부 방법을 명시.
+- **Cloudflare Web Analytics**: 비콘은 Cloudflare Pages 프로젝트 설정에서 자동 삽입(코드 미포함).
+
 ## 데이터·법적 경계 (지킨 것)
 
 - **인증키**: `.env.local` 에만 보관, 코드·HTML·JSON·마크다운·로그·커밋에 원문 0건(`qa_check.py` 가 검사).
