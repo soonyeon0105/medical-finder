@@ -80,8 +80,8 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
 | 검사 | 결과 |
 | --- | --- |
 | `crosscheck_calc.py` | 엔진 16,176건 × 5세대 × 6항목 = **485,280개 값 불일치 0** + 화면 표본 48건(720값) 일치 |
-| `qa_check.py --live` | 범위 고지·프리뷰 배너/ noindex 부재·JSON-LD·canonical·내부 링크·sitemap 19개·골든 15케이스·**비밀값 0·제4유형 엑셀 0·의원 개별 기관 0** 전부 통과 |
-| `verify_site.py --live` | 모바일 390px(innerWidth 390 확인)·데스크톱 1440px **69/69 통과**, 콘솔 오류 0, 가로 스크롤 0, 기관 필터(시도·종별·검색) 동작 확인 |
+| `qa_check.py --live` | 범위 고지·프리뷰 배너/ noindex 부재·JSON-LD·canonical·내부 링크·sitemap 37개·골든 15케이스·**지역 페이지 17개 전수**·비밀값 0·제4유형 엑셀 0·의원 개별 기관 0 전부 통과 |
+| `verify_site.py --live` | 모바일 390px(innerWidth 390 확인)·데스크톱 1440px **86/86 통과**, 콘솔 오류 0, 가로 스크롤 0, 기관 필터(시도·종별·검색)·지역 필터(항목·시군구) 동작 확인 |
 | `fetch_hira.py --selftest` | XML 파서·페이지네이션·게이트웨이 오류(30)·NODATA·빈 응답·키 마스킹 통과 |
 
 스크린샷: `/workspace/downloads/medical-mvp/m04-*.png` (모바일 390 / 데스크톱 1440)
@@ -91,6 +91,8 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
 - `/ko/` — 계산기 + 병원급↔의원급(KOSIS) 비교표 + 13개 항목
 - `/ko/calc/` — 계산기 전체 옵션(입원/통원·종별·중증·2세대 유형·관리급여 횟수)
 - `/ko/items/`, `/ko/items/{slug}/` — 항목별 시세(종별·시도) + KOSIS 의원급 참고 카드 + **기관별 공개가 필터**
+- `/ko/regions/`, `/ko/regions/{sido}/` — **17개 시·도별 비급여 시세**(항목별 평균·중간값·최저~최고·전국 대비, 종별 분포, 시·군·구 시세)
+  + 지역 한정 **기관·항목별 공개가 검색**(항목·시·군·구·병원명 필터)
 - `/ko/insurance/` — 1~5세대 실손 정리(5세대 특약1·2, 도수치료 관리급여)
 - `/ko/guide/` — 수집 구조·라이선스·수집 상태
 - `/ko/privacy/` — 개인정보처리방침 · 면책 고지 · 데이터 출처

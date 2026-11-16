@@ -13,6 +13,7 @@
 <meta property="og:description" content="심평원 비급여 공개 API(15001700·공공누리 제1유형) 기반 수집 구조와 공개 범위, 계산의 가정과 한계를 안내합니다.">
 <meta property="og:url" content="https://medical-finder-kr.pages.dev/ko/guide/">
 <meta name="theme-color" content="#0f766e">
+<meta name="naver-site-verification" content="65f0d284f2bc3f6c8cf5590d03848e4e70783bae">
 <link rel="stylesheet" href="/assets/style.css">
 <!-- Google Analytics 4 (GA4) · 방문 통계 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9EQ04J49YZ"></script>
@@ -29,7 +30,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
 <header class="site-header">
   <div class="wrap">
     <a class="logo" href="/ko/"><span class="mark" aria-hidden="true">🏥</span><span class="txt">메디컬 비급여 시세 파인더</span></a>
-    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span></a><a href="/ko/items/"><span class="full">비급여 항목</span><span class="abbr">항목</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span></a><a href="/ko/guide/" aria-current="page"><span class="full">이용 안내</span><span class="abbr">안내</span></a></nav>
+    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span></a><a href="/ko/items/"><span class="full">비급여 항목</span><span class="abbr">항목</span></a><a href="/ko/regions/"><span class="full">지역별 시세</span><span class="abbr">지역</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span></a><a href="/ko/guide/" aria-current="page"><span class="full">이용 안내</span><span class="abbr">안내</span></a></nav>
   </div>
 </header>
 <nav class="breadcrumb" aria-label="위치"><div class="wrap"><a href="/ko/">홈</a><span>›</span><a href="/ko/guide/">이용 안내</a></div></nav>
@@ -88,6 +89,13 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
         <p class="calc-foot">위 상태는 2026-11-17 확인 시점의 값이며, 제공기관 사정으로 달라질 수 있습니다.
           통계 오퍼레이션이 응답하지 않아도 기관별 응답만으로 평균·중간·최빈을 계산합니다.</p>
 
+        <h3>지역(시·도) 화면 집계 방법</h3>
+        <p style="font-size:13.5px">17개 시·도 페이지는 기관 행의 <code>sidoCdNm</code>·<code>sgguCdNm</code>을 그대로 써서 집계합니다.
+          심평원 오픈API는 전남·광주를 <b>‘전남광주’</b> 한 라벨로, 세종은 <b>‘세종시’</b>로 내려 주므로,
+          전남·광주는 <b>기관의 시·군·구명이 ‘광주’로 시작하면 광주광역시, 그 외는 전라남도</b>로 나누었습니다(추정·보간 없음).
+          지역 금액은 기관별 (최저가+최고가)/2 의 평균·중간값이며, 시·군·구 표는 응답 3곳 미만일 때 ¹ 표시로 참고값임을 밝힙니다.
+          지역별 기관 수 차이 때문에 지역 간 순위가 우열을 뜻하지 않습니다.</p>
+
         <h3>가격을 표시하지 않는 경우</h3>
         <p style="font-size:13.5px">수집되지 않았거나, 공개 범위 밖(의원급)이거나, 금액이 비어 있는 경우에는
           추정값을 만들지 않고 비워 둡니다.</p>
@@ -132,6 +140,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
         <b>바로가기</b><br>
         <a href="/ko/calc/">실손 계산기</a><br>
         <a href="/ko/items/">비급여 항목 13개</a><br>
+        <a href="/ko/regions/">지역별 시세 17개 시·도</a><br>
         <a href="/ko/insurance/">1~5세대 실손 정리</a><br>
         <a href="/ko/guide/">이용 안내 · 데이터 출처</a><br>
         <a href="/ko/privacy/">개인정보처리방침 · 면책</a>
@@ -141,7 +150,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
         건강보험심사평가원 비급여진료비정보조회서비스<br>
         공공데이터포털 15001700 · 공공누리 제1유형<br>
         통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
-        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-17 02:21 KST</span>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-17 08:01 KST</span>
       </div>
     </div>
     <div class="legal">
@@ -152,7 +161,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
       (전국 의원급 평균·중간값은 통계청 KOSIS 통계 기준 참고값).
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
       <a href="/ko/privacy/">개인정보처리방침 · 면책 고지</a>
-      내 손안에 복지 (9welfare) · 2026-11-17 02:21 KST 빌드.
+      내 손안에 복지 (9welfare) · 2026-11-17 08:01 KST 빌드.
     </div>
   </div>
 </footer>

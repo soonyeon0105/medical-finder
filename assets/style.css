@@ -360,6 +360,10 @@ table.plain td.num, table.plain th.num { text-align: right; font-variant-numeric
     color: var(--muted); font-weight: 700; }
   table.stack th[scope="row"] { font-size: 15px; font-weight: 800; padding-bottom: 6px;
     margin-bottom: 4px; border-bottom: 1px dashed var(--line); background: transparent; }
+  table.stack td.num { text-align: left; }
+  table.stack td[data-label] { display: flex; justify-content: space-between;
+    align-items: baseline; gap: 10px; }
+  table.stack td[data-label]::before { flex: 0 0 auto; margin-right: auto; }
 }
 
 @media print {

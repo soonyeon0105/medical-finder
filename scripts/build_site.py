@@ -25,6 +25,7 @@ import argparse
 import html
 import json
 import shutil
+import statistics
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -59,9 +60,16 @@ PREVIEW = True     # --live 로 끌 수 있다
 DATASET: dict | None = None      # data/hira_dataset.json (없으면 가격 미표시)
 HOSPITALS: dict | None = None    # data/hospitals.json (병원급 기관 목록)
 
+# ---------------------------------------------------------------- 검색엔진 소유확인
+# 네이버 서치어드바이저(tearsstream) → https://medical-finder-kr.pages.dev 추가 시 발급.
+# 메타태그·확인파일 둘 다 빌드에 넣는다(지우면 소유확인이 풀린다).
+NAVER_VERIFY = "65f0d284f2bc3f6c8cf5590d03848e4e70783bae"
+NAVER_VERIFY_FILE = "naver8272c0d9d8609fb2d25fc7ee9ed8f0d9.html"
+
 NAV = [
     ("/ko/calc/", "실손 계산기", "계산기"),
     ("/ko/items/", "비급여 항목", "항목"),
+    ("/ko/regions/", "지역별 시세", "지역"),
     ("/ko/insurance/", "1~5세대 실손", "세대별"),
     ("/ko/guide/", "이용 안내", "안내"),
 ]
@@ -190,6 +198,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}">
 <meta name="theme-color" content="#0f766e">
+<meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <link rel="stylesheet" href="/assets/style.css">
 {GA4_SNIPPET}
 {ld}
@@ -219,6 +228,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
         <b>바로가기</b><br>
         <a href="/ko/calc/">실손 계산기</a><br>
         <a href="/ko/items/">비급여 항목 13개</a><br>
+        <a href="/ko/regions/">지역별 시세 17개 시·도</a><br>
         <a href="/ko/insurance/">1~5세대 실손 정리</a><br>
         <a href="/ko/guide/">이용 안내 · 데이터 출처</a><br>
         <a href="/ko/privacy/">개인정보처리방침 · 면책</a>
@@ -496,6 +506,448 @@ def hospital_table(it: dict) -> str:
 """
 
 
+# ------------------------------------------------------------------ 지역(17개 시·도)
+# 심평원 오픈API 는 지역을 sidoCdNm 으로 주는데, 전남·광주는 '전남광주' 한 라벨로,
+# 세종은 '세종시' 로 내려온다. 17개 시·도 화면을 만들기 위해
+#   · 전남광주 → 시군구명이 '광주'로 시작하면 광주, 아니면 전남
+#   · 세종시 → 세종
+# 으로 나눈다. (기관 행의 시군구명은 원본 그대로이며 추정하지 않는다.)
+REGIONS = [
+    ("seoul", "서울", "서울특별시", ("서울",)),
+    ("busan", "부산", "부산광역시", ("부산",)),
+    ("daegu", "대구", "대구광역시", ("대구",)),
+    ("incheon", "인천", "인천광역시", ("인천",)),
+    ("gwangju", "광주", "광주광역시", ("전남광주",)),
+    ("daejeon", "대전", "대전광역시", ("대전",)),
+    ("ulsan", "울산", "울산광역시", ("울산",)),
+    ("sejong", "세종", "세종특별자치시", ("세종시",)),
+    ("gyeonggi", "경기", "경기도", ("경기",)),
+    ("gangwon", "강원", "강원특별자치도", ("강원",)),
+    ("chungbuk", "충북", "충청북도", ("충북",)),
+    ("chungnam", "충남", "충청남도", ("충남",)),
+    ("jeonbuk", "전북", "전북특별자치도", ("전북",)),
+    ("jeonnam", "전남", "전라남도", ("전남광주",)),
+    ("gyeongbuk", "경북", "경상북도", ("경북",)),
+    ("gyeongnam", "경남", "경상남도", ("경남",)),
+    ("jeju", "제주", "제주특별자치도", ("제주",)),
+]
+REGION_BY_SLUG = {r[0]: r for r in REGIONS}
+SIDO_TO_REGION = {label: r[0] for r in REGIONS for label in r[3]}
+REGION_CACHE: dict[str, dict] = {}
+REP_CODES = ("HE1010001", "EB4410000", "MX1220000")   # 지역 요약 표의 대표 3개 항목
+
+
+def region_match(slug: str, sido: str, sggu: str) -> bool:
+    """기관 행 1건이 해당 시·도에 속하는지 판정한다."""
+    if slug == "gwangju":
+        return sido == "전남광주" and (sggu or "").startswith("광주")
+    if slug == "jeonnam":
+        return sido == "전남광주" and not (sggu or "").startswith("광주")
+    return sido in REGION_BY_SLUG[slug][3]
+
+
+def _agg_price(rows: list) -> dict:
+    """기관별 (최저+최고)/2 의 평균·중간값 — hira_dataset 과 같은 산식."""
+    vals = [(int(r[4] or 0) + int(r[5] or 0)) // 2 for r in rows]
+    return {"n": len(rows), "avg": round(sum(vals) / len(vals)),
+            "median": int(statistics.median(vals)),
+            "min": min(int(r[4] or 0) for r in rows),
+            "max": max(int(r[5] or 0) for r in rows)}
+
+
+def region_data(slug: str) -> dict:
+    """지역 1곳의 항목·종별·시군구 집계(병원급 기관 행 기준)."""
+    if slug in REGION_CACHE:
+        return REGION_CACHE[slug]
+    hs = (HOSPITALS or {}).get("items") or {}
+    per_item: dict[str, dict] = {}
+    hosp: dict[tuple, int] = {}
+    by_clcd: dict[str, set] = {}
+    by_sggu: dict[str, dict] = {}
+    rows_total = 0
+    for code, rows in hs.items():
+        sel = [r for r in rows if region_match(slug, r[2], r[3])]
+        if not sel:
+            continue
+        rows_total += len(sel)
+        per_item[code] = _agg_price(sel)
+        for r in sel:
+            key = (r[0], r[3], r[1])
+            hosp[key] = 1
+            by_clcd.setdefault(r[1], set()).add(key)
+            sg = by_sggu.setdefault(r[3] or "—", {"hosp": set(), "vals": {}})
+            sg["hosp"].add(key)
+            sg["vals"].setdefault(code, []).append((int(r[4] or 0) + int(r[5] or 0)) // 2)
+    out = {"slug": slug, "per_item": per_item, "hospitals": len(hosp), "rows": rows_total,
+           "by_clcd": {k: len(v) for k, v in by_clcd.items()}, "by_sggu": by_sggu}
+    REGION_CACHE[slug] = out
+    return out
+
+
+def national_avg(code: str) -> int | None:
+    ds = ds_item(code) or {}
+    price = ((ds.get("stats") or {}).get("price") or {})
+    return price.get("avg")
+
+
+def region_chips(current: str = "") -> str:
+    """17개 시·도 바로가기 칩."""
+    out = []
+    for slug, name, _full, _labels in REGIONS:
+        cls = "pill teal" if slug == current else "pill line"
+        attr = ' aria-current="page"' if slug == current else ""
+        out.append(f'<a class="{cls}" style="text-decoration:none" href="/ko/regions/{slug}/"{attr}>{esc(name)}</a>')
+    return '<div style="display:flex;flex-wrap:wrap;gap:6px">' + "".join(out) + "</div>"
+
+
+def sido_cell(label: str) -> str:
+    """시도명 표기 — 가능한 경우 해당 지역 페이지로 링크한다."""
+    if label == "전남광주":
+        return ('<a href="/ko/regions/jeonnam/">전남</a> · '
+                '<a href="/ko/regions/gwangju/">광주</a>')
+    slug = SIDO_TO_REGION.get(label)
+    if slug:
+        return f'<a href="/ko/regions/{slug}/">{esc(label)}</a>'
+    return esc(label)
+
+
+def region_hosp_card(slug: str, items: list[dict]) -> str:
+    """지역 페이지용 기관·항목별 공개가 검색 카드(항목·시군구·병원명 필터)."""
+    name = REGION_BY_SLUG[slug][1]
+    if slug in ("gwangju", "jeonnam"):
+        sido_label = "전남광주"
+    else:
+        sido_label = REGION_BY_SLUG[slug][3][0]
+    prefix_attr = ' data-region-sggu-prefix="광주"' if slug == "gwangju" else ""
+    noprefix_attr = ' data-region-sggu-not-prefix="광주"' if slug == "jeonnam" else ""
+    opts = "".join(f'<option value="{esc(it["code"])}">{esc(it["name"])}</option>' for it in items)
+    return f"""
+<div class="card" data-hosp data-region="{esc(sido_label)}"{prefix_attr}{noprefix_attr}>
+  <h3>{esc(name)} 병원급 기관별 공개가 찾기</h3>
+  <p class="row-note" style="margin-bottom:10px">항목·시·군·구를 고르면 이 지역 병원급 기관의 신고 최저·최고가를 낮은 금액 순으로 보여 줍니다.
+    (동네 의원은 공개 범위 밖입니다.)</p>
+  <div class="hosp-filters">
+    <label class="sr-only" for="reg-item-{esc(slug)}">비급여 항목</label>
+    <select data-hosp-item id="reg-item-{esc(slug)}">{opts}</select>
+    <label class="sr-only" for="reg-sggu-{esc(slug)}">시·군·구</label>
+    <select data-hosp-sggu id="reg-sggu-{esc(slug)}"><option value="">전체 시·군·구</option></select>
+    <input type="search" data-hosp-q placeholder="병원명 검색" aria-label="병원명 검색">
+  </div>
+  <div class="table-wrap">
+    <table class="plain hosp-table" style="font-size:12.5px">
+      <thead><tr><th scope="col">기관</th><th scope="col">종별</th><th scope="col">시·군·구</th>
+        <th scope="col" class="num">최저</th><th scope="col" class="num">최고</th></tr></thead>
+      <tbody data-hosp-body></tbody>
+    </table>
+  </div>
+  <p class="hosp-count" data-hosp-count>기관 목록을 불러오는 중…</p>
+  <button type="button" class="btn ghost sm" data-hosp-more>더 보기 (50곳씩)</button>
+  <p class="calc-foot">기관명·종별·시·군·구·금액은 심평원 공개 원본 그대로이며 <b>추천·순위 매김·예약 알선이 아닙니다</b>(의료법 제27조).
+    표시 금액은 기관이 신고한 비급여 최저·최고가로 실제 청구액·할인·보험 적용은 다를 수 있습니다.</p>
+</div>
+"""
+
+
+def page_regions(items: list[dict]) -> str:
+    """17개 시·도 허브 — 지역별 기관 수와 대표 항목 시세를 한 표로."""
+    rows = []
+    total_hosp = 0
+    total_rows = 0
+    for slug, name, full, _labels in REGIONS:
+        d = region_data(slug)
+        total_hosp += d["hospitals"]
+        total_rows += d["rows"]
+        cells = []
+        for code in REP_CODES:
+            st = d["per_item"].get(code)
+            label = next((i["name"] for i in items if i["code"] == code), code)
+            cells.append(f'<td class="num" data-label="{esc(label)}">{won(st["median"])}<br>'
+                         f'<span class="muted">{st["n"]}곳</span></td>' if st
+                         else f'<td class="num" data-label="{esc(label)}">—</td>')
+        rows.append(
+            f'<tr><th scope="row"><a href="/ko/regions/{slug}/">{esc(name)}</a>'
+            f'<br><span class="muted" style="font-weight:500">{esc(full)}</span></th>'
+            f'<td class="num" data-label="공개 기관">{d["hospitals"]:,}곳</td>'
+            f'<td class="num" data-label="항목 응답">{d["rows"]:,}건</td>'
+            + "".join(cells) + "</tr>")
+    faqs = [
+        ("지역별로 비급여 가격이 다른가요?",
+         "같은 항목이라도 지역·기관 규모·장비에 따라 신고 가격이 다릅니다. 이 사이트는 심평원이 공개한 "
+         "병원급 이상 기관의 신고 최저·최고가를 지역별로 집계해 중간값과 평균을 보여 줍니다. "
+         "지역별 기관 수(표본)가 다르므로 순위가 곧 지역의 우열은 아닙니다."),
+        ("우리 동네 의원 가격도 지역별로 볼 수 있나요?",
+         "없습니다. 공개 오픈API는 병원급 이상만 제공합니다. 의원·치과의원·한의원의 개별 가격은 공개 범위 밖이며, "
+         "전국 의원급 규모의 통계(통계청 KOSIS 승인번호 354006)만 항목 페이지에서 참고값으로 안내합니다. "
+         "방문 전 유선 확인이 필요합니다."),
+        ("시·도 페이지의 금액은 어떤 기준인가요?",
+         "각 기관이 신고한 비급여 최저가와 최고가의 중간값을 기관별로 구한 뒤, 그 값의 평균·중간값을 계산합니다. "
+         "항목마다 공개에 응답한 기관 수가 달라 모든 지역에 같은 항목이 있는 것은 아닙니다."),
+        ("실손 보장액도 지역에 따라 달라지나요?",
+         "아닙니다. 실손보험 보장액은 가입 세대·입원/통원·기관 종별·중증(산정특례) 여부로 결정되며 지역과는 관계가 없습니다. "
+         "지역별 가격 차이는 환자가 부담하는 진료비 쪽에서 생깁니다."),
+    ]
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>지역별 비급여 시세 — 17개 시·도</h1>
+      <p class="section-lead">서울부터 제주까지, 시·도마다 병원급 이상 기관이 신고한 비급여 공개가를 항목별로 모았습니다.
+        지역을 누르면 그 지역의 항목별 평균·중간값·최저~최고와 시·군·구별 시세를 볼 수 있습니다.</p>
+      <div class="meta">
+        <span class="pill teal">17개 시·도</span>
+        <span class="pill blue">병원급 기관 {total_hosp:,}곳(중복 제거)</span>
+        <span class="pill line">항목·기관 응답 {total_rows:,}건</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="plain stack" style="font-size:12.5px">
+        <thead><tr><th scope="col">시·도</th><th scope="col">공개 기관</th><th scope="col">항목 응답</th>
+          <th scope="col">뇌 MRI 중간값</th><th scope="col">복부 초음파 중간값</th><th scope="col">도수치료 중간값</th></tr></thead>
+        <tbody>{''.join(rows)}</tbody>
+      </table>
+    </div>
+    <p class="calc-foot">기관 수는 같은 병원이 여러 항목에 응답한 경우 1곳으로 셉니다. 금액은 병원급 이상 공개가(기관별 최저·최고의 중간값)의 지역 중간값이며,
+      도수치료는 2026-07-01 관리급여 전환 전 공개자료 기준입니다. {esc(DATA_PERIOD)}</p>
+    <div class="card" style="margin-top:14px">
+      <h3>바로 가기</h3>
+      {region_chips()}
+      <p class="calc-foot">시·도 단위 외에 지역 페이지 안에서 시·군·구 필터와 항목별 공개가 검색을 쓸 수 있습니다.
+        동네 의원 가격은 공개 범위 밖이므로 방문 전 유선 확인이 필요합니다.</p>
+    </div>
+    <div class="card prose" style="margin-top:14px">
+      <h2 style="font-size:17px">자주 묻는 질문</h2>
+      {faq_html(faqs)}
+    </div>
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), ("/ko/regions/", "지역별 시세")]),
+        faq_jsonld(faqs),
+        {"@context": "https://schema.org", "@type": "ItemList", "name": "17개 시·도 비급여 시세",
+         "numberOfItems": len(REGIONS),
+         "itemListElement": [{"@type": "ListItem", "position": i, "name": f"{r[1]} 비급여 시세",
+                               "url": SITE_BASE + f"/ko/regions/{r[0]}/"}
+                              for i, r in enumerate(REGIONS, start=1)]},
+    ]
+    return layout("/ko/regions/", f"지역별 비급여 시세 17개 시·도 · {SITE_NAME}",
+                  "서울·경기·인천·부산 등 17개 시·도의 병원급 이상 비급여 공개가를 항목별로 비교합니다. 지역별 평균·중간값과 시·군·구 시세, 실손 보장 계산 안내.",
+                  body, [("/ko/", "홈"), ("/ko/regions/", "지역별 시세")], jsonld, current="/ko/regions/")
+
+
+def page_region(slug: str, items: list[dict]) -> str:
+    """시·도 1곳 — 항목별 시세·종별 분포·시군구 시세·기관 검색."""
+    _slug, name, full, _labels = REGION_BY_SLUG[slug]
+    d = region_data(slug)
+    if not d["per_item"]:
+        # 데이터가 없는 지역도 페이지는 만든다(정직한 상태 안내).
+        pass
+    rows = []
+    higher = lower = 0
+    for it in items:
+        st = d["per_item"].get(it["code"])
+        na = national_avg(it["code"])
+        if not st:
+            rows.append(f'<tr><th scope="row"><a href="/ko/items/{esc(it["slug"])}/">{esc(it["name"])}</a></th>'
+                        '<td class="num" data-label="기관">—</td><td class="num" data-label="평균">—</td>'
+                        '<td class="num" data-label="중간값">—</td><td class="num" data-label="최저~최고">—</td>'
+                        '<td class="num" data-label="전국 대비">공개 없음</td></tr>')
+            continue
+        diff_cell = '—'
+        if na:
+            pct = (st["avg"] - na) / na * 100
+            up = pct >= 0
+            higher += 1 if up else 0
+            lower += 0 if up else 1
+            diff_cell = (f'<span style="color:{"#b91c1c" if up else "#0f766e"};font-weight:700">'
+                         f'{"+" if up else "−"}{abs(pct):.1f}%</span>')
+        rows.append(
+            f'<tr><th scope="row"><a href="/ko/items/{esc(it["slug"])}/">{esc(it["name"])}</a>'
+            f'{(" <span class=\"pill blue\">관리급여</span>" if it["payment"] == "관리급여" else "")}</th>'
+            f'<td class="num" data-label="기관">{st["n"]:,}곳</td>'
+            f'<td class="num" data-label="평균">{won(st["avg"])}</td>'
+            f'<td class="num" data-label="중간값">{won(st["median"])}</td>'
+            f'<td class="num" data-label="최저~최고" style="font-size:11.5px">{won(st["min"])} ~ {won(st["max"])}</td>'
+            f'<td class="num" data-label="전국 대비">{diff_cell}</td></tr>')
+
+    # 종별 분포
+    cl_order = ["상급종합", "종합병원", "병원", "요양병원", "정신병원", "치과병원", "한방병원"]
+    cl_rows = "".join(
+        f'<tr><th scope="row">{esc(cl)}</th><td class="num">{d["by_clcd"][cl]:,}곳</td>'
+        f'<td class="num">{d["by_clcd"][cl] / max(d["hospitals"], 1) * 100:.1f}%</td></tr>'
+        for cl in cl_order if cl in d["by_clcd"])
+
+    # 시·군·구 요약(대표 3개 항목의 중간값)
+    sg_rows = []
+    rep_labels = [next((i["name"] for i in items if i["code"] == c), c) for c in REP_CODES]
+    for sg, info in d["by_sggu"].items():
+        cells = []
+        nvals = 0
+        for code in REP_CODES:
+            vals = info["vals"].get(code)
+            nvals += len(vals) if vals else 0
+            if vals and len(vals) >= 3:
+                cells.append(f'<td class="num">{won(int(statistics.median(vals)))}</td>')
+            elif vals:
+                cells.append(f'<td class="num muted">{won(int(statistics.median(vals)))}¹</td>')
+            else:
+                cells.append('<td class="num">—</td>')
+        sg_rows.append((len(info["hosp"]), nvals, sg, cells))
+    sg_rows.sort(key=lambda x: (-x[0], x[2]))
+    sg_html = "".join(
+        f'<tr><th scope="row">{esc(sg)}</th><td class="num" data-label="공개 기관">{nh:,}곳</td>'
+        f'<td class="num" data-label="항목 응답">{nv:,}건</td>'
+        + "".join(c.replace('<td class="num">', f'<td class="num" data-label="{esc(label)}">')
+                  .replace('<td class="num muted">', f'<td class="num muted" data-label="{esc(label)}">')
+                  for c, label in zip(cells, rep_labels))
+        + "</tr>"
+        for nh, nv, sg, cells in sg_rows)
+
+    top_item = max(d["per_item"].items(), key=lambda kv: kv[1]["n"])
+    top_name = next((i["name"] for i in items if i["code"] == top_item[0]), top_item[0])
+    rank = sorted(items, key=lambda it: -(d["per_item"].get(it["code"], {}).get("n") or 0))[:6]
+    top_cards = "".join(
+        f'<a class="item-card" href="/ko/items/{esc(it["slug"])}/"><div class="top">'
+        f'<span class="nm">{esc(it["name"])}</span></div>'
+        f'<div class="cd">이 지역 {d["per_item"].get(it["code"], {}).get("n", 0):,}곳 공개</div>'
+        f'<div class="sm">{esc(it["summary"])}</div></a>' for it in rank)
+    n_sang = d["by_clcd"].get("상급종합", 0)
+    merged_note = ""
+    if slug in ("gwangju", "jeonnam"):
+        merged_note = (
+            '<div class="notice" role="note" style="margin-bottom:14px">심평원 오픈API는 전남·광주를 <b>‘전남광주’</b> 한 라벨로 제공합니다. '
+            '이 페이지는 기관의 시·군·구명이 <b>‘광주’로 시작하면 광주광역시</b>, 그 외는 전라남도로 나누어 집계했습니다. '
+            '원본 표기는 <a href="/ko/guide/">이용 안내</a>에서 확인할 수 있습니다.</div>')
+
+    faqs = [
+        (f"{name} 병원급 비급여 시세는 어떤 기준인가요?",
+         f"건강보험심사평가원이 공개한 병원급 이상(상급종합·종합병원·병원·요양병원·정신병원·치과병원·한방병원) 기관의 "
+         f"비급여 신고 최저·최고가를 {name} 기준으로 모아, 기관별 중간값의 평균·중간값을 계산한 값입니다. "
+         f"{name}에서 공개에 응답한 기관은 {d['hospitals']:,}곳, 항목·기관 응답은 {d['rows']:,}건입니다."),
+        (f"{name}은 전국 평균보다 비싼 편인가요?",
+         f"항목별로 다릅니다. 이 페이지의 ‘전국 대비’ 열에서 항목마다 전국 병원급 평균과 비교한 차이를 볼 수 있습니다. "
+         f"13개 항목 가운데 전국 평균보다 높은 항목이 {higher}개, 낮은 항목이 {lower}개입니다. "
+         "다만 지역마다 응답 기관 수와 종별 구성(상급종합 비중)이 달라 단순 비교로 우열을 판단할 수는 없습니다."),
+        (f"{name}에서 의원·치과의원 가격도 알 수 있나요?",
+         "공개 오픈API는 병원급 이상만 제공해 동네 의원의 개별 가격은 표시할 수 없습니다. "
+         "대신 전국 의원급 규모의 평균·중간값(통계청 KOSIS 승인번호 354006)을 항목 페이지에서 참고값으로 보여 줍니다. "
+         "방문할 의원의 실제 비용은 전화로 확인하세요."),
+        ("같은 지역 안에서도 가격이 크게 다른 이유는?",
+         "상급종합·종합병원은 장비(3.0T MRI 등)·판독 인력·시설 수준이 달라 비급여 신고가가 높게 형성되는 경우가 많습니다. "
+         "또 기관마다 치료재료·조영제·판독료 포함 여부가 달라 같은 항목명이라도 조건이 다를 수 있으니 유선 확인이 필요합니다."),
+        ("실손보험으로 돌려받는 금액은 지역과 관계가 있나요?",
+         "없습니다. 보장액은 가입 세대(1~5세대)·입원/통원·기관 종별·중증(산정특례) 여부로 결정됩니다. "
+         "지역 차이는 병원이 신고한 진료비 쪽에서 발생하며, 계산기에서 금액을 넣어 세대별 보장액을 비교할 수 있습니다."),
+    ]
+
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>{esc(name)} 비급여 진료비 시세 — MRI·초음파·도수치료 병원급 공개가</h1>
+      <p class="section-lead">{esc(full)} 병원급 이상 기관의 비급여 공개가를 항목별로 모았습니다.
+        기관별 최저·최고가의 중간값을 기준으로 평균·중간값·최저~최고와 전국 평균 대비 차이를 보여 줍니다.</p>
+      <div class="meta">
+        <span class="pill line">병원급 이상 {d['hospitals']:,}곳</span>
+        <span class="pill teal">항목 {len(items)}개</span>
+        <span class="pill blue">항목·기관 응답 {d['rows']:,}건</span>
+        {'<span class="pill amber">상급종합 ' + str(n_sang) + '곳</span>' if n_sang else ''}
+      </div>
+    </div>
+    {merged_note}
+    <div class="kpi-row">
+      <div class="kpi"><div class="k">공개 기관(중복 제거)</div><div class="v">{d['hospitals']:,}곳</div></div>
+      <div class="kpi"><div class="k">가장 많이 응답한 항목</div><div class="v" style="font-size:13.5px">{esc(top_name)}<br><span class="muted">{top_item[1]['n']:,}곳</span></div></div>
+      <div class="kpi"><div class="k">상급종합 · 종합병원</div><div class="v" style="font-size:13.5px">상급 {d['by_clcd'].get('상급종합', 0)}곳<br><span class="muted">종합 {d['by_clcd'].get('종합병원', 0)}곳</span></div></div>
+      <div class="kpi"><div class="k">데이터 기준</div><div class="v" style="font-size:12.5px">2026년 심평원 공개자료</div></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:18px">항목별 시세 (병원급 이상)</h2>
+      <div class="table-wrap">
+        <table class="plain stack" style="font-size:12.5px">
+          <thead><tr><th scope="col">항목</th><th scope="col">기관</th><th scope="col">평균</th>
+            <th scope="col">중간값</th><th scope="col">최저 ~ 최고</th><th scope="col">전국 대비</th></tr></thead>
+          <tbody>{''.join(rows)}</tbody>
+        </table>
+      </div>
+      <p class="calc-foot">병원급 이상 공개가 기준 · {esc(DATA_PERIOD)}. ‘전국 대비’는 전국 병원급 평균과의 차이이며 기관 구성이 달라 우열 비교가 아닙니다.
+        의원급 개별 가격은 공개 범위 외이므로 방문 전 유선 확인이 필요합니다. 항목 이름을 누르면 기관별 공개가·실손 처리 설명으로 이동합니다.</p>
+    </div>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card">
+        <h3>종별 분포</h3>
+        <div class="table-wrap">
+          <table class="plain" style="font-size:12.5px">
+            <thead><tr><th scope="col">종별</th><th scope="col" class="num">기관</th><th scope="col" class="num">비중</th></tr></thead>
+            <tbody>{cl_rows or '<tr><td colspan="3">공개된 기관이 없습니다.</td></tr>'}</tbody>
+          </table>
+        </div>
+        <p class="calc-foot">같은 기관이 여러 항목에 응답해도 1곳으로 셉니다.</p>
+      </div>
+      <div class="card prose">
+        <h3>이 표를 읽는 법</h3>
+        <ul style="font-size:13px;padding-left:18px">
+          <li><b>평균·중간값</b> — 기관별 (최저+최고)/2 를 구한 뒤 지역 전체로 평균·중간값을 낸 값입니다.</li>
+          <li><b>최저~최고</b> — 그 지역에서 공개된 가장 싼 신고가와 가장 비싼 신고가입니다.</li>
+          <li><b>전국 대비</b> — 전국 병원급 평균과 비교한 차이입니다. 기관 구성이 달라 우열 비교는 아닙니다.</li>
+          <li><b>의원·치과의원</b> — 공개 범위 밖이라 표에 없습니다. 방문 전 유선 확인이 필요합니다.</li>
+        </ul>
+        <a class="btn ghost sm" href="/ko/calc/">내 실손 보장액 계산하기</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>시·군·구별 시세</h3>
+      <div class="table-wrap">
+        <table class="plain stack" style="font-size:12.5px">
+          <thead><tr><th scope="col">시·군·구</th><th scope="col">공개 기관</th><th scope="col">항목 응답</th>
+            <th scope="col">뇌 MRI</th><th scope="col">복부 초음파</th><th scope="col">도수치료</th></tr></thead>
+          <tbody>{sg_html or '<tr><td colspan="6">공개된 기관이 없습니다.</td></tr>'}</tbody>
+        </table>
+      </div>
+      <p class="calc-foot">금액은 해당 시·군·구 기관의 중간값입니다. ¹ 표시는 응답 기관이 3곳 미만인 값으로, 참고만 하세요.
+        기관명에 구가 붙은 경우(예: 수원팔달구)는 심평원 공개 원본의 시·군·구 표기 그대로입니다.</p>
+    </div>
+
+    <div style="margin-top:14px">{region_hosp_card(slug, items)}</div>
+
+    <div class="card prose" style="margin-top:14px">
+      <h2 style="font-size:17px">자주 묻는 질문</h2>
+      {faq_html(faqs)}
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>다른 지역 시세</h3>
+      {region_chips(slug)}
+      <p class="calc-foot"><a href="/ko/regions/">17개 시·도 전체 표로 보기</a> · <a href="/ko/calc/">실손 보장액 계산하기</a></p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <h3>이 지역에서 많이 보는 항목</h3>
+      <div class="grid" style="gap:8px">{top_cards}</div>
+    </div>
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), ("/ko/regions/", "지역별 시세"), (f"/ko/regions/{slug}/", f"{name} 비급여 시세")]),
+        faq_jsonld(faqs),
+        {"@context": "https://schema.org", "@type": "ItemList", "name": f"{name} 비급여 항목 시세",
+         "numberOfItems": len(items),
+         "itemListElement": [{"@type": "ListItem", "position": i, "name": it["name"],
+                               "url": SITE_BASE + f"/ko/items/{it['slug']}/"}
+                              for i, it in enumerate(items, start=1)]},
+    ]
+    desc = (f"{name} 병원급 {d['hospitals']:,}곳의 비급여 시세. 뇌 MRI·초음파·도수치료 등 {len(items)}개 항목의 평균·중간값·최저~최고와 "
+            f"시·군·구별 가격, 전국 평균 대비 차이를 정리했습니다.")
+    return layout(f"/ko/regions/{slug}/", f"{name} 비급여 시세 — MRI·초음파·도수치료 병원급 공개가 · {SITE_NAME}",
+                  desc, body,
+                  [("/ko/", "홈"), ("/ko/regions/", "지역별 시세"), (f"/ko/regions/{slug}/", f"{name}")],
+                  jsonld, current="/ko/regions/")
+
+
 def price_block(item: dict) -> str:
     """수집된 실제 가격이 있으면 시세 표를, 없으면 정직한 상태 안내를 그린다."""
     ds = ds_item(item["code"])
@@ -508,9 +960,12 @@ def price_block(item: dict) -> str:
             f"<td class=\"num\">{won(v['min'])} ~ {won(v['max'])}</td></tr>"
             for k, v in (st.get("by_clcd") or {}).items())
         sd_rows = "".join(
-            f"<tr><th scope=\"row\">{esc(k)}</th><td class=\"num\">{v['n']}</td>"
+            f"<tr><th scope=\"row\">{sido_cell(k)}</th><td class=\"num\">{v['n']}</td>"
             f"<td class=\"num\">{won(v['avg'])}</td><td class=\"num\">{won(v['median'])}</td></tr>"
             for k, v in sorted((st.get("by_sido") or {}).items(), key=lambda kv: -kv[1]["n"])[:9])
+        if st.get("by_sido"):
+            sd_rows += ('<tr><td colspan="4" style="font-size:12px">'
+                        '<a href="/ko/regions/">17개 시·도 항목별 시세 전체 보기</a></td></tr>')
         cov = ds.get("coverage") or {}
         complete = cov.get("complete")
         cov_html = (
@@ -718,6 +1173,19 @@ def page_landing(items: list[dict]) -> str:
     {compare_table_html(items)}
     <p class="calc-foot">병원급: {esc(DATA_PERIOD)} · 의원급: {esc(KOSIS_PERIOD)}. 두 값은 집계 모집단이 달라
       같은 항목이라도 직접 비교 대상이 아닙니다. 도수치료는 2026-07-01 관리급여 전환으로 1회 43,850원 정액입니다.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>지역별로 비교하기</h2>
+    <p class="section-lead">같은 항목이라도 지역과 기관 규모에 따라 신고 가격이 다릅니다. 17개 시·도를 골라 항목별 평균·중간값과
+      시·군·구별 시세를 볼 수 있습니다.</p>
+    {region_chips()}
+    <p class="calc-foot" style="margin-top:10px">
+      <a class="btn sm" href="/ko/regions/">17개 시·도 전체 표로 보기</a>
+      <span style="margin-left:8px">서울·경기·인천·부산·대구·대전·광주·울산·세종·강원·충북·충남·전북·전남·경북·경남·제주</span>
+    </p>
   </div>
 </section>
 
@@ -1123,6 +1591,13 @@ def page_guide() -> str:
         <p class="calc-foot">위 상태는 2026-11-17 확인 시점의 값이며, 제공기관 사정으로 달라질 수 있습니다.
           통계 오퍼레이션이 응답하지 않아도 기관별 응답만으로 평균·중간·최빈을 계산합니다.</p>
 
+        <h3>지역(시·도) 화면 집계 방법</h3>
+        <p style="font-size:13.5px">17개 시·도 페이지는 기관 행의 <code>sidoCdNm</code>·<code>sgguCdNm</code>을 그대로 써서 집계합니다.
+          심평원 오픈API는 전남·광주를 <b>‘전남광주’</b> 한 라벨로, 세종은 <b>‘세종시’</b>로 내려 주므로,
+          전남·광주는 <b>기관의 시·군·구명이 ‘광주’로 시작하면 광주광역시, 그 외는 전라남도</b>로 나누었습니다(추정·보간 없음).
+          지역 금액은 기관별 (최저가+최고가)/2 의 평균·중간값이며, 시·군·구 표는 응답 3곳 미만일 때 ¹ 표시로 참고값임을 밝힙니다.
+          지역별 기관 수 차이 때문에 지역 간 순위가 우열을 뜻하지 않습니다.</p>
+
         <h3>가격을 표시하지 않는 경우</h3>
         <p style="font-size:13.5px">수집되지 않았거나, 공개 범위 밖(의원급)이거나, 금액이 비어 있는 경우에는
           추정값을 만들지 않고 비워 둡니다.</p>
@@ -1291,12 +1766,15 @@ def build(out: Path, base: str, live: bool) -> dict:
         "ko/index.html": page_landing(items),
         "ko/calc/index.html": page_calc(items),
         "ko/items/index.html": page_items(items),
+        "ko/regions/index.html": page_regions(items),
         "ko/insurance/index.html": page_insurance(),
         "ko/guide/index.html": page_guide(),
         "ko/privacy/index.html": page_privacy(),
     }
     for it in items:
         pages[f"ko/items/{it['slug']}/index.html"] = page_item(it, items)
+    for slug, _name, _full, _labels in REGIONS:
+        pages[f"ko/regions/{slug}/index.html"] = page_region(slug, items)
 
     for path, text in pages.items():
         write(path, text)
@@ -1332,8 +1810,12 @@ def build(out: Path, base: str, live: bool) -> dict:
 <title>{esc(SITE_NAME)}</title><link rel="canonical" href="{esc(SITE_BASE)}/ko/">
 <meta name="robots" content="{'noindex' if PREVIEW else 'index,follow'}">
 <meta http-equiv="refresh" content="0; url=/ko/">
+<meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <script>location.replace('/ko/');</script></head>
 <body><p><a href="/ko/">국내 비급여·실손 파인더로 이동</a></p></body></html>""")
+
+    # 네이버 서치어드바이저 소유확인 파일(사이트 루트)
+    write(NAVER_VERIFY_FILE, f"naver-site-verification: {NAVER_VERIFY_FILE}")
 
     write("404.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>페이지를 찾을 수 없습니다 · {esc(SITE_NAME)}</title>
@@ -1347,8 +1829,13 @@ def build(out: Path, base: str, live: bool) -> dict:
         write("robots.txt", "User-agent: *\nDisallow: /\n# 테스트 픽스처 프리뷰 빌드 (--live 로 색인 허용)\n")
     else:
         write("robots.txt", f"User-agent: *\nAllow: /\nSitemap: {SITE_BASE}/sitemap.xml\n")
-    urls = [("/ko/", "1.0")] + [(p.replace("ko/", "/ko/").replace("/index.html", "/"), "0.9")
-                                for p in pages if p != "ko/index.html"]
+    urls = [("/ko/", "1.0")]
+    for p in pages:
+        if p == "ko/index.html":
+            continue
+        path = p.replace("ko/", "/ko/").replace("/index.html", "/")
+        prio = "0.8" if path.startswith("/ko/regions/") else "0.9"
+        urls.append((path, prio))
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for path, prio in urls:

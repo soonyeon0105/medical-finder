@@ -185,6 +185,33 @@ def main() -> int:
             fails.append(f"{it['slug']}: 5세대 처리 설명 없음")
     ok("항목 페이지별 코드·5세대 설명", True, "")
 
+    # ------------------------------------------------ 지역(17개 시·도) 페이지
+    print("\n== C2. 지역 페이지 (17개 시·도)")
+    region_pages = sorted((dist / "ko" / "regions").glob("*/index.html"))
+    ok("지역 상세 페이지 17개", len(region_pages) == 17, f"{len(region_pages)}개")
+    ok("지역 허브 페이지", (dist / "ko" / "regions" / "index.html").exists())
+    bad_region = []
+    for p in region_pages:
+        t = p.read_text(encoding="utf-8")
+        slug = p.parent.name
+        need = ["병원급 이상", "유선 확인", "전국 대비", "시·군·구별 시세", "data-region", "data-hosp-item"]
+        miss = [x for x in need if x not in t]
+        if miss:
+            bad_region.append((slug, miss))
+        if "\u0000" in t or "{{{" in t or "None원" in t:
+            bad_region.append((slug, ["렌더 오류 의심"]))
+    ok("지역 페이지 필수 요소(범위·시군구·전국대비·필터)", not bad_region, str(bad_region[:3]))
+    hub = (dist / "ko" / "regions" / "index.html").read_text(encoding="utf-8")
+    ok("지역 허브: 17개 시·도 링크",
+       sum(1 for s in ["seoul", "busan", "daegu", "incheon", "gwangju", "daejeon", "ulsan",
+                       "sejong", "gyeonggi", "gangwon", "chungbuk", "chungnam", "jeonbuk",
+                       "jeonnam", "gyeongbuk", "gyeongnam", "jeju"]
+           if f'href="/ko/regions/{s}/"' in hub) == 17, "")
+    home_nav = (dist / "ko" / "index.html").read_text(encoding="utf-8")
+    ok("홈: 지역별 시세 진입 링크", '/ko/regions/' in home_nav and "지역별로 비교하기" in home_nav, "")
+    brain_html = (dist / "ko" / "items" / "brain-mri" / "index.html").read_text(encoding="utf-8")
+    ok("항목 페이지: 시도 → 지역 페이지 링크", '/ko/regions/seoul/' in brain_html, "")
+
     # 관리급여 항목 표기
     mt = (dist / "ko" / "items" / "manual-therapy" / "index.html").read_text(encoding="utf-8")
     ok("도수치료: 관리급여 95%·43,850 표기", "관리급여" in mt and "43,850" in mt, "")
@@ -201,7 +228,7 @@ def main() -> int:
     sm = ET.fromstring((dist / "sitemap.xml").read_bytes())
     ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
     locs = [u.find("sm:loc", ns).text for u in sm.findall("sm:url", ns)]
-    ok("sitemap URL 수", len(locs) >= 19, f"{len(locs)}개")
+    ok("sitemap URL 수", len(locs) >= 37, f"{len(locs)}개")
     missing = []
     for loc in locs:
         path = loc.replace(site_base, "").strip("/")

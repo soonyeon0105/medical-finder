@@ -357,6 +357,9 @@
   }
 
   // ---------------------------------------------------- 병원급 기관 목록 필터
+  // 두 가지 카드 모드를 지원한다.
+  //  ① 항목 페이지: data-hosp data-code=항목코드 + 시도/종별/검색 필터
+  //  ② 지역 페이지: data-hosp data-region=시도 + 항목/시군구/검색 필터
   var HOSP_CACHE = null;
   function initHospTables() {
     var cards = Array.prototype.slice.call(document.querySelectorAll('[data-hosp]'));
@@ -370,69 +373,141 @@
       return HOSP_CACHE;
     }
     load().then(function (all) {
-      cards.forEach(function (card) {
-        var code = card.getAttribute('data-code');
-        var rows = all[code] || [];
-        if (!rows.length) { return; }
-        var body = card.querySelector('[data-hosp-body]');
-        var sidoSel = card.querySelector('[data-hosp-sido]');
-        var clSel = card.querySelector('[data-hosp-cl]');
-        var qInput = card.querySelector('[data-hosp-q]');
-        var countEl = card.querySelector('[data-hosp-count]');
-        var moreBtn = card.querySelector('[data-hosp-more]');
-        var shown = 50;
+      cards.forEach(function (card) { initCard(card, all); });
+    });
 
-        function render() {
-          var sd = sidoSel ? sidoSel.value : '';
-          var cl = clSel ? clSel.value : '';
-          var q = qInput ? qInput.value.trim().toLowerCase() : '';
-          var list = rows.filter(function (r) {
-            if (sd && r[2] !== sd) { return false; }
-            if (cl && r[1] !== cl) { return false; }
-            if (q && String(r[0]).toLowerCase().indexOf(q) < 0) { return false; }
-            return true;
-          });
-          var slice = list.slice(0, shown);
-          body.innerHTML = '';
-          slice.forEach(function (r) {
-            var tr = document.createElement('tr');
-            [r[0], r[1], (r[2] || '') + ' ' + (r[3] || ''), fmt(r[4]), fmt(r[5])]
-              .forEach(function (v, i) {
-                var td = document.createElement('td');
-                td.textContent = v === null || v === undefined ? '—' : v;
-                if (i >= 3) { td.className = 'num'; }
-                tr.appendChild(td);
-              });
-            body.appendChild(tr);
-          });
-          if (countEl) {
+    function initCard(card, all) {
+      var body = card.querySelector('[data-hosp-body]');
+      if (!body) { return; }
+      var fixedCode = card.getAttribute('data-code') || '';
+      var itemSel = card.querySelector('[data-hosp-item]');
+      var sidoSel = card.querySelector('[data-hosp-sido]');
+      var sgguSel = card.querySelector('[data-hosp-sggu]');
+      var clSel = card.querySelector('[data-hosp-cl]');
+      var qInput = card.querySelector('[data-hosp-q]');
+      var countEl = card.querySelector('[data-hosp-count]');
+      var moreBtn = card.querySelector('[data-hosp-more]');
+      var region = card.getAttribute('data-region') || '';
+      var sgguPrefix = card.getAttribute('data-region-sggu-prefix') || '';
+      var sgguNotPrefix = card.getAttribute('data-region-sggu-not-prefix') || '';
+      var shown = 50;
+
+      function currentCode() {
+        return itemSel ? itemSel.value : fixedCode;
+      }
+      function regionOk(r) {
+        if (!region) { return true; }
+        if (r[2] !== region) { return false; }
+        var sg = String(r[3] || '');
+        if (sgguPrefix && sg.indexOf(sgguPrefix) !== 0) { return false; }
+        if (sgguNotPrefix && sg.indexOf(sgguNotPrefix) === 0) { return false; }
+        return true;
+      }
+      function rowsOf(code) {
+        var rows = all[code] || [];
+        return region ? rows.filter(regionOk) : rows;
+      }
+      function fillSggu() {
+        if (!sgguSel) { return; }
+        var keep = sgguSel.value;
+        var seen = {};
+        var names = [];
+        rowsOf(currentCode()).forEach(function (r) {
+          var s = String(r[3] || '');
+          if (!s || seen[s]) { return; }
+          seen[s] = 1; names.push(s);
+        });
+        names.sort(function (a, b) { return a.localeCompare(b, 'ko'); });
+        sgguSel.innerHTML = '';
+        var allOpt = document.createElement('option');
+        allOpt.value = ''; allOpt.textContent = '전체 시·군·구';
+        sgguSel.appendChild(allOpt);
+        names.forEach(function (s) {
+          var o = document.createElement('option');
+          o.value = s; o.textContent = s;
+          sgguSel.appendChild(o);
+        });
+        sgguSel.value = seen[keep] ? keep : '';
+      }
+
+      function render() {
+        var rows = rowsOf(currentCode());
+        var sd = sidoSel ? sidoSel.value : '';
+        var sg = sgguSel ? sgguSel.value : '';
+        var cl = clSel ? clSel.value : '';
+        var q = qInput ? qInput.value.trim().toLowerCase() : '';
+        var list = rows.filter(function (r) {
+          if (sd && r[2] !== sd) { return false; }
+          if (sg && String(r[3] || '') !== sg) { return false; }
+          if (cl && r[1] !== cl) { return false; }
+          if (q && String(r[0]).toLowerCase().indexOf(q) < 0) { return false; }
+          return true;
+        });
+        var slice = list.slice(0, shown);
+        body.innerHTML = '';
+        if (!slice.length) {
+          var empty = document.createElement('tr');
+          var td0 = document.createElement('td');
+          td0.colSpan = 5;
+          td0.textContent = region
+            ? '이 항목은 이 지역에 공개된 병원급 기관이 없습니다. 다른 항목이나 필터를 선택하세요.'
+            : '조건에 맞는 기관이 없습니다.';
+          empty.appendChild(td0);
+          body.appendChild(empty);
+        }
+        slice.forEach(function (r) {
+          var tr = document.createElement('tr');
+          var loc = region ? String(r[3] || '') : (r[2] || '') + ' ' + (r[3] || '');
+          [r[0], r[1], loc, fmt(r[4]), fmt(r[5])]
+            .forEach(function (v, i) {
+              var td = document.createElement('td');
+              td.textContent = v === null || v === undefined || v === '' ? '—' : v;
+              if (i >= 3) { td.className = 'num'; }
+              tr.appendChild(td);
+            });
+          body.appendChild(tr);
+        });
+        if (countEl) {
+          if (region) {
+            countEl.textContent = '이 지역 전체 ' + rows.length.toLocaleString('ko-KR') + '곳 중 조건에 맞는 ' +
+              list.length.toLocaleString('ko-KR') + '곳 · ' + slice.length.toLocaleString('ko-KR') +
+              '곳 표시(낮은 금액 순)';
+          } else {
             countEl.textContent = '전체 ' + rows.length.toLocaleString('ko-KR') + '곳 중 조건에 맞는 ' +
               list.length.toLocaleString('ko-KR') + '곳 · ' + slice.length.toLocaleString('ko-KR') +
               '곳 표시(낮은 금액 순)';
           }
-          if (moreBtn) { moreBtn.style.display = list.length > shown ? '' : 'none'; }
         }
-        [sidoSel, clSel].forEach(function (elm) {
-          if (elm) {
-            elm.addEventListener('change', function () {
-              shown = 50; render();
-              track('hospital_filter', {
-                item_code: code,
-                sido: sidoSel ? sidoSel.value : '',
-                clinic_type: clSel ? clSel.value : ''
-              });
+        if (moreBtn) { moreBtn.style.display = list.length > shown ? '' : 'none'; }
+      }
+      [sidoSel, clSel, sgguSel].forEach(function (elm) {
+        if (elm) {
+          elm.addEventListener('change', function () {
+            shown = 50; render();
+            track('hospital_filter', {
+              item_code: currentCode(),
+              sido: region || (sidoSel ? sidoSel.value : ''),
+              sggu: sgguSel ? sgguSel.value : '',
+              clinic_type: clSel ? clSel.value : ''
             });
-          }
-        });
-        if (qInput) {
-          qInput.addEventListener('input', function () { shown = 50; render(); });
+          });
         }
-        if (moreBtn) {
-          moreBtn.addEventListener('click', function () { shown += 50; render(); });
-        }
-        render();
       });
-    });
+      if (itemSel) {
+        itemSel.addEventListener('change', function () {
+          shown = 50; fillSggu(); render();
+          track('hospital_filter', { item_code: currentCode(), sido: region, change: 'item' });
+        });
+      }
+      if (qInput) {
+        qInput.addEventListener('input', function () { shown = 50; render(); });
+      }
+      if (moreBtn) {
+        moreBtn.addEventListener('click', function () { shown += 50; render(); });
+      }
+      fillSggu();
+      render();
+    }
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); }
   else { boot(); }

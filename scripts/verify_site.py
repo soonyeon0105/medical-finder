@@ -281,6 +281,53 @@ def main() -> int:
             page.wait_for_timeout(250)
             shot(page, "mobile-390-item-brain-mri-kosis")
 
+        # ------------------------------------------------------------ 지역 페이지
+        page.goto(base + "/ko/regions/", wait_until="load")
+        page.wait_for_timeout(200)
+        hub_txt = page.inner_text("main")
+        check("지역 허브: 17개 시·도", all(x in hub_txt for x in ("서울", "경기", "제주", "세종")), "")
+        ov_hub = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+        check("지역 허브: 가로 스크롤 없음", ov_hub <= 1, f"overflow={ov_hub}px")
+        shot(page, "mobile-390-regions")
+
+        page.goto(base + "/ko/regions/gyeonggi/", wait_until="load")
+        page.wait_for_function("document.querySelector('[data-hosp-body] tr') && document.querySelector('[data-hosp-count]').textContent.indexOf('이 지역') === 0", timeout=8000)
+        gy_txt = page.inner_text("main")
+        check("경기: 병원급 기관 수 표기", "647곳" in gy_txt, "647곳 기대")
+        check("경기: 항목별 시세 13행", len(page.query_selector_all("table.stack tbody tr")) >= 13,
+              str(len(page.query_selector_all("table.stack tbody tr"))))
+        count_gy_r = page.inner_text("[data-hosp-count]")
+        rows_gy_r = page.evaluate("Array.from(document.querySelectorAll('[data-hosp-body] tr')).map(tr => tr.children[2].textContent)")
+        check("경기: 기관 목록 지역 한정 렌더", "이 지역 전체" in count_gy_r and rows_gy_r and
+              all("구" in r or "시" in r or "군" in r for r in rows_gy_r), count_gy_r[:70])
+        # 시·군·구 필터
+        opts = page.eval_on_selector_all("[data-hosp-sggu] option", "els => els.map(e => e.value)")
+        check("경기: 시·군·구 옵션 로드", len(opts) > 5, str(opts[:6]))
+        page.select_option("[data-hosp-sggu]", label="수원팔달구")
+        page.wait_for_timeout(250)
+        rows_suwon = page.evaluate("Array.from(document.querySelectorAll('[data-hosp-body] tr')).map(tr => tr.children[2].textContent)")
+        check("경기: 시·군·구 필터(수원팔달구)", rows_suwon and all(r == "수원팔달구" for r in rows_suwon), str(rows_suwon[:3]))
+        page.select_option("[data-hosp-sggu]", label="전체 시·군·구")
+        # 항목 바꾸기(복부 초음파)
+        page.select_option("[data-hosp-item]", "EB4410000")
+        page.wait_for_timeout(300)
+        count_sw = page.inner_text("[data-hosp-count]")
+        check("경기: 항목 변경 시 목록 갱신", "이 지역 전체 135곳" in count_sw, count_sw[:70])
+        page.select_option("[data-hosp-item]", "HE1010001")
+        page.wait_for_timeout(250)
+        ov_gy = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+        check("경기: 가로 스크롤 없음", ov_gy <= 1, f"overflow={ov_gy}px")
+        shot(page, "mobile-390-region-gyeonggi")
+
+        page.goto(base + "/ko/regions/sejong/", wait_until="load")
+        page.wait_for_timeout(400)
+        sj = page.inner_text("main")
+        check("세종: 소규모 지역 페이지 렌더", "세종" in sj and "10곳" in sj, "")
+        page.goto(base + "/ko/regions/gwangju/", wait_until="load")
+        page.wait_for_timeout(300)
+        gj = page.inner_text("main")
+        check("광주: 전남광주 분리 안내", "‘전남광주’" in gj, "")
+
         # ------------------------------------------------------------ 세대 정리 · 안내 페이지
         page.goto(base + "/ko/insurance/", wait_until="load")
         body_ins = page.inner_text("main")
@@ -296,7 +343,9 @@ def main() -> int:
 
         # ------------------------------------------------------------ 모든 페이지 가로 스크롤·배너
         pages = ["/ko/", "/ko/calc/", "/ko/items/", "/ko/insurance/", "/ko/guide/", "/ko/privacy/",
-                 "/ko/items/brain-mri/", "/ko/items/manual-therapy/", "/ko/items/zirconia-implant/"]
+                 "/ko/items/brain-mri/", "/ko/items/manual-therapy/", "/ko/items/zirconia-implant/",
+                 "/ko/regions/", "/ko/regions/seoul/", "/ko/regions/gyeonggi/", "/ko/regions/jeonnam/",
+                 "/ko/regions/jeju/"]
         for path in pages:
             page.goto(base + path, wait_until="load")
             page.wait_for_timeout(120)
@@ -353,6 +402,16 @@ def main() -> int:
         d.goto(base + "/ko/items/", wait_until="load")
         d.wait_for_timeout(200)
         shot(d, "desktop-1440-items")
+        d.goto(base + "/ko/regions/", wait_until="load")
+        d.wait_for_timeout(250)
+        shot(d, "desktop-1440-regions")
+        d.goto(base + "/ko/regions/gyeonggi/", wait_until="load")
+        d.wait_for_function("document.querySelector('[data-hosp-count]').textContent.indexOf('이 지역') === 0", timeout=8000)
+        ov_reg = d.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+        check("데스크톱1440: 경기 지역 페이지 가로스크롤 없음", ov_reg <= 1, f"overflow={ov_reg}px")
+        d.evaluate("document.querySelector('[data-hosp]').scrollIntoView({block:'start'})")
+        d.wait_for_timeout(300)
+        shot(d, "desktop-1440-region-gyeonggi")
         d.goto(base + "/ko/insurance/", wait_until="load")
         d.wait_for_timeout(200)
         shot(d, "desktop-1440-insurance")
