@@ -22,8 +22,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
+import re
 import shutil
 import statistics
 from datetime import datetime, timezone, timedelta
@@ -2014,6 +2016,44 @@ def write(path: str, text: str) -> None:
     target.write_text(text, encoding="utf-8")
 
 
+# ---------------------------------------------------------------- 캐시 버스팅
+# Cloudflare가 style.css 등을 최대 4시간 캐시해, 내용을 바꿔 배포해도 방문자
+# 브라우저가 이전 스타일시트를 물고 있으면 모바일 헤더가 예전 모양으로 깨진다.
+# 파일 내용의 SHA-256 앞 8자리를 ?v=<hash8> 로 붙여, 내용이 바뀔 때만 새 URL이 되게 한다.
+BUST_ASSETS = ("style.css", "calc.js", "app.js")
+
+
+def asset_versions(dist: Path) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for name in BUST_ASSETS:
+        p = dist / "assets" / name
+        if p.exists():
+            out[name] = hashlib.sha256(p.read_bytes()).hexdigest()[:8]
+    return out
+
+
+def apply_cache_busting(dist: Path) -> dict[str, str]:
+    """dist 안 모든 HTML의 assets/style.css·calc.js·app.js URL에 ?v=<hash8> 부착."""
+    versions = asset_versions(dist)
+    if not versions:
+        return versions
+    names = "|".join(re.escape(n) for n in BUST_ASSETS)
+    pat = re.compile(r'((?:href|src)=")((?:[^"]*?/)?assets/(' + names + r'))(?:\?v=[0-9a-f]+)?(")')
+
+    def repl(m: "re.Match[str]") -> str:
+        v = versions.get(m.group(3))
+        if not v:
+            return m.group(0)
+        return f"{m.group(1)}{m.group(2)}?v={v}{m.group(4)}"
+
+    for p in dist.rglob("*.html"):
+        text = p.read_text(encoding="utf-8")
+        new = pat.sub(repl, text)
+        if new != text:
+            p.write_text(new, encoding="utf-8")
+    return versions
+
+
 def build(out: Path, base: str, live: bool) -> dict:
     global DIST, SITE_BASE, PREVIEW, DATASET, ITEM_COUNT, HOSP_ROWS
     DIST = out
@@ -2124,8 +2164,11 @@ def build(out: Path, base: str, live: bool) -> dict:
     sm.append("</urlset>")
     write("sitemap.xml", "\n".join(sm))
 
+    versions = apply_cache_busting(DIST)
+
     return {"pages": len(pages) + 2, "items": len(items), "preview": PREVIEW,
-            "out": str(DIST), "urls": [u[0] for u in urls]}
+            "out": str(DIST), "urls": [u[0] for u in urls],
+            "asset_versions": versions}
 
 
 def main() -> None:

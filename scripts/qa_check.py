@@ -443,6 +443,32 @@ def main() -> int:
                if "<iframe" in p_.read_text(encoding="utf-8")]
     ok("iframe은 문의 페이지에만", all(x.startswith("ko/contact/") for x in iframes), str(iframes))
 
+    # ---------------------------------------------------------- I. 정적 자산 캐시 버스팅
+    print("\n== I. 정적 자산 캐시 버스팅 (?v=<hash8>)")
+    import hashlib as _hashlib
+    vers = {n: _hashlib.sha256((dist / "assets" / n).read_bytes()).hexdigest()[:8]
+            for n in ("style.css", "calc.js", "app.js")}
+    n_bust = 0
+    stale = []
+    no_v = []
+    for p_ in pages:
+        html = p_.read_text(encoding="utf-8")
+        for m in re.finditer(r'(?:href|src)="([^"]*?/assets/(style\.css|calc\.js|app\.js))'
+                             r'(?:\?v=([0-9a-f]{8}))?"', html):
+            name, got = m.group(2), m.group(3)
+            if not got:
+                no_v.append(f"{p_.relative_to(dist)}:{name}")
+                continue
+            n_bust += 1
+            if got != vers[name]:
+                stale.append(f"{p_.relative_to(dist)}:{name}?v={got} (실제 {vers[name]})")
+    ok("모든 HTML의 CSS·JS에 ?v=<hash8> 부착", not no_v, f"부착 {n_bust}건 / 누락 {no_v[:3]}")
+    ok("붙은 해시 = 배포 파일 실제 해시", not stale, str(stale[:3]))
+    ok("404·루트 랜딩도 버전 쿼리 일관",
+       all(f"style.css?v={vers['style.css']}" in (dist / n).read_text(encoding="utf-8")
+           for n in ("404.html",)) and vers["style.css"] in (dist / "404.html").read_text(encoding="utf-8"),
+       vers["style.css"])
+
     # ---------------------------------------------------------- 결과
     print()
     if warns:
