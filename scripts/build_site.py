@@ -1368,7 +1368,8 @@ def page_items(items: list[dict]) -> str:
                               "url": SITE_BASE + f"/ko/items/{it['slug']}/"} for i, it in enumerate(items, 1)]},
     ]
     return layout("/ko/items/", f"비급여 항목 {len(items)}개 코드 정리 · {SITE_NAME}",
-                  "뇌·척추·관절 MRI, 초음파, 진정내시경, 지르코니아 임플란트, 체외충격파, 증식치료, 도수치료, 신장분사치료의 심평원 코드와 5세대 실손 처리.",
+                  "뇌·척추·관절 MRI, 초음파, 진정내시경 Ⅰ~Ⅲ, 지르코니아 임플란트·크라운(PFM), 백내장 다초점 인공수정체, 라식, "
+                  "대상포진 예방접종, 체외충격파, 증식치료, 도수치료, 신장분사치료의 심평원 코드와 세대별 실손 처리·보장 제외.",
                   body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목")], jsonld, current="/ko/items/")
 
 
@@ -1493,7 +1494,7 @@ def page_item(it: dict, items: list[dict]) -> str:
     ]
     return layout(f"/ko/items/{it['slug']}/",
                   f"{it['name']} ({it['code']}) 비급여 가격·실손 보장 · {SITE_NAME}",
-                  f"{it['name']}의 심평원 공식 분류와 코드, 3세대·5세대 실손 처리 방식, 관리급여 여부를 정리했습니다.",
+                  f"{it['name']}의 심평원 공식 분류와 코드, 병원급 공개가·전국 의원급 통계, 실손 세대별 처리({coverage_label(it)})를 정리했습니다.",
                   body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목"), (f"/ko/items/{it['slug']}/", it["name"])],
                   jsonld, current="/ko/items/")
 
