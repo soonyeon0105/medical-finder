@@ -13,7 +13,8 @@
   /ko/items/              항목 전체 목록
   /ko/items/{slug}/       항목 상세
   /ko/insurance/          1~5세대 실손 정리(2026 개편 반영)
-  /ko/guide/              이용 안내 · 데이터 출처 · 범위 고지
+  /ko/guide/              가이드 허브 · 이용 안내 · 데이터 출처 · 범위 고지
+  /ko/guide/{slug}/       실손·비급여 해설 가이드 8편(T-M12 5편 + T-M12-B 3편)
   /assets/*, robots.txt, sitemap.xml, 404.html
 
 사용법: python3 scripts/build_site.py [--out DIR] [--base URL] [--live]
@@ -30,6 +31,12 @@ import shutil
 import statistics
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+sys_path_dir = str(Path(__file__).resolve().parent)
+import sys as _sys  # noqa: E402
+if sys_path_dir not in _sys.path:
+    _sys.path.insert(0, sys_path_dir)
+from guides import GUIDES as GUIDE_ARTICLES  # noqa: E402
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA = BASE_DIR / "data"
@@ -95,7 +102,7 @@ NAV = [
     ("/ko/items/", "비급여 항목", "항목"),
     ("/ko/regions/", "지역별 시세", "지역"),
     ("/ko/insurance/", "1~5세대 실손", "세대별"),
-    ("/ko/guide/", "이용 안내", "안내"),
+    ("/ko/guide/", "가이드", "가이드"),
 ]
 
 SCOPE_LINE = ("병원급 이상 심평원 공개 가격 기준(공공누리 제1유형) · 동네 의원 개별 가격은 공개 범위 외이므로 "
@@ -1600,6 +1607,117 @@ def page_insurance() -> str:
                   body, [("/ko/", "홈"), ("/ko/insurance/", "1~5세대 실손")], jsonld, current="/ko/insurance/")
 
 
+GUIDE_BY_SLUG = {g["slug"]: g for g in GUIDE_ARTICLES}
+GUIDE_UPDATED = "2026-11-18"
+
+
+def guide_url(slug: str) -> str:
+    return f"/ko/guide/{slug}/"
+
+
+def guide_cards(exclude: str = "", heading: str = "가이드 8편") -> str:
+    """가이드 목록 카드 — 다른 가이드 교차링크에 공통으로 쓴다."""
+    cards = []
+    for g in GUIDE_ARTICLES:
+        if g["slug"] == exclude:
+            continue
+        url = guide_url(g["slug"])
+        cards.append(
+            f'<a class="item-card" href="{url}">'
+            f'<div class="top"><span class="nm">{esc(g["h1"])}</span>'
+            f'<span class="pill teal">{g["no"]:02d}</span></div>'
+            f'<div class="sm">{esc(g["desc"][:84])}…</div></a>')
+    return '<div class="item-grid" data-guide-list>' + "".join(cards) + "</div>"
+
+
+def guide_side_list(exclude: str) -> str:
+    """본문 옆 목록용 — 자기 자신만 빠진 8편 목록."""
+    out = []
+    for o in GUIDE_ARTICLES:
+        if o["slug"] == exclude:
+            continue
+        out.append(f'<li><a href="{guide_url(o["slug"])}">{esc(o["h1"])}</a></li>')
+    return "".join(out)
+
+
+def page_guide_article(g: dict) -> str:
+    path = guide_url(g["slug"])
+    toc = []
+    body = []
+    for i, (h2, html_body) in enumerate(g["sections"], start=1):
+        sid = f"s{i}"
+        toc.append(f'<li><a href="#{sid}">{esc(h2)}</a></li>')
+        body.append(f'<h2 id="{sid}">{esc(h2)}</h2>\n{html_body}')
+    site_links = "".join(
+        f'<li><a href="{esc(href)}">{esc(label)}</a></li>' for href, label in g["site_links"])
+    sources = "".join(f"<li>{esc(s)}</li>" for s in g["sources"])
+    body_html = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <div class="pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="pill teal">가이드 {g['no']:02d}</span>
+        <span class="pill line">갱신 {esc(GUIDE_UPDATED)}</span>
+        <span class="pill line">1차 출처 기준</span>
+      </div>
+      <h1>{esc(g['h1'])}</h1>
+      <p class="section-lead">{esc(g['lead'])}</p>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <article class="card prose">
+        {''.join(body)}
+      </article>
+      <aside>
+        <div class="card">
+          <h3 style="font-size:15px">이 글의 목차</h3>
+          <ol style="font-size:13px;margin:8px 0 0;padding-left:18px">{''.join(toc)}</ol>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px">관련 페이지</h3>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px">{site_links}</ul>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px">다른 가이드</h3>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px">{guide_side_list(g['slug'])}</ul>
+        </div>
+      </aside>
+    </div>
+    <h2 style="margin-top:30px">자주 묻는 질문</h2>
+    {faq_html(g['faqs'])}
+    <div class="card prose" style="margin-top:22px">
+      <h2 style="font-size:16px;margin-top:0">1차 출처</h2>
+      <ul style="font-size:13px">{sources}</ul>
+      <p class="calc-foot">이 가이드는 공개된 법령·고시·보도자료와 본 사이트가 수집한 공개 데이터를 근거로
+        작성한 해설입니다. 진료비와 보장 여부의 최종 판단은 진료 현장과 가입한 보험사의 약관·심사에 따르며,
+        본 사이트는 특정 의료기관의 추천·예약·상담 알선을 하지 않습니다.
+        <a href="/ko/guide/">가이드 전체 목록</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a></p>
+    </div>
+    <h2 style="margin-top:30px">가이드 더 보기</h2>
+    <p class="section-lead">실손·비급여 해설 가이드 {len(GUIDE_ARTICLES)}편을 주제별로 정리했습니다.</p>
+    {guide_cards(exclude=g['slug'])}
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), ("/ko/guide/", "가이드"), (path, g["h1"])]),
+        faq_jsonld(g["faqs"]),
+        {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": g["h1"],
+            "description": g["desc"],
+            "inLanguage": "ko",
+            "datePublished": GUIDE_UPDATED,
+            "dateModified": GUIDE_UPDATED,
+            "author": {"@type": "Organization", "name": f"{SITE_NAME} 편집팀"},
+            "publisher": {"@type": "Organization", "name": BRAND},
+            "mainEntityOfPage": SITE_BASE + path,
+        },
+    ]
+    return layout(path, f"{g['meta_title']} · {SITE_NAME}", g["desc"], body_html,
+                  [("/ko/", "홈"), ("/ko/guide/", "가이드"), ("", g["h1"])], jsonld, current="/ko/guide/")
+
+
 def page_guide() -> str:
     faqs = [
         ("가격은 언제 갱신되나요?",
@@ -1620,9 +1738,18 @@ def page_guide() -> str:
 <section class="section" style="padding-top:10px">
   <div class="wrap">
     <div class="page-head">
-      <h1>이용 안내 · 데이터 출처</h1>
-      <p class="section-lead">이 사이트가 무엇을 근거로, 어디까지 다루는지 정리했습니다.</p>
+      <h1>가이드 · 이용 안내</h1>
+      <p class="section-lead">실손·비급여 해설 가이드 {len(GUIDE_ARTICLES)}편과, 이 사이트가 무엇을 근거로 어디까지
+        다루는지 정리했습니다.</p>
     </div>
+    <h2 style="margin-top:6px">실손·비급여 해설 가이드 {len(GUIDE_ARTICLES)}편</h2>
+    <p class="section-lead">계산기·시세표·지역 페이지의 숫자를 읽고 비교하는 방법을 주제별로 정리했습니다.</p>
+    {guide_cards()}
+    <p class="calc-foot" style="margin-top:10px">각 가이드는 법령·고시·보도자료와 심평원·통계청 공개 데이터를
+      1차 출처로 삼았습니다. 가이드의 숫자는 진료비를 확정하지 않으며, 최종 비용과 보장은 진료 현장과 가입
+      약관에서 확인해야 합니다. <a href="/ko/calc/">실손 보장액 계산기</a> ·
+      <a href="/ko/items/">비급여 항목 {ITEM_COUNT}개</a> · <a href="/ko/regions/">지역별 시세</a>와 함께 보세요.</p>
+    <h2 style="margin-top:30px">데이터 출처와 이용 안내</h2>
     <div class="grid g2">
       <div class="card prose">
         <h2 style="font-size:17px">데이터 출처와 라이선스</h2>
@@ -1707,10 +1834,11 @@ def page_guide() -> str:
   </div>
 </section>
 """
-    jsonld = [breadcrumb_jsonld([("/ko/", "홈"), ("/ko/guide/", "이용 안내")]), faq_jsonld(faqs)]
-    return layout("/ko/guide/", f"이용 안내 · 데이터 출처 · {SITE_NAME}",
-                  "심평원 비급여 공개 API(15001700·공공누리 제1유형) 기반 수집 구조와 공개 범위, 계산의 가정과 한계를 안내합니다.",
-                  body, [("/ko/", "홈"), ("/ko/guide/", "이용 안내")], jsonld, current="/ko/guide/")
+    jsonld = [breadcrumb_jsonld([("/ko/", "홈"), ("/ko/guide/", "가이드")]), faq_jsonld(faqs)]
+    return layout("/ko/guide/", f"실손·비급여 해설 가이드 {len(GUIDE_ARTICLES)}편 · 이용 안내 · {SITE_NAME}",
+                  "실손 세대 비교부터 비급여 시세 읽기·관리급여 95%·지역별 차이·납부와 청구·MRI·치과·도수치료까지 "
+                  "해설 가이드 8편과 데이터 출처·공개 범위·계산의 가정을 함께 안내합니다.",
+                  body, [("/ko/", "홈"), ("/ko/guide/", "가이드")], jsonld, current="/ko/guide/")
 
 
 def page_privacy() -> str:
@@ -2084,6 +2212,8 @@ def build(out: Path, base: str, live: bool) -> dict:
     }
     for slug in ("about", "editorial-policy", "medical-disclaimer", "contact"):
         pages[f"ko/{slug}/index.html"] = page_trust(slug)
+    for g in GUIDE_ARTICLES:
+        pages[f"ko/guide/{g['slug']}/index.html"] = page_guide_article(g)
     for it in items:
         pages[f"ko/items/{it['slug']}/index.html"] = page_item(it, items)
     for slug, _name, _full, _labels in REGIONS:

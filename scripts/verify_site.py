@@ -375,12 +375,50 @@ def main() -> int:
             check(f"이용 안내: '{token}' 포함", token in body_g, "")
         shot(page, "mobile-390-guide")
 
+        # ------------------------------------------------------------ 가이드 8편 (T-M12 5 + T-M12-B 3)
+        guide_slugs = ["silson-1-5-generation-guide", "how-to-read-noncovered-prices",
+                       "managed-benefit-95-calculator-guide", "regional-noncovered-price-differences",
+                       "silson-claim-process-guide", "mri-ultrasound-covered-vs-noncovered",
+                       "dental-implant-crown-silson", "shockwave-prolotherapy-gen5-exclusion"]
+        cards_hub = page.locator('[data-guide-list] a').count()
+        check("가이드 허브: 카드 8장", cards_hub == 8, f"{cards_hub}장")
+        for slug in guide_slugs:
+            page.goto(base + "/ko/guide/" + slug + "/", wait_until="load")
+            page.wait_for_timeout(150)
+            h1 = page.inner_text("h1")
+            toc = page.locator('aside a[href^="#s"]').count()
+            faq = page.locator('.faq details').count()
+            ov_g = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+            check(f"가이드 {slug}: h1·목차·FAQ·가로스크롤",
+                  bool(h1.strip()) and toc >= 4 and faq >= 3 and ov_g <= 1,
+                  f"h1={h1[:18]} toc={toc} faq={faq} overflow={ov_g}")
+            shot(page, f"mobile-390-guide-{slug}")
+        # 목차 링크가 실제로 해당 절로 이동하는지(대표 1편)
+        page.goto(base + "/ko/guide/mri-ultrasound-covered-vs-noncovered/", wait_until="load")
+        page.locator('aside a[href="#s5"]').click()
+        page.wait_for_timeout(1400)   # scroll-behavior: smooth 이 끝날 때까지
+        in_view = page.evaluate("""() => {
+            const el = document.getElementById('s5'); if (!el) return false;
+            const r = el.getBoundingClientRect();
+            return r.top >= -4 && r.top < 200;
+        }""")
+        check("가이드 목차 앵커 이동", in_view,
+              "top=" + str(round(page.evaluate(
+                  "document.getElementById('s5').getBoundingClientRect().top"), 1)))
+
         # ------------------------------------------------------------ 모든 페이지 가로 스크롤·배너
         pages = ["/ko/", "/ko/calc/", "/ko/items/", "/ko/insurance/", "/ko/guide/", "/ko/privacy/",
                  "/ko/about/", "/ko/editorial-policy/", "/ko/medical-disclaimer/", "/ko/contact/",
                  "/ko/items/brain-mri/", "/ko/items/manual-therapy/", "/ko/items/zirconia-implant/",
                  "/ko/regions/", "/ko/regions/seoul/", "/ko/regions/gyeonggi/", "/ko/regions/jeonnam/",
-                 "/ko/regions/jeju/"]
+                 "/ko/regions/jeju/",
+                 "/ko/guide/silson-1-5-generation-guide/", "/ko/guide/how-to-read-noncovered-prices/",
+                 "/ko/guide/managed-benefit-95-calculator-guide/",
+                 "/ko/guide/regional-noncovered-price-differences/",
+                 "/ko/guide/silson-claim-process-guide/",
+                 "/ko/guide/mri-ultrasound-covered-vs-noncovered/",
+                 "/ko/guide/dental-implant-crown-silson/",
+                 "/ko/guide/shockwave-prolotherapy-gen5-exclusion/"]
         for path in pages:
             page.goto(base + path, wait_until="load")
             page.wait_for_timeout(120)
@@ -450,6 +488,20 @@ def main() -> int:
         d.goto(base + "/ko/insurance/", wait_until="load")
         d.wait_for_timeout(200)
         shot(d, "desktop-1440-insurance")
+
+        # 가이드 대표 2편(데스크톱) — 본문·목차 2단 렌더 확인
+        for gslug in ("mri-ultrasound-covered-vs-noncovered", "dental-implant-crown-silson"):
+            d.goto(base + "/ko/guide/" + gslug + "/", wait_until="load")
+            d.wait_for_timeout(250)
+            gcols = d.evaluate("""() => {
+                const a = document.querySelector('.grid.g2'); if (!a) return 'none';
+                return getComputedStyle(a).gridTemplateColumns;
+            }""")
+            ov_gd = d.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+            check(f"데스크톱1440: 가이드 {gslug[:20]} 2단·가로스크롤",
+                  "px" in gcols and len(gcols.split()) >= 2 and ov_gd <= 1,
+                  f"cols={gcols} overflow={ov_gd}")
+            shot(d, f"desktop-1440-guide-{gslug}")
         if live:
             d.goto(base + "/ko/items/brain-mri/", wait_until="load")
             d.wait_for_function("document.querySelector('[data-hosp-count]').textContent.includes('전체')", timeout=8000)

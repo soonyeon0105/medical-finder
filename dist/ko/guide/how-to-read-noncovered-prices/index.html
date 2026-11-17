@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>비급여 진료비 시세 읽는 법 — 심평원 공개가·평균·중간값 · 메디컬 비급여 시세 파인더</title>
+<meta name="description" content="심평원 비급여 공개가는 병원급 이상 기관 기준입니다. 평균과 중간값, 기관 수의 의미를 알면 시세를 제대로 읽을 수 있습니다. 비급여 시세표를 보는 순서를 정리했습니다.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://medical-finder-kr.pages.dev/ko/guide/how-to-read-noncovered-prices/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="메디컬 비급여 시세 파인더">
+<meta property="og:title" content="비급여 진료비 시세 읽는 법 — 심평원 공개가·평균·중간값 · 메디컬 비급여 시세 파인더">
+<meta property="og:description" content="심평원 비급여 공개가는 병원급 이상 기관 기준입니다. 평균과 중간값, 기관 수의 의미를 알면 시세를 제대로 읽을 수 있습니다. 비급여 시세표를 보는 순서를 정리했습니다.">
+<meta property="og:url" content="https://medical-finder-kr.pages.dev/ko/guide/how-to-read-noncovered-prices/">
+<meta name="theme-color" content="#0f766e">
+<meta name="naver-site-verification" content="65f0d284f2bc3f6c8cf5590d03848e4e70783bae">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="stylesheet" href="/assets/style.css?v=33c6107e">
+<!-- Google Analytics 4 (GA4) · 방문 통계 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EQ04J49YZ"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
+</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "홈", "item": "https://medical-finder-kr.pages.dev/ko/"}, {"@type": "ListItem", "position": 2, "name": "가이드", "item": "https://medical-finder-kr.pages.dev/ko/guide/"}, {"@type": "ListItem", "position": 3, "name": "비급여 진료비 시세 읽는 법", "item": "https://medical-finder-kr.pages.dev/ko/guide/how-to-read-noncovered-prices/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "비급여 가격은 어디까지 비교할 수 있나요?", "acceptedAnswer": {"@type": "Answer", "text": "건강보험심사평가원이 공공데이터포털로 공개하는 병원급 이상(상급종합·종합병원·병원·요양병원·치과병원·한방병원) 비급여 진료비까지 비교할 수 있습니다. 동네 의원·치과의원·한의원의 개별 기관 가격은 공개 API 제공 범위가 아니어서 표시하지 않으며, 전국 의원급 규모의 평균·중간값만 통계청 KOSIS 공개 통계표에서 참고값으로 함께 보여 줍니다."}}, {"@type": "Question", "name": "평균과 중간값이 다른 이유는 무엇인가요?", "acceptedAnswer": {"@type": "Answer", "text": "평균은 전체 가격의 합을 기관 수로 나눈 값이고, 중간값은 가격을 순서대로 늘어놓았을 때 가운데 값입니다. 일부 고가 기관이 있으면 평균이 중간값보다 높아질 수 있습니다. 두 값을 함께 보면 가격 분포를 더 정확히 이해할 수 있습니다."}}, {"@type": "Question", "name": "도수치료 시세표 숫자는 지금도 유효한가요?", "acceptedAnswer": {"@type": "Answer", "text": "시세표의 도수치료 숫자는 비급여 시기의 참고값입니다. 도수치료는 2026년 7월 1일부터 관리급여로 전환되어 1회 43,850원 정액, 본인부담률 95%가 적용됩니다. 실제 부담액은 관리급여 규칙으로 계산해야 합니다."}}, {"@type": "Question", "name": "시세표의 가격이 실제 진료비와 다를 수 있나요?", "acceptedAnswer": {"@type": "Answer", "text": "다를 수 있습니다. 시세표는 공개된 기관들의 신고 가격을 집계한 참고값이며, 실제 진료비는 기관의 종별·규모·지역과 진료 내용에 따라 달라집니다. 방문 전 해당 기관에 확인하는 것이 정확합니다."}}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "비급여 진료비 시세 읽는 법", "description": "심평원 비급여 공개가는 병원급 이상 기관 기준입니다. 평균과 중간값, 기관 수의 의미를 알면 시세를 제대로 읽을 수 있습니다. 비급여 시세표를 보는 순서를 정리했습니다.", "inLanguage": "ko", "datePublished": "2026-11-18", "dateModified": "2026-11-18", "author": {"@type": "Organization", "name": "메디컬 비급여 시세 파인더 편집팀"}, "publisher": {"@type": "Organization", "name": "K-MediCheck"}, "mainEntityOfPage": "https://medical-finder-kr.pages.dev/ko/guide/how-to-read-noncovered-prices/"}</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="/ko/"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7.5" fill="#0F2942"/><path d="M16 7.4V24.6M7.4 16H20.4L26.6 10.4" fill="none" stroke="#14B8A6" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt">메디컬 비급여 시세 파인더</span></a>
+    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span></a><a href="/ko/items/"><span class="full">비급여 항목</span><span class="abbr">항목</span></a><a href="/ko/regions/"><span class="full">지역별 시세</span><span class="abbr">지역</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span></a><a href="/ko/guide/" aria-current="page"><span class="full">가이드</span><span class="abbr">가이드</span></a></nav>
+  </div>
+</header>
+<nav class="breadcrumb" aria-label="위치"><div class="wrap"><a href="/ko/">홈</a><span>›</span><a href="/ko/guide/">가이드</a><span>›</span><span aria-current="page">비급여 진료비 시세 읽는 법</span></div></nav>
+<main id="main">
+<div class="scope-strip"><div class="wrap">병원급 이상 심평원 공개 가격 기준(공공누리 제1유형) · 동네 의원 개별 가격은 공개 범위 외이므로 방문 전 확인 (참고용 전국 의원 평균·중간값은 통계청 KOSIS 통계 기준)</div></div>
+
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <div class="pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="pill teal">가이드 02</span>
+        <span class="pill line">갱신 2026-11-18</span>
+        <span class="pill line">1차 출처 기준</span>
+      </div>
+      <h1>비급여 진료비 시세 읽는 법</h1>
+      <p class="section-lead">공개되는 가격과 되지 않는 가격을 구분하고, 평균·중간값·기관 수를 함께 읽습니다.</p>
+    </div>
+    <div class="grid g2" style="align-items:start">
+      <article class="card prose">
+        <h2 id="s1">비급여 시세란 무엇인가 — 공개되는 가격과 공개되지 않는 가격</h2>
+
+<p>비급여 진료비는 건강보험이 적용되지 않아 의료기관이 정한 가격으로 환자가 전액 부담하는 진료비입니다.
+기관마다 가격이 다르기 때문에, 같은 항목이라도 어디서 받느냐에 따라 금액이 달라집니다. 심평원은 비급여
+진료비를 공개하지만 공개 범위가 정해져 있어, 범위를 모르고 숫자만 보면 잘못된 비교를 하기 쉽습니다.</p>
+<p>본 사이트의 가격은 건강보험심사평가원이 공공데이터포털로 공개하는 <b>병원급 이상</b> 의료기관
+(상급종합·종합병원·병원·요양병원·정신병원·치과병원·한방병원)의 비급여 진료비입니다. 공공누리
+제1유형(출처표시)으로 이용이 허락된 자료입니다. 반면 동네 의원·치과의원·한의원의 <b>개별 기관 가격</b>은
+공개 API 제공 범위가 아니어서 표시하지 않습니다. 의원에서 진료받을 예정이라면, 본 사이트의 의원급 숫자는
+개별 의원의 가격이 아니라 전국 의원급 규모의 통계라는 점을 먼저 이해해야 합니다.</p>
+<h2 id="s2">병원급 공개가와 의원급 통계는 다른 숫자이다</h2>
+
+<p>시세표의 왼쪽 숫자는 심평원 오픈API에서 전수 수집한 병원급 이상 기관들의 신고 가격 평균이고, 오른쪽
+숫자는 통계청 KOSIS(승인번호 354006)의 전국 의원·치과의원 규모 통계입니다. 두 값은 같은 항목이라도
+직접 비교 대상이 아닙니다. 예를 들어 뇌 MRI는 병원급 평균 499,182원(932곳), 전국 의원급 평균
+379,927원(중간값 400,000원)으로 표시됩니다.</p>
+<div class="callout"><p style="margin:0">이 차이를 "의원이 병원보다 싸다"는 결론으로 바로 연결해서는 안 됩니다.
+집계한 기관의 종류와 규모가 다르기 때문입니다. 병원급 숫자는 병원급 기관들의 신고 가격을 모은 값이고,
+의원급 숫자는 전국 의원 규모의 통계표에서 가져온 참고값입니다.</p></div>
+<h2 id="s3">평균과 중간값, 기관 수를 함께 보는 법</h2>
+
+<p>평균은 모든 기관 가격의 합을 기관 수로 나눈 값이고, 중간값은 가격을 순서대로 늘어놓았을 때 가운데에
+있는 값입니다. 평균만 보면 일부 고가 기관이 평균을 끌어올린 경우를 알기 어렵고, 중간값만 보면 전체
+분포를 알기 어렵습니다. 그래서 두 값을 함께 봅니다.</p>
+<p>기관 수도 중요합니다. 기관 수가 많을수록 평균의 의미가 안정적이며, 기관 수가 적으면 소수 기관의
+가격이 평균에 크게 반영될 수 있습니다. 예를 들어 백내장 다초점 인공수정체는 병원급 평균 2,520,706원이지만
+집계 기관이 72곳으로, 뇌 MRI의 932곳보다 적습니다. 기관 수가 적은 항목은 평균을 참고값으로만 보고,
+실제 진료비는 방문 전 확인이 필요합니다.</p>
+<h2 id="s4">항목별 시세 읽는 예시 — 뇌 MRI와 도수치료</h2>
+
+<p>첫째, 뇌 MRI입니다. 병원급 평균 499,182원(932곳), 전국 의원급 평균 379,927원(중간값 400,000원)으로
+표시되며, 5세대에서는 비중증 보장으로 분류됩니다. 두통·어지럼·뇌졸중 의심에서 가장 많이 비교되는
+항목입니다. 다만 급여로 인정되면 정해진 본인부담률만 내므로, 시세표 숫자가 곧 내가 낼 금액은 아닙니다.
+급여·비급여 구분은 <a href="/ko/guide/mri-ultrasound-covered-vs-noncovered/">MRI·초음파 급여/비급여 가이드</a>에서
+자세히 다룹니다.</p>
+<p>둘째, 도수치료입니다. 시세표에는 병원급 평균 93,558원(1,617곳), 의원급 평균 117,374원(중간값 100,000원)으로
+표시되지만, 도수치료는 2026년 7월 1일부터 관리급여로 전환되어 1회 43,850원 정액, 본인부담률 95%가
+적용됩니다. 따라서 도수치료의 비급여 시세는 전환 전 가격의 참고값으로만 읽어야 하며, 실제 부담액은
+관리급여 규칙으로 계산합니다. 항목마다 제도 적용이 다를 수 있으므로 시세표의 '5세대 처리' 표시를 함께
+확인하는 것이 좋습니다.</p>
+<h2 id="s5">시세를 비교할 때 흔한 착각 3가지</h2>
+
+<ol>
+  <li><b>병원급 평균과 의원급 통계를 같은 기준으로 비교하는 것</b> — 두 숫자는 모집단이 다르므로
+    어느 쪽이 저렴한지를 가리는 비교에 쓸 수 없습니다.</li>
+  <li><b>평균 가격을 내 진료비로 그대로 받아들이는 것</b> — 평균은 참고값이며, 실제 진료비는 기관의
+    종별·규모·지역과 진료 내용에 따라 달라집니다.</li>
+  <li><b>시세만으로 실손 보장액을 단정하는 것</b> — 시세는 진료비의 참고값이고, 실손 보장액은 세대·특약·
+    입원/통원·자기부담 누적에 따라 달라집니다.</li>
+</ol>
+<h2 id="s6">시세 확인 후 다음 단계</h2>
+
+<p>시세를 확인한 뒤에는 세 가지를 합니다.</p>
+<ul>
+  <li><b>보장 제외 항목인지 확인</b> — 체외충격파치료(병원급 평균 93,181원), 증식치료(사지)(병원급 평균
+    72,390원)는 5세대에서 보장 제외로 표시되며, 지르코니아 임플란트(병원급 평균 1,431,604원)와
+    지르코니아 크라운(병원급 평균 562,354원) 같은 치과 비급여 보철은 전 세대 보장 제외입니다.</li>
+  <li><b>계산기에 금액을 넣어 세대별 예상 보장액 확인</b> — <a href="/ko/calc/">실손 보장액 계산기</a>에서
+    같은 금액으로 세대별 부담을 비교합니다.</li>
+  <li><b>실제 진료비는 방문 전 기관에 확인</b> — 시세표는 비교의 출발점이지 진료비의 확정값이 아닙니다.</li>
+</ul>
+<p>지역별로 가격이 어떻게 다른지 보려면 <a href="/ko/regions/">지역별 시세</a>와
+<a href="/ko/guide/regional-noncovered-price-differences/">지역별 비급여 가격 차이와 비교 시 주의점</a>을
+함께 보세요.</p>
+
+      </article>
+      <aside>
+        <div class="card">
+          <h3 style="font-size:15px">이 글의 목차</h3>
+          <ol style="font-size:13px;margin:8px 0 0;padding-left:18px"><li><a href="#s1">비급여 시세란 무엇인가 — 공개되는 가격과 공개되지 않는 가격</a></li><li><a href="#s2">병원급 공개가와 의원급 통계는 다른 숫자이다</a></li><li><a href="#s3">평균과 중간값, 기관 수를 함께 보는 법</a></li><li><a href="#s4">항목별 시세 읽는 예시 — 뇌 MRI와 도수치료</a></li><li><a href="#s5">시세를 비교할 때 흔한 착각 3가지</a></li><li><a href="#s6">시세 확인 후 다음 단계</a></li></ol>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px">관련 페이지</h3>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px"><li><a href="/ko/items/">비급여 항목 20개 시세표</a></li><li><a href="/ko/calc/">1~5세대 실손 보장액 계산기</a></li><li><a href="/ko/regions/">지역별 시세 17개 시·도</a></li></ul>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px">다른 가이드</h3>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px"><li><a href="/ko/guide/silson-1-5-generation-guide/">1~5세대 실손보험 비교·선택 가이드</a></li><li><a href="/ko/guide/managed-benefit-95-calculator-guide/">관리급여 본인부담 95% 계산기 사용법</a></li><li><a href="/ko/guide/regional-noncovered-price-differences/">지역별 비급여 가격 차이와 비교 시 주의점</a></li><li><a href="/ko/guide/silson-claim-process-guide/">실손보험 청구 절차·서류 가이드</a></li><li><a href="/ko/guide/mri-ultrasound-covered-vs-noncovered/">MRI·초음파 급여/비급여 가이드</a></li><li><a href="/ko/guide/dental-implant-crown-silson/">치과 임플란트·크라운 실손 가이드</a></li><li><a href="/ko/guide/shockwave-prolotherapy-gen5-exclusion/">체외충격파·증식치료 5세대 실손 제외 대응 가이드</a></li></ul>
+        </div>
+      </aside>
+    </div>
+    <h2 style="margin-top:30px">자주 묻는 질문</h2>
+    <div class="faq"><details><summary>비급여 가격은 어디까지 비교할 수 있나요?</summary><div class="a">건강보험심사평가원이 공공데이터포털로 공개하는 병원급 이상(상급종합·종합병원·병원·요양병원·치과병원·한방병원) 비급여 진료비까지 비교할 수 있습니다. 동네 의원·치과의원·한의원의 개별 기관 가격은 공개 API 제공 범위가 아니어서 표시하지 않으며, 전국 의원급 규모의 평균·중간값만 통계청 KOSIS 공개 통계표에서 참고값으로 함께 보여 줍니다.</div></details><details><summary>평균과 중간값이 다른 이유는 무엇인가요?</summary><div class="a">평균은 전체 가격의 합을 기관 수로 나눈 값이고, 중간값은 가격을 순서대로 늘어놓았을 때 가운데 값입니다. 일부 고가 기관이 있으면 평균이 중간값보다 높아질 수 있습니다. 두 값을 함께 보면 가격 분포를 더 정확히 이해할 수 있습니다.</div></details><details><summary>도수치료 시세표 숫자는 지금도 유효한가요?</summary><div class="a">시세표의 도수치료 숫자는 비급여 시기의 참고값입니다. 도수치료는 2026년 7월 1일부터 관리급여로 전환되어 1회 43,850원 정액, 본인부담률 95%가 적용됩니다. 실제 부담액은 관리급여 규칙으로 계산해야 합니다.</div></details><details><summary>시세표의 가격이 실제 진료비와 다를 수 있나요?</summary><div class="a">다를 수 있습니다. 시세표는 공개된 기관들의 신고 가격을 집계한 참고값이며, 실제 진료비는 기관의 종별·규모·지역과 진료 내용에 따라 달라집니다. 방문 전 해당 기관에 확인하는 것이 정확합니다.</div></details></div>
+    <div class="card prose" style="margin-top:22px">
+      <h2 style="font-size:16px;margin-top:0">1차 출처</h2>
+      <ul style="font-size:13px"><li>건강보험심사평가원 비급여진료비정보조회서비스(공공데이터포털 15001700, 공공누리 제1유형) — 병원급 이상 비급여 공개가, 핵심 20개 항목 가격·기관 수. 심평원 2026년 비급여 공개 자료, 오픈API 조회 2026-11-17.</li><li>통계청 KOSIS 승인번호 354006(작성기관 건강보험심사평가원) — 전국 의원·치과의원 규모 통계(자료갱신 2026-10-23).</li><li>보건복지부 2026-07-01 보도자료 · 심평원 고시 — 도수치료 관리급여 전환(1회 43,850원·본인부담 95%).</li><li>본 사이트 핵심 비급여 20개 항목 시세표 — 위 1차 출처를 기준으로 정리한 자체 시세표.</li></ul>
+      <p class="calc-foot">이 가이드는 공개된 법령·고시·보도자료와 본 사이트가 수집한 공개 데이터를 근거로
+        작성한 해설입니다. 진료비와 보장 여부의 최종 판단은 진료 현장과 가입한 보험사의 약관·심사에 따르며,
+        본 사이트는 특정 의료기관의 추천·예약·상담 알선을 하지 않습니다.
+        <a href="/ko/guide/">가이드 전체 목록</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a></p>
+    </div>
+    <h2 style="margin-top:30px">가이드 더 보기</h2>
+    <p class="section-lead">실손·비급여 해설 가이드 8편을 주제별로 정리했습니다.</p>
+    <div class="item-grid" data-guide-list><a class="item-card" href="/ko/guide/silson-1-5-generation-guide/"><div class="top"><span class="nm">1~5세대 실손보험 비교·선택 가이드</span><span class="pill teal">01</span></div><div class="sm">1세대부터 2026년 5월 출시된 5세대까지, 실손보험 세대별 자기부담 구조와 비교 포인트를 표로 정리했습니다. 내 실손 세대 확인 방법과 계산기로 비…</div></a><a class="item-card" href="/ko/guide/managed-benefit-95-calculator-guide/"><div class="top"><span class="nm">관리급여 본인부담 95% 계산기 사용법</span><span class="pill teal">03</span></div><div class="sm">도수치료는 2026년 7월 1일부터 관리급여로 전환되어 1회 43,850원, 본인부담 95%가 적용됩니다. 관리급여 계산기 입력 순서와 결과 읽는 법,…</div></a><a class="item-card" href="/ko/guide/regional-noncovered-price-differences/"><div class="top"><span class="nm">지역별 비급여 가격 차이와 비교 시 주의점</span><span class="pill teal">04</span></div><div class="sm">같은 비급여 항목이라도 지역과 기관 규모에 따라 신고 가격이 다릅니다. 17개 시·도 지역 페이지의 평균·중간값을 비교할 때 주의할 점 4가지를 정리했…</div></a><a class="item-card" href="/ko/guide/silson-claim-process-guide/"><div class="top"><span class="nm">실손보험 청구 절차·서류 가이드</span><span class="pill teal">05</span></div><div class="sm">실손보험 청구는 계산기로 예상 보장액을 확인한 뒤, 약관에 맞는 서류를 준비해 보험사에 접수하는 순서입니다. 청구 전 확인 사항과 예상 보장액과 실제 …</div></a><a class="item-card" href="/ko/guide/mri-ultrasound-covered-vs-noncovered/"><div class="top"><span class="nm">MRI·초음파 급여/비급여 가이드</span><span class="pill teal">06</span></div><div class="sm">MRI·초음파가 언제 건강보험 급여가 되고 언제 비급여가 되는지, 뇌·척추 MRI와 초음파의 급여 기준, 병원급 평균으로 시세를 읽는 법과 세대별 실손…</div></a><a class="item-card" href="/ko/guide/dental-implant-crown-silson/"><div class="top"><span class="nm">치과 임플란트·크라운 실손 가이드</span><span class="pill teal">07</span></div><div class="sm">지르코니아 임플란트·크라운 비급여 시세 읽는 법과 실손 보장 제외 범위를 정리했습니다. 만 65세 이상 건강보험 급여 요건과 치료 전에 확인할 항목도 …</div></a><a class="item-card" href="/ko/guide/shockwave-prolotherapy-gen5-exclusion/"><div class="top"><span class="nm">체외충격파·증식치료 5세대 실손 제외 대응 가이드</span><span class="pill teal">08</span></div><div class="sm">체외충격파치료·증식치료·비급여 주사제가 5세대 실손에서 보장 제외되는 이유와 대응 방법을 정리했습니다. 가입 세대 확인법과 관리급여 도수치료 95%와의…</div></a></div>
+  </div>
+</section>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <b>메디컬 비급여 시세 파인더</b><br>
+        병원급 이상 비급여 공개가와 1~5세대 실손 보장액을 함께 계산하는 중립 정보 사이트입니다.
+        특정 병원 추천·예약·상담 알선은 하지 않습니다.
+      </div>
+      <div>
+        <b>바로가기</b><br>
+        <a href="/ko/calc/">실손 계산기</a><br>
+        <a href="/ko/items/">비급여 항목 20개</a><br>
+        <a href="/ko/regions/">지역별 시세 17개 시·도</a><br>
+        <a href="/ko/insurance/">1~5세대 실손 정리</a><br>
+        <a href="/ko/guide/">이용 안내 · 데이터 출처</a>
+      </div>
+      <div>
+        <b>사이트 정보</b><br>
+        <a href="/ko/about/">사이트 소개</a><br>
+        <a href="/ko/editorial-policy/">편집·데이터 정책</a><br>
+        <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
+        <a href="/ko/contact/">문의 및 오류 제보</a><br>
+        <a href="/ko/privacy/">개인정보처리방침</a>
+      </div>
+      <div>
+        <b>데이터</b><br>
+        건강보험심사평가원 비급여진료비정보조회서비스<br>
+        공공데이터포털 15001700 · 공공누리 제1유형<br>
+        통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-18 06:17 KST</span>
+      </div>
+    </div>
+    <div class="legal">
+      본 사이트의 계산 결과는 입력값과 공개된 제도 기준으로 산출한 <b>추정치</b>이며, 실제 보험금 지급액은
+      가입 상품·약관·청구 이력에 따라 달라집니다. 의료기관 가격은 인력·시설·장비에 따라 달라질 수 있고
+      변경 보고의 행정 처리 기간 때문에 실시간 반영되지 않을 수 있습니다.
+      본 사이트는 병원급 이상 공개 가격만 다루며 의원급 <b>개별</b> 가격은 제공하지 않습니다
+      (전국 의원급 평균·중간값은 통계청 KOSIS 통계 기준 참고값).
+      의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
+      <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
+      K-MediCheck 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
+      내 손안에 복지 (9welfare) · 2026-11-18 06:17 KST 빌드.
+    </div>
+  </div>
+</footer>
+<script src="/assets/calc.js?v=0a3c00c8" defer></script>
+<script src="/assets/med-data.js" defer></script>
+<script src="/assets/app.js?v=554af326" defer></script>
+</body>
+</html>

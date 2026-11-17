@@ -258,6 +258,7 @@ table.plain td.num, table.plain th.num { text-align: right; font-variant-numeric
 
 /* ---------------------------------------------------------------- 본문 섹션 */
 .prose h2 { margin-top: 26px; }
+.prose h2[id] { scroll-margin-top: 70px; }   /* 가이드 목차 앵커가 고정 헤더에 가리지 않도록 */
 .prose h2:first-child { margin-top: 0; }
 .prose h3 { margin-top: 20px; }
 .prose .callout { background: #fff; border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0;

@@ -486,6 +486,92 @@ def main() -> int:
            for n in ("404.html",)) and vers["style.css"] in (dist / "404.html").read_text(encoding="utf-8"),
        vers["style.css"])
 
+    # ---------------------------------------------------------- J. 가이드 8편 (T-M12 5 + T-M12-B 3)
+    print("\n== J. 가이드 8편 (T-M12 5편 + T-M12-B 3편)")
+    try:
+        import guides as G  # noqa: E402
+    except Exception as exc:  # noqa: BLE001
+        ok("guides 모듈 로드", False, str(exc))
+        G = None
+    if G:
+        hub_guide = (dist / "ko" / "guide" / "index.html").read_text(encoding="utf-8")
+        slugs = [g["slug"] for g in G.GUIDES]
+        ok("가이드 8편 정의", len(slugs) == 8, f"{len(slugs)}편")
+        guide_pages = {s: dist / "ko" / "guide" / s / "index.html" for s in slugs}
+        ok("가이드 상세 8페이지 생성", all(p.exists() for p in guide_pages.values()),
+           str([s for s, p in guide_pages.items() if not p.exists()]))
+        ok("가이드 허브: 8편 링크", all(f'href="/ko/guide/{s}/"' in hub_guide
+                                   for s in slugs),
+           "")
+        draft_marks, bad_jsonld, missing_x, no_link = [], [], [], []
+        for g, (slug, p) in zip(G.GUIDES, guide_pages.items()):
+            t = p.read_text(encoding="utf-8")
+            for mark in ("(추정", "추정)", "(확인 필요", "확인 필요)"):
+                if mark in t:
+                    draft_marks.append(f"{slug}: {mark}")
+            blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', t, re.S)
+            types = set()
+            for b in blocks:
+                try:
+                    types.add(json.loads(b).get("@type"))
+                except Exception:  # noqa: BLE001
+                    bad_jsonld.append(f"{slug}: 파싱 실패")
+            if not {"Article", "FAQPage", "BreadcrumbList"} <= types:
+                bad_jsonld.append(f"{slug}: JSON-LD {sorted(types)}")
+            # 목차 앵커 대상 존재
+            for anchor in re.findall(r'href="#(s\d+)"', t):
+                if f'id="{anchor}"' not in t:
+                    missing_x.append(f"{slug}: #{anchor}")
+            # 상호 교차링크(다른 7편) + 기존 섹션 내부링크 2개 이상
+            others = [o for o in slugs if o != slug]
+            if not all(f'href="/ko/guide/{o}/"' in t for o in others):
+                no_link.append(f"{slug}: 교차링크 누락")
+            secs = sum(1 for x in ("/ko/calc/", "/ko/insurance/", "/ko/items/", "/ko/regions/")
+                       if f'href="{x}' in t)
+            if secs < 2:
+                no_link.append(f"{slug}: 기존 섹션 내부링크 {secs}개")
+            # 가드레일
+            for bad in ("adsbygoogle", "ca-pub-", "9welfare.com", "예약 문의", "상담 신청"):
+                if bad in t:
+                    fails.append(f"{slug}: 금지 요소 '{bad}'")
+            ext = set(re.findall(r'href="(https?://[^"]+)"', t))
+            ext = {u for u in ext if "medical-finder-kr.pages.dev" not in u and "schema.org" not in u
+                   and "kmedicheck.com" not in u}
+            if ext:
+                fails.append(f"{slug}: 외부 링크 {sorted(ext)[:3]}")
+        ok("가이드: 초안 표시((추정)·확인 필요) 0건", not draft_marks, str(draft_marks[:4]))
+        ok("가이드: JSON-LD Article·FAQPage·Breadcrumb", not bad_jsonld, str(bad_jsonld[:4]))
+        ok("가이드: 목차 앵커 대상 존재", not missing_x, str(missing_x[:4]))
+        ok("가이드: 상호 교차링크 7편 + 기존 섹션 2개 이상", not no_link, str(no_link[:4]))
+
+        # 14차 검수 보정 문구 반영 확인
+        def gtext(s: str) -> str:
+            return guide_pages[s].read_text(encoding="utf-8")
+        need = {
+            "mri-ultrasound-covered-vs-noncovered": [
+                "시행령 [별표 2]", "제2023-134호", "제2023-293호", "선별급여", "80%",
+                "2018년 4월", "2019년 2월", "산정특례", "본인일부부담금 산정특례에 관한 기준"],
+            "dental-implant-crown-silson": [
+                "제2025-23호", "지르코니아 크라운", "부분무치악", "평생 2개", "본인부담상한제",
+                "1,351,040", "405,100", "100원 미만", "40,500", "174,200", "190,400"],
+            "managed-benefit-95-calculator-guide": [
+                "43,850", "95%", "주 2회", "15회", "24회"],
+            "shockwave-prolotherapy-gen5-exclusion": [
+                "43,850", "95%", "주 2회", "24회", "특약2"],
+        }
+        for slug, needles in need.items():
+            t = gtext(slug)
+            miss = [n for n in needles if n not in t]
+            ok(f"보정 문구 반영: {slug[:26]}", not miss, str(miss))
+        # 산정특례 5%는 시행령 별표2가 아니라 고시·공단 안내로 표기
+        mri_t = gtext("mri-ultrasound-covered-vs-noncovered")
+        ok("산정특례 5% 근거 표기(고시·NHIS)",
+           "산정특례에 관한 기준" in mri_t and "국민건강보험공단" in mri_t, "")
+        # 임플란트 본인부담 절사는 '단계별 30% 산출 후 100원 미만 절사'
+        den = gtext("dental-implant-crown-silson")
+        ok("임플란트 본인부담 절사 기준(100원 미만)",
+           "100원 미만" in den and "10원 미만" not in den, "")
+
     # ---------------------------------------------------------- 결과
     print()
     if warns:
