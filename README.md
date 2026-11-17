@@ -208,3 +208,27 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
 - `verify_site.py --live` — 115/115 통과(가이드 8편 모바일 390px 렌더·목차 앵커 이동·데스크톱 2단 포함),
   콘솔 오류 0, 가로 스크롤 0.
 - `crosscheck_calc.py` — 엔진 24,240건 × 5세대 × 6항목 = 727,200값 불일치 0(계산 로직 보존 확인).
+
+## T-M13 — 실손 5세대 전환 손익 시뮬레이터 (`/ko/switch-gen5/`)
+
+3-AI 검수 v4 확정본(`T-M13_5세대전환시뮬레이터_v1`)을 국내 사이트에 빌드·배포한 결과입니다.
+
+- **페이지**: `/ko/switch-gen5/` — 입력 ①세대 ②보험료(현재·5세대) ③연간 이용(급여 입원·통원, 비급여 중증·비중증,
+  관리급여 체크). 결과는 연간 절약·손해, 판단 문구, 판단 근거 3줄, 손익분기 SVG 차트, 고정 고지.
+- **계산 엔진**: `scripts/switch_engine.py`(기준 구현) ↔ `assets/switch-gen5.js`(`window.Gen5Sim`).
+  `crosscheck_switch.py` 가 수천 건 조합으로 두 구현을 대조합니다.
+  - Δ = (현재 월 보험료 − 5세대 월 보험료) × 12 − (5세대 자기부담 − 현재 자기부담)
+  - |Δ| ≤ 5만 원은 **판단 보류**, 5세대 특약1·2 연간 보장한도(5,000만·1,000만 원)는 지급 상한으로 적용
+  - 1세대는 계약별 상이 → 약관 자기부담률 직접 입력(미입력 시 계산 보류)
+  - 5세대 보험료 미입력 시 세대별 인하율 자동 추정(4세대 30%·1세대 50%·3세대 30%, 10~70% 조절) 후 **추정치** 표기
+  - 1차 미반영(안내만): 비급여 차등제 할증(회사별 상이·첫 적용 2028-05-06 이후 갱신분), 관리급여 95%,
+    계약전환·선택형 할인 특약, 회차별 보장한도, 5세대 중증 입원 자기부담 상한 500만 원
+- **공유 장치 1호**: 결과 카드 PNG(Canvas, 개인정보 미포함) · 카톡 공유 · 이미지 공유(Web Share) · 링크 복사.
+  UTM 규격 `utm_source=kakaotalk|og_share|link_copy` · `utm_medium=share_card` · `utm_campaign=gen5-simulator` ·
+  `utm_content=result-save|result-loss|result-hold`. 공유 링크에 입력값은 담지 않습니다.
+- **OG 이미지**: `assets/og-switch-gen5.png`(1200×630, `scripts/make_og_switch.py` 로 생성, Noto Sans CJK KR).
+- **내부링크**: `/ko/calc/` 결과 하단 모듈 + 가이드 3편(`silson-1-5-generation-guide`,
+  `managed-benefit-95-calculator-guide`, `shockwave-prolotherapy-gen5-exclusion`) 본문·관련 페이지.
+- **검증**: `qa_check.py --live`(K·K-2 시뮬레이터·골든 케이스 포함) · `verify_site.py --live`(모바일 390·데스크톱 1440
+  계산·차트·공유·OG 이미지) · `crosscheck_switch.py`(Python↔JS 전수 대조).
+- AdSense 코드는 넣지 않았습니다(11-24 9welfare 재검토 전).

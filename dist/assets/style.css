@@ -423,3 +423,107 @@ input[type="search"] {
   .form-embed iframe { min-height: 1100px; }
   .doc .doc-sec p { font-size: 14px; }
 }
+
+/* ==================================================== T-M13 5세대 전환 손익 시뮬레이터 */
+.calc.sim-calc { max-width: 100%; }
+.sim-calc .sim-step { border-top: 1px dashed var(--line); padding-top: 14px; margin-top: 6px; }
+.sim-calc .sim-step:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.sim-calc .sim-step h3 { display: flex; align-items: center; gap: 8px; font-size: 15px; margin: 0 0 10px; }
+.sim-calc .sim-step h3 .n {
+  width: 21px; height: 21px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 800; flex: none;
+}
+.seg.five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.seg.five button { padding: 10px 2px; font-size: 12.5px; }
+input[type="range"] {
+  width: 100%; margin: 8px 0 2px; accent-color: var(--accent); height: 22px;
+  -webkit-appearance: none; appearance: none; background: transparent;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 19px; height: 19px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(15, 118, 110, .4);
+  margin-top: -8px;
+}
+input[type="range"]::-moz-range-track { height: 5px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line); }
+input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 2px solid #fff; border-radius: 50%; background: var(--accent); }
+.chip-btn {
+  flex: none; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff;
+  color: var(--ink-2); font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+.chip-btn[aria-pressed="true"] { background: var(--amber-soft); border-color: #fadba6; color: var(--amber); }
+.visit-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.visit-row label { font-size: 12px; font-weight: 700; color: var(--ink-2); flex: 1 1 auto; }
+.visit-row input { width: 96px; padding: 8px 10px; font-size: 14px; text-align: right; }
+.visit-row .unit { font-size: 12px; color: var(--muted); font-weight: 700; }
+.check-row { display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; font-weight: 600;
+  color: var(--ink-2); cursor: pointer; }
+.check-row input { width: 18px; height: 18px; flex: none; margin: 2px 0 0; accent-color: var(--accent); }
+.sim-teaser { display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  background: var(--accent-soft); border: 1px solid #bfe3dd; border-radius: var(--radius-sm);
+  padding: 12px 14px; }
+.sim-teaser .tx { flex: 1 1 240px; }
+.sim-teaser b { font-size: 14px; color: var(--accent-ink); }
+.sim-teaser p { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-2); }
+
+/* 결과 */
+.result.sim-result { margin-top: 16px; border: 1px solid var(--line); border-top: 8px solid var(--bg-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+.sim-hold { background: #fff; border: 1px dashed var(--line); border-radius: 12px;
+  padding: 14px 16px; font-size: 13.5px; color: var(--ink-2); line-height: 1.65; }
+.sim-hold b { color: var(--ink); }
+.sim-verdict { border-radius: 14px; padding: 15px 16px 14px; border: 1px solid var(--line); background: #fff; }
+.sim-verdict.is-save { background: #f2fbf8; border-color: #bfe3dd; }
+.sim-verdict.is-loss { background: #fff8f7; border-color: #f6c7c2; }
+.sim-verdict.is-hold { background: var(--amber-soft); border-color: #fadba6; }
+.sim-badge { display: inline-block; font-size: 11.5px; font-weight: 800; letter-spacing: .02em;
+  padding: 3px 9px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--ink-2); }
+.is-save .sim-badge { background: var(--accent); border-color: var(--accent); color: #fff; }
+.is-loss .sim-badge { background: var(--red); border-color: var(--red); color: #fff; }
+.is-hold .sim-badge { background: var(--amber); border-color: var(--amber); color: #fff; }
+.sim-big { font-size: 27px; font-weight: 800; letter-spacing: -0.035em; color: var(--ink);
+  margin: 8px 0 4px; line-height: 1.22; word-break: keep-all; }
+.is-save .sim-big { color: var(--accent-ink); }
+.is-loss .sim-big { color: var(--red); }
+.is-hold .sim-big { color: var(--amber); }
+.sim-big em { font-style: normal; font-size: 16px; font-weight: 800; margin-left: 3px; }
+.sim-say { margin: 6px 0 0; font-size: 13.5px; color: var(--ink-2); line-height: 1.62; }
+.sim-costs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.sim-costs > div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; min-width: 0; }
+.sim-costs .k { display: block; font-size: 11px; color: var(--muted); font-weight: 700; }
+.sim-costs b { font-size: 14px; font-variant-numeric: tabular-nums; }
+.sim-est { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--amber);
+  background: var(--amber-soft); border-radius: 999px; padding: 1px 7px; margin-left: 2px; }
+.sim-h4 { font-size: 14px; margin: 18px 0 8px; }
+.sim-why { margin: 0; padding: 0; list-style: none; }
+.sim-why li { border-top: 1px solid var(--line-2); padding: 9px 0; font-size: 13px; color: var(--ink-2);
+  line-height: 1.6; }
+.sim-why li:first-child { border-top: 0; }
+.sim-why b { color: var(--ink); }
+.sim-hint { font-size: 11px; color: var(--muted); }
+.sim-chart { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 8px 2px; }
+.sim-chart-svg { display: block; width: 100%; height: auto; }
+.sim-notes { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.sim-notes h4 { font-size: 13.5px; margin: 0 0 8px; }
+.note-row { font-size: 11.5px; color: var(--muted); line-height: 1.62; margin: 0 0 7px;
+  padding-left: 9px; border-left: 2px solid var(--line); }
+.note-row b { color: var(--ink-2); }
+.sim-share { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.sim-share .btn { flex: 1 1 auto; }
+.sim-share .btn[disabled] { opacity: .5; cursor: not-allowed; }
+.sim-share-msg { font-size: 12px; color: var(--accent-ink); margin: 8px 0 0; min-height: 1px; }
+#sim-link { margin-top: 8px; font-size: 12.5px; }
+@media (min-width: 720px) {
+  .sim-costs { grid-template-columns: repeat(4, 1fr); }
+  .sim-big { font-size: 34px; }
+  .sim-calc .calc-body { padding-bottom: 22px; }
+}
+.sim-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11.5px; color: var(--muted);
+  margin: 8px 0 0; }
+.sim-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.sim-legend span::before { content: ""; width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.sim-legend .lg-cur::before { background: #1d4ed8; }
+.sim-legend .lg-be::before { background: #b45309; border-radius: 1px; height: 11px; width: 3px; }
+.sim-legend .lg-zero::before { background: transparent; border-top: 2px dashed #94a3b8; border-radius: 0; width: 12px; height: 2px; }

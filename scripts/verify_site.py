@@ -59,6 +59,147 @@ def shot(page, name: str, full: bool = False) -> str:
     return str(path)
 
 
+
+def check_switch(page, base: str, tag: str) -> None:
+    """T-M13 5세대 전환 손익 시뮬레이터 — 계산·차트·공유·고지 검수."""
+    import switch_engine as S  # noqa: E402
+    pre = tag
+    page.goto(base + "/ko/switch-gen5/", wait_until="load")
+    page.wait_for_selector("[data-sim][data-ready='1']", timeout=10000)
+    page.wait_for_timeout(200)
+
+    check(f"{pre}: 페이지 제목", "시뮬레이터" in page.title(), page.title())
+    check(f"{pre}: h1", "전환 손익" in page.inner_text("h1"), page.inner_text("h1")[:40])
+    og = page.eval_on_selector("meta[property='og:image']", "e => e.content")
+    check(f"{pre}: og:image 경로", og.endswith("/assets/og-switch-gen5.png"), og)
+    tw = page.eval_on_selector("meta[name='twitter:card']", "e => e.content")
+    check(f"{pre}: twitter:card", tw == "summary_large_image", tw)
+    nat = page.evaluate("""async (src) => {
+        const img = new Image();
+        const ok = await new Promise((res) => { img.onload = () => res(true); img.onerror = () => res(false); img.src = src; });
+        return ok ? [img.naturalWidth, img.naturalHeight] : [0, 0];
+    }""", "/assets/og-switch-gen5.png")
+    check(f"{pre}: OG 이미지 로드(1200×630)", nat == [1200, 630], str(nat))
+    ov = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
+    check(f"{pre}: 가로 스크롤 없음", ov <= 1, f"overflow={ov}px")
+    check(f"{pre}: 초기 안내(보험료 입력 유도)",
+          "월 보험료를 입력하면" in page.inner_text("#sim-out"), page.inner_text("#sim-out")[:40])
+
+    # 4세대 · 월 3.2만 · 비중증 120만 · 급여입원 80만 → 연 124,800원 손해
+    page.click('[data-seg="gen"][data-v="4"]')
+    page.fill('[data-k="pcur"]', "32000")
+    page.fill('[data-k="in_cov"]', "800000")
+    page.fill('[data-k="mild"]', "1200000")
+    page.dispatch_event('[data-k="pcur"]', "input")
+    page.wait_for_timeout(250)
+    out = page.inner_text("#sim-out")
+    want = S.compute({"gen": 4, "pcur": 32000, "in_cov": 800000, "mild": 1200000})
+    cur = page.evaluate("""() => {
+        const seg = document.querySelector('[data-seg=gen][aria-pressed=true]');
+        return {gen: seg && seg.dataset.v, pcur: document.querySelector('[data-k=pcur]').value,
+                mild: document.querySelector('[data-k=mild]').value,
+                inc: document.querySelector('[data-k=in_cov]').value};
+    }""")
+    check(f"{pre}: 입력 상태 반영", cur == {"gen": "4", "pcur": "32000", "mild": "1200000", "inc": "800000"}, str(cur))
+    check(f"{pre}: 손익 금액({want['delta']:,}원)",
+          "{:,}원".format(abs(want["delta"])) in out, out[:70].replace("\n", " "))
+    check(f"{pre}: 판단 문구(유지 유리)", "유지 유리" in out, "")
+    grounds = page.eval_on_selector_all(".sim-why li", "els => els.length")
+    check(f"{pre}: 판단 근거 3줄", grounds == 3, f"li={grounds}")
+    check(f"{pre}: 근거에 보험료·자기부담·손익분기",
+          all(k in out for k in ("보험료 절감액", "자기부담 증가액", "손익분기")), "")
+    check(f"{pre}: 5세대 보험료 추정치 표기", "추정치" in out and "인하율 30%" in out, "")
+    svg = page.query_selector(".sim-chart-svg")
+    check(f"{pre}: 손익분기 SVG 차트", svg is not None and
+          page.eval_on_selector_all(".sim-chart-svg path", "e => e.length") >= 1, "")
+    budget = page.eval_on_selector(".sim-chart-svg", "el => el.getBoundingClientRect()")
+    check(f"{pre}: 차트 크기·가로넘침 없음",
+          budget["width"] >= 250 and budget["height"] >= 120 and
+          page.eval_on_selector(".sim-chart-svg", "el => el.scrollWidth - el.clientWidth") <= 1,
+          f"{round(budget['width'])}×{round(budget['height'])}")
+    labels = page.eval_on_selector_all(".sim-chart-svg text", "els => els.map(e => e.textContent)")
+    check(f"{pre}: 차트 축·손익분기 라벨", any("손익분기" in x for x in labels) and
+          any("만원" in x or "원" in x for x in labels), str(labels[:6]))
+    enabled = page.eval_on_selector_all("[data-share]", "els => els.every(b => !b.disabled)")
+    check(f"{pre}: 공유 버튼 4종 활성", enabled, "")
+    # 고지 문구(결과 하단)
+    check(f"{pre}: 고지(1332·할증·2028년 5월·철회)",
+          all(k in out for k in ("1332", "할증", "2028년 5월", "철회", "관리급여")), "")
+
+    # 카드 저장(PNG 다운로드)
+    if tag.startswith("모바일"):
+        try:
+            with page.expect_download(timeout=8000) as dl:
+                page.click("[data-share='card']")
+            d = dl.value
+            path = OUT / f"{SHOTS}-switch-card.png"
+            d.save_as(str(path))
+            results["screenshots"].append(str(path))
+            check(f"{pre}: 카드 PNG 저장", d.suggested_filename.startswith("silson-gen5-") and
+                  path.exists() and path.stat().st_size > 15000,
+                  f"{d.suggested_filename} {path.stat().st_size:,}B")
+        except Exception as exc:  # noqa: BLE001
+            check(f"{pre}: 카드 PNG 저장", False, str(exc)[:80])
+
+    # 링크 복사 UTM
+    if tag.startswith("데스크톱"):
+        page.click("[data-share='copy']")
+        page.wait_for_timeout(250)
+        try:
+            copied = page.evaluate("navigator.clipboard.readText()")
+        except Exception:  # noqa: BLE001
+            copied = page.input_value("#sim-link") if page.is_visible("#sim-link") else ""
+        need = ("utm_source=link_copy", "utm_medium=share_card", "utm_campaign=gen5-simulator")
+        check(f"{pre}: 링크 복사 UTM 규격", all(x in copied for x in need) and
+              "/ko/switch-gen5/?" in copied, copied[:110])
+        check(f"{pre}: 복사 링크에 입력값 미포함",
+              "32000" not in copied and "1200000" not in copied and "pcur" not in copied, copied[:110])
+
+    page.evaluate("window.scrollTo(0,0)")
+    page.wait_for_timeout(150)
+    shot(page, f"{pre}-switch-top")
+    page.evaluate("document.querySelector('#sim-result').scrollIntoView({block:'center'})")
+    page.wait_for_timeout(200)
+    shot(page, f"{pre}-switch-result")
+    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    page.wait_for_timeout(150)
+    shot(page, f"{pre}-switch-bottom")
+
+    # '모름' → 계산 보류
+    page.evaluate("window.scrollTo(0,0)")
+    page.click("#pcur-unknown")
+    page.wait_for_timeout(200)
+    check(f"{pre}: '모름' 선택 시 계산 보류",
+          "월 보험료를 입력하면" in page.inner_text("#sim-out"), "")
+    page.click("#pcur-unknown")
+
+    # 1세대 — 자기부담률 미입력 → 보류, 입력 → 계산
+    page.click('[data-seg="gen"][data-v="1"]')
+    page.fill('[data-k="pcur"]', "32000")
+    page.dispatch_event('[data-k="pcur"]', "input")
+    page.wait_for_timeout(200)
+    check(f"{pre}: 1세대 자기부담률 입력 유도",
+          "자기부담률" in page.inner_text("#sim-out") and page.is_visible("#gen1-row"), "")
+    page.fill('[data-k="gen1_rate"]', "20")
+    page.dispatch_event('[data-k="gen1_rate"]', "input")
+    page.wait_for_timeout(250)
+    check(f"{pre}: 1세대 자기부담률 입력 후 계산",
+          "전환 유리" in page.inner_text("#sim-out") or "유지 유리" in page.inner_text("#sim-out"),
+          page.inner_text("#sim-out")[:50])
+
+    # 5세대 — 이미 5세대 안내
+    page.click('[data-seg="gen"][data-v="5"]')
+    page.wait_for_timeout(200)
+    check(f"{pre}: 5세대 선택 시 안내", "이미 5세대" in page.inner_text("#sim-out"), "")
+
+    # 관리급여 체크 → 안내 분기
+    page.click('[data-seg="gen"][data-v="4"]')
+    page.check("#managed")
+    page.wait_for_timeout(200)
+    out2 = page.inner_text("#sim-out")
+    check(f"{pre}: 관리급여 체크 안내", "관리급여는 급여로 편입" in out2 and "면책" in out2, "")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--headed", action="store_true")
@@ -129,6 +270,11 @@ def main() -> int:
         page.wait_for_timeout(250)
         shot(page, "mobile-390-home-calc")
         shot(page, "mobile-390-home-full", full=True)
+
+        # ------------------------------------------------------------ T-M13 5세대 전환 시뮬레이터(모바일)
+        check_switch(page, base, "모바일390")
+        page.goto(base + "/ko/", wait_until="load")
+        page.wait_for_selector("[data-calc][data-ready='1']", timeout=8000)
 
         # ------------------------------------------------------------ 5세대 보장 제외 항목
         page.select_option("#item-select", "SZ0840000")
@@ -457,6 +603,12 @@ def main() -> int:
         check("데스크톱1440: 2단 레이아웃", "px" in cols and len(cols.split()) >= 2, cols)
         shot(d, "desktop-1440-home-top")
         shot(d, "desktop-1440-home-full", full=True)
+
+        # ------------------------------------------------------------ T-M13 5세대 전환 시뮬레이터(데스크톱)
+        d.context.grant_permissions(["clipboard-read", "clipboard-write"])
+        check_switch(d, base, "데스크톱1440")
+        d.goto(base + "/ko/calc/", wait_until="load")
+        d.wait_for_selector("[data-calc][data-ready='1']", timeout=8000)
 
         d.goto(base + "/ko/calc/", wait_until="load")
         d.wait_for_selector("[data-calc][data-ready='1']")

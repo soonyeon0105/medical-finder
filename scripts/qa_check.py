@@ -464,13 +464,13 @@ def main() -> int:
     print("\n== I. 정적 자산 캐시 버스팅 (?v=<hash8>)")
     import hashlib as _hashlib
     vers = {n: _hashlib.sha256((dist / "assets" / n).read_bytes()).hexdigest()[:8]
-            for n in ("style.css", "calc.js", "app.js")}
+            for n in ("style.css", "calc.js", "app.js", "switch-gen5.js")}
     n_bust = 0
     stale = []
     no_v = []
     for p_ in pages:
         html = p_.read_text(encoding="utf-8")
-        for m in re.finditer(r'(?:href|src)="([^"]*?/assets/(style\.css|calc\.js|app\.js))'
+        for m in re.finditer(r'(?:href|src)="([^"]*?/assets/(style\.css|calc\.js|app\.js|switch-gen5\.js))'
                              r'(?:\?v=([0-9a-f]{8}))?"', html):
             name, got = m.group(2), m.group(3)
             if not got:
@@ -571,6 +571,141 @@ def main() -> int:
         den = gtext("dental-implant-crown-silson")
         ok("임플란트 본인부담 절사 기준(100원 미만)",
            "100원 미만" in den and "10원 미만" not in den, "")
+
+
+    # ---------------------------------------------------------- K. T-M13 5세대 전환 손익 시뮬레이터
+    print("\n== K. T-M13 5세대 전환 손익 시뮬레이터")
+    sim_f = dist / "ko" / "switch-gen5" / "index.html"
+    ok("/ko/switch-gen5/ 페이지", sim_f.exists(), "")
+    if sim_f.exists():
+        sim = sim_f.read_text(encoding="utf-8")
+        calc_f = dist / "ko" / "calc" / "index.html"
+        calc_h = calc_f.read_text(encoding="utf-8") if calc_f.exists() else ""
+        ok("시뮬레이터 canonical", f'<link rel="canonical" href="{site_base}/ko/switch-gen5/">' in sim, "")
+        # OG 이미지
+        ok("OG 이미지 메타(1200×630·twitter)", all(x in sim for x in (
+            f'property="og:image" content="{site_base}/assets/og-switch-gen5.png"',
+            'property="og:image:width" content="1200"',
+            'property="og:image:height" content="630"',
+            'name="twitter:card" content="summary_large_image"')), "")
+        png = dist / "assets" / "og-switch-gen5.png"
+        ok("OG 이미지 파일", png.exists(), "")
+        if png.exists():
+            import struct as _struct
+            head = png.read_bytes()[:24]
+            w, h = _struct.unpack(">II", head[16:24])
+            ok("OG 이미지 실제 크기 1200×630 PNG", head[:8] == b"\x89PNG\r\n\x1a\n" and (w, h) == (1200, 630),
+               f"{w}×{h}")
+            ok("OG 이미지 용량(200KB 이하)", png.stat().st_size < 200 * 1024, f"{png.stat().st_size:,}B")
+        js = (dist / "assets" / "switch-gen5.js")
+        ok("시뮬레이터 JS 로드", js.exists() and "/assets/switch-gen5.js" in sim, "")
+        jst = js.read_text(encoding="utf-8") if js.exists() else ""
+        # UTM 규격
+        utm_need = ["utm_source=", "kakaotalk", "og_share", "link_copy", "utm_medium=share_card",
+                    "utm_campaign=gen5-simulator", "result-save", "result-loss", "result-hold"]
+        ok("UTM 규격(§7) 반영", all(n in jst for n in utm_need),
+           str([n for n in utm_need if n not in jst]))
+        # 공유 장치
+        ok("공유 장치(카드 PNG·Web Share·링크 복사)",
+           all(n in jst for n in ("toDataURL", "navigator.share", "clipboard", "drawCard")), "")
+        ok("결과 카드에 개인정보 없음(보험료·이름 미포함)",
+           all(x not in jst[jst.index("function drawCard"):jst.index("function wrapText")] for x in
+               ("pcur", "p5", "'이름'", "생년")))
+        ok("차트 SVG 렌더(손익분기 곡선)", "sim-chart-svg" in jst and "polyline" not in jst, "")
+        # 입력·계산 화면 요소
+        for needle, name in (('data-sim', "시뮬레이터 폼"),
+                             ('data-seg="gen"', "세대 선택"),
+                             ('id="pcur-unknown"', "'모름' 선택"),
+                             ('id="gen1-row"', "1세대 자기부담률 입력"),
+                             ('data-range="mild"', "비중증 슬라이더"),
+                             ('id="managed"', "관리급여 체크"),
+                             ('data-share="card"', "카드 저장 버튼"),
+                             ('data-share="copy"', "링크 복사 버튼"),
+                             ('id="sim-out"', "결과 영역")):
+            ok(f"시뮬레이터 화면: {name}", needle in sim, "")
+        # 필수 고지 문구
+        must = ["참고용 추정치", "1332", "2028년 5월", "할증", "관리급여", "43,850",
+                "철회", "5년마다 재가입", "판단 보류", "손익분기", "2026-16호",
+                "2028년 5월 이후 갱신분부터", "준비 중입니다", "면책 옵션"]
+        ok("고지 문구(1332·2028-05·할증·관리급여·철회)", all(m in sim for m in must),
+           str([m for m in must if m not in sim]))
+        ok("할증 고정 문구(JS 결과 고지까지 포함)",
+           "할증률은 보험사·상품별로 다릅니다" in (sim + jst) and "최대 3배" not in sim + jst, "")
+        # 금지·초안 표기
+        bad_marks = [m for m in ("(추정", "추정)", "(확인 필요", "확인 필요)", "무조건 전환", "무조건 유지",
+                                 "보장됩니다", "adsbygoogle", "ca-pub-", "pagead2") if m in sim]
+        ok("금지·초안 표기 0건", not bad_marks, str(bad_marks))
+        bad_js = [m for m in ("(추정", "추정)", "확인 필요", "무조건 전환", "무조건 유지",
+                              "adsbygoogle", "ca-pub-", "pagead2") if m in jst]
+        ok("JS 금지·초안 표기 0건", not bad_js, str(bad_js))
+        # 개인정보 입력란 없음
+        pii = [m for m in ("name", "jumin", "rrn", "birth", "gender", "job", "insurer", "phone",
+                           "email", "주민번호", "생년월일", "보험사명")
+               if re.search(r'<(?:input|select|textarea)[^>]*(?:id|name)="[^"]*' + m, sim)]
+        ok("개인정보 입력란 없음(이름·주민번호·연령·직업·보험사)", not pii, str(pii))
+        ok("텍스트 입력은 복사용 readonly 만", len(re.findall(r'<input[^>]*type="text"', sim)) == 1
+           and 'id="sim-link"' in sim, "")
+        # 내부링크
+        ok("계산기 결과 하단 → 시뮬레이터 링크", 'href="/ko/switch-gen5/"' in calc_h, "")
+        ok("시뮬레이터 → 계산기·가이드 링크",
+           'href="/ko/calc/"' in sim and 'href="/ko/guide/' in sim, "")
+        gdir = dist / "ko" / "guide"
+        linked = [g for g in ("silson-1-5-generation-guide", "managed-benefit-95-calculator-guide",
+                              "shockwave-prolotherapy-gen5-exclusion")
+                  if (gdir / g / "index.html").exists()
+                  and 'href="/ko/switch-gen5/"' in (gdir / g / "index.html").read_text(encoding="utf-8")]
+        ok("관련 가이드 3편 → 시뮬레이터 내부링크", len(linked) == 3, str(linked))
+        # sitemap
+        sm = (dist / "sitemap.xml").read_text(encoding="utf-8")
+        ok("sitemap: /ko/switch-gen5/ 포함", "<loc>" + site_base + "/ko/switch-gen5/</loc>" in sm, "")
+        # JSON-LD
+        blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', sim, re.S)
+        types = set()
+        for b in blocks:
+            try:
+                types.add(json.loads(b).get("@type"))
+            except Exception:  # noqa: BLE001
+                types.add("PARSE_FAIL")
+        ok("시뮬레이터 JSON-LD(WebApplication·FAQPage·Breadcrumb)",
+           {"WebApplication", "FAQPage", "BreadcrumbList"} <= types, str(sorted(types)))
+        ok("JSON-LD 초안 표기 없음", "PARSE_FAIL" not in types and "(추정" not in sim, "")
+
+    # 계산 엔진 골든 케이스(손으로 검산)
+    print("\n== K-2. 시뮬레이터 계산 골든 케이스")
+    try:
+        import switch_engine as S  # noqa: E402
+    except Exception as exc:  # noqa: BLE001
+        S = None
+        ok("switch_engine 로드", False, str(exc))
+    if S:
+        g1 = S.compute({"gen": 4, "pcur": 32000, "mild": 1200000, "in_cov": 800000})
+        ok("4세대·월 3.2만·비중증 120만 → 연 124,800원 손해",
+           (g1["delta"], g1["verdict"], g1["p5"], g1["break_even"]) == (-124800, "loss", 22400, 576000),
+           str({k: g1[k] for k in ("delta", "verdict", "p5", "break_even")}))
+        g2 = S.compute({"gen": 2, "pcur": 24000, "out_cov": 300000, "out_visits": 6})
+        ok("2세대 통원 6회 → 연 144,000원 절약(최소공제 동일)",
+           (g2["delta"], g2["oop_cur"], g2["oop5"]) == (144000, 60000, 60000),
+           str({k: g2[k] for k in ("delta", "oop_cur", "oop5")}))
+        ok("1세대 자기부담률 미입력 → 계산 보류", S.compute({"gen": 1, "pcur": 24000})["hold"] == "gen1_rate", "")
+        g3 = S.compute({"gen": 1, "pcur": 24000, "gen1_rate": 20, "mild": 600000})
+        ok("1세대 20%·비중증 60만 → 판단 보류(|Δ|≤5만)", (g3["delta"], g3["verdict"]) == (-36000, "hold"),
+           str(g3["delta"]))
+        ok("5세대 선택 → 이미 5세대 안내", S.compute({"gen": 5, "pcur": 32000})["hold"] == "already_gen5", "")
+        ok("월 보험료 0/미입력 → 계산 보류",
+           S.compute({"gen": 4, "pcur": 0})["hold"] == "premium_unknown", "")
+        g4 = S.compute({"gen": 4, "pcur": 32000, "mild": 30000000})
+        ok("5세대 비중증 연 1,000만원 보장한도 적용", g4["oop5"] == 20000000,
+           f"oop5={g4['oop5']:,}")
+        g5 = S.compute({"gen": 3, "pcur": 48000, "severe": 5000000, "out_cov": 400000,
+                        "out_visits": 4, "inst": "tertiary"})
+        ok("중증 5,000만·통원 4회(상급종합 2만 공제)",
+           (g5["oop_cur"], g5["oop5"]) == (1080000, 1580000),
+           f"{g5['oop_cur']:,}/{g5['oop5']:,}")
+        ok("보험료 자동 추정 세대별 분리(4세대 30%·1세대 50%)",
+           S.compute({"gen": 4, "pcur": 40000})["p5"] == 28000
+           and S.compute({"gen": 1, "pcur": 40000, "gen1_rate": 20})["p5"] == 20000, "")
+        ok("손익분기 곡선 200점 생성", len(g1["chart"]["points"]) == 201,
+           str(len(g1["chart"]["points"])))
 
     # ---------------------------------------------------------- 결과
     print()

@@ -99,6 +99,7 @@ NAVER_VERIFY_FILE = "naver8272c0d9d8609fb2d25fc7ee9ed8f0d9.html"
 
 NAV = [
     ("/ko/calc/", "실손 계산기", "계산기"),
+    ("/ko/switch-gen5/", "5세대 전환 손익", "전환"),
     ("/ko/items/", "비급여 항목", "항목"),
     ("/ko/regions/", "지역별 시세", "지역"),
     ("/ko/insurance/", "1~5세대 실손", "세대별"),
@@ -199,7 +200,8 @@ def breadcrumb_jsonld(crumbs: list[tuple[str, str]]) -> dict:
 
 
 def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, str]],
-           jsonld: list[dict] | None = None, current: str = "") -> str:
+           jsonld: list[dict] | None = None, current: str = "", og_image: str = "",
+           extra_js: str = "") -> str:
     canonical = SITE_BASE + path
     nav_html = "".join(
         f'<a href="{esc(href)}"{" aria-current=\"page\"" if href == current else ""}>'
@@ -217,6 +219,16 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
     ld = ""
     for obj in (jsonld or []):
         ld += f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
+    og_extra = ('<meta property="og:locale" content="ko_KR">\n')
+    if og_image:
+        og_extra += (
+            f'<meta property="og:image" content="{esc(og_image)}">\n'
+            '<meta property="og:image:type" content="image/png">\n'
+            '<meta property="og:image:width" content="1200">\n'
+            '<meta property="og:image:height" content="630">\n'
+            '<meta property="og:image:alt" content="실손 5세대 전환 손익 시뮬레이터 — 연간 절약·손해와 손익분기">\n'
+            '<meta name="twitter:card" content="summary_large_image">\n'
+            f'<meta name="twitter:image" content="{esc(og_image)}">\n')
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -231,7 +243,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}">
-<meta name="theme-color" content="#0f766e">
+{og_extra}<meta name="theme-color" content="#0f766e">
 <meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
@@ -300,6 +312,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <script src="/assets/calc.js" defer></script>
 <script src="/assets/med-data.js" defer></script>
 <script src="/assets/app.js" defer></script>
+{extra_js}
 </body>
 </html>
 """
@@ -1348,6 +1361,14 @@ def page_calc(items: list[dict]) -> str:
     <div class="calc-page">
       {calc_block(items, 'HE1010001', heading="조건 입력",
                   sub="항목을 고르고 금액·입원/통원·종별을 지정하면 세대별 보장액이 바로 갱신됩니다.")}
+      <div class="sim-teaser" style="margin-top:14px">
+        <div class="tx">
+          <b>5세대 전환 손익 시뮬레이터</b>
+          <p>내 세대와 월 보험료, 연간 이용 패턴을 넣으면 5세대로 전환했을 때 연간 절약·손해와
+            손익분기점을 한 번에 계산합니다. 결과는 카드로 저장해 공유할 수 있습니다.</p>
+        </div>
+        <a class="btn sm" href="/ko/switch-gen5/">전환 손익 계산하기</a>
+      </div>
     </div>
     <div class="card prose" style="margin-top:18px">
       <h2 style="font-size:17px">자주 묻는 질문</h2>
@@ -1360,6 +1381,364 @@ def page_calc(items: list[dict]) -> str:
     return layout("/ko/calc/", f"실손 1~5세대 보장액 계산기 · {SITE_NAME}",
                   "비급여 진료비를 입력하면 1세대부터 5세대까지 실손 예상 보장액과 환자 최종 부담을 한 번에 비교합니다.",
                   body, [("/ko/", "홈"), ("/ko/calc/", "실손 계산기")], jsonld, current="/ko/calc/")
+
+
+def _sim_amount_field(key: str, label: str, hint: str = "", maxv: int = 20000000,
+                      fid: str = "") -> str:
+    """시뮬레이터 금액 입력 — 직접 입력 + 슬라이더 병행."""
+    fid = fid or key.replace("_", "-")
+    hint_html = f' <span class="hint">{hint}</span>' if hint else ""
+    return f"""
+      <div class="field">
+        <label for="{fid}">{label}{hint_html}</label>
+        <div class="amount-row">
+          <input type="number" id="{fid}" data-k="{key}" inputmode="numeric" min="0" step="10000"
+                 max="{maxv}" placeholder="0" value="0">
+          <span class="unit">원</span>
+        </div>
+        <input type="range" data-range="{key}" min="0" max="{maxv}" step="100000" value="0"
+               aria-label="{label} 금액 슬라이더">
+      </div>"""
+
+
+def page_switch_gen5() -> str:
+    path = "/ko/switch-gen5/"
+    og_image = SITE_BASE + "/assets/og-switch-gen5.png"
+    rate_rows = [
+        ("1세대", "2009.9 이전", "계약별 상이(생보 20%·손보 0% 등)", "계약별 상이",
+         "계약별 상이", "계약별 상이 — 약관의 자기부담률을 직접 입력"),
+        ("2세대", "2009.10~2017.3", "표준형 20% · 선택형Ⅰ 10%", "같음", "20%", "20%"),
+        ("3세대", "2017.4~2021.6", "표준형 10% · 선택형Ⅱ 20%", "같음", "20%",
+         "20%(3대 비급여 특약 30%)"),
+        ("4세대", "2021.7~2026.4", "20%", "Max(20%, 1·2만 원)", "30%",
+         "30% · 연 5,000만 원 한도"),
+        ("5세대", "2026.5.6 이후", "20%", "Max(건보 본인부담률, 20%, 1·2만 원)",
+         "30% · 연 5,000만 원 · 상급·종합병원 입원 연 자기부담 상한 500만 원",
+         "50% · 연 1,000만 원 · 통원 Max[50%, 5만 원] · 일당 20만 원 · 병·의원 입원 회당 300만 원"),
+    ]
+    rate_html = "".join(
+        f"<tr><th scope=\"row\">{esc(g)}<br><span style=\"font-weight:500;color:#667085\">{esc(p)}</span></th>"
+        f"<td data-label=\"급여 입원\">{esc(i)}</td><td data-label=\"급여 통원\">{esc(o)}</td>"
+        f"<td data-label=\"비급여 중증\">{esc(s)}</td><td data-label=\"비급여 비중증\">{esc(m)}</td></tr>"
+        for g, p, i, o, s, m in rate_rows)
+    faqs = [
+        ("이 시뮬레이터는 무엇을 계산하나요?",
+         "내 실손 세대와 월 보험료, 연간 급여·비급여 이용 금액을 넣으면 5세대로 전환했을 때의 연간 총비용"
+         "(보험료 + 자기부담금)을 지금 세대와 비교해 절약·손해 금액과 손익분기점을 보여 줍니다. "
+         "전환을 권하는 도구가 아니라 판단 근거를 정리해 주는 중립 계산기입니다."),
+        ("결과가 실제 보험료·보험금과 다른 이유는 무엇인가요?",
+         "공개된 표준 자기부담률과 입력값으로 계산한 참고용 추정치이기 때문입니다. 실제 보장과 보험료는 "
+         "가입한 상품의 약관·상품설명서에 따르고 보험사·상품마다 다릅니다. 비급여 이용량에 따른 보험료 할증,"
+         " 관리급여(도수치료 95%), 계약전환 할인·선택형 할인 특약은 1차 계산에 넣지 않고 안내로만 표시합니다."),
+        ("5세대 보험료를 모르면 어떻게 하나요?",
+         "기준 세대별 인하율로 자동 추정합니다. 4세대는 약 30% 인하(기본계약과 특약1만 가입하면 약 50% 수준), "
+         "1·2세대는 50% 이상 인하, 3세대는 30~50% 범위로 보고되어 보수적으로 30%를 기본값으로 두었습니다. "
+         "인하율은 직접 조절할 수 있고, 추정으로 계산한 값은 결과에 추정치로 표시됩니다."),
+        ("1세대인데 계산이 되지 않는 이유는 무엇인가요?",
+         "1세대는 계약별 자기부담이 달라(생명보험 20%·손해보험 0% 등) 단일 기준을 둘 수 없습니다. "
+         "보험증권·약관의 자기부담률을 직접 입력하면 같은 방식으로 계산합니다."),
+        ("비급여 보험료 할증(차등제)은 왜 반영하지 않았나요?",
+         "할증률이 보험사·상품별로 달라(예: 3~5단계 +100/+200/+300%, 회사에 따라 +200/+300/+400%) 단일 값으로 "
+         "계산할 수 없습니다. 5세대 특약2 차등제의 첫 적용은 2028년 5월 이후 갱신분부터이므로, "
+         "이용량에 따라 차기 갱신 시 할증될 수 있다는 점을 안내로만 표시합니다."),
+        ("관리급여(도수치료 95%)는 어떻게 처리하나요?",
+         "관리급여는 급여로 편입되어 실손 급여 담보로 보상됩니다. 5세대 자기부담률은 입원 20%·외래 95%이고, "
+         "선택형 할인 특약의 면책 옵션을 고르면 보장에서 제외될 수 있습니다. 도수치료 단가와 횟수는 "
+         "관리급여 계산기에서 따로 확인하고, 이 시뮬레이터의 금액 계산에는 넣지 않았습니다."),
+        ("입력한 정보는 어디로 저장되나요?",
+         "어디에도 저장되지 않습니다. 계산은 방문자 브라우저 안에서 JavaScript로만 이루어지고 서버로 전송하지 "
+         "않습니다. 이름·주민번호·보험증권번호·질병 이력·보험사명은 입력받지 않으며, 공유 링크에도 입력값을 담지 않습니다."),
+    ]
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>실손 5세대 전환 손익 시뮬레이터</h1>
+      <p class="section-lead">내 세대와 월 보험료, 연간 의료 이용 패턴을 넣으면 5세대로 전환했을 때
+        <b>연간 절약·손해 금액</b>과 <b>손익분기점</b>을 계산합니다. 결과는 한 장 카드로 저장해 공유할 수 있습니다.</p>
+      <div class="meta">
+        <span class="pill teal">참고용 추정치</span>
+        <span class="pill blue">입력값 서버 저장 없음</span>
+        <span class="pill line">금융감독원 상담센터 1332</span>
+      </div>
+    </div>
+
+    <form class="calc sim-calc" data-sim data-base="{esc(SITE_BASE)}" novalidate>
+      <div class="calc-head">
+        <h2>내 조건 입력</h2>
+        <p>보험료와 이용 금액은 브라우저 안에서만 계산합니다. 입력값은 전송·저장되지 않습니다.</p>
+      </div>
+      <div class="calc-body">
+        <div class="sim-step">
+          <h3><span class="n">1</span> 현재 실손 세대</h3>
+          <div class="seg five" id="gen-group" role="group" aria-label="현재 실손 세대">
+            <button type="button" data-seg="gen" data-v="1" aria-pressed="false">1세대</button>
+            <button type="button" data-seg="gen" data-v="2" aria-pressed="false">2세대</button>
+            <button type="button" data-seg="gen" data-v="3" aria-pressed="false">3세대</button>
+            <button type="button" data-seg="gen" data-v="4" aria-pressed="true">4세대</button>
+            <button type="button" data-seg="gen" data-v="5" aria-pressed="false">5세대</button>
+          </div>
+          <div class="row-note" id="gen-period">2021년 7월~2026년 4월 가입</div>
+          <div class="field" id="gen1-row" hidden>
+            <label for="gen1-rate">약관상 자기부담률 <span class="hint">(%)</span></label>
+            <div class="amount-row">
+              <input type="number" id="gen1-rate" data-k="gen1_rate" inputmode="decimal"
+                     min="0" max="100" step="1" placeholder="예: 20">
+              <span class="unit">%</span>
+            </div>
+            <div class="row-note">1세대는 계약별 자기부담이 달라(생명보험 20%·손해보험 0% 등) 단일 기준이 없습니다.
+              보험증권·약관의 자기부담률을 입력해야 계산합니다.</div>
+          </div>
+          <div class="field" id="gen2-row" hidden>
+            <label for="gen2-type">2세대 가입유형</label>
+            <select id="gen2-type" data-k="gen2_type">
+              <option value="standard">표준형 (급여 자기부담 20%)</option>
+              <option value="select1">선택형Ⅰ·Ⅱ (급여 자기부담 10%)</option>
+            </select>
+          </div>
+          <div class="field" id="gen3-row" hidden>
+            <label for="gen3-type">3세대 가입유형</label>
+            <select id="gen3-type" data-k="gen3_type">
+              <option value="standard">표준형 (급여 자기부담 10%)</option>
+              <option value="select2">선택형Ⅱ (급여 자기부담 20%, 3대 비급여 특약 30%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sim-step">
+          <h3><span class="n">2</span> 보험료</h3>
+          <div class="field">
+            <label for="pcur">현재 월 보험료 <span class="hint">(지금 납입 중인 월 보험료)</span></label>
+            <div class="amount-row">
+              <input type="number" id="pcur" data-k="pcur" inputmode="numeric" min="0" step="100"
+                     placeholder="예: 24000">
+              <span class="unit">원</span>
+              <button type="button" class="chip-btn" id="pcur-unknown" aria-pressed="false">모름</button>
+            </div>
+            <div class="row-note">보험사 앱·보험증권·보험료 납입 내역에서 확인할 수 있습니다. 모르면 계산을 보류하고
+              범위만 안내합니다.</div>
+          </div>
+          <div class="field">
+            <span class="label" id="p5-label">5세대 월 보험료</span>
+            <div class="seg two" role="group" aria-labelledby="p5-label">
+              <button type="button" data-seg="p5_mode" data-v="auto" aria-pressed="true">모르면 자동 추정</button>
+              <button type="button" data-seg="p5_mode" data-v="manual" aria-pressed="false">알면 직접 입력</button>
+            </div>
+            <input type="hidden" data-k="p5_mode" value="auto">
+            <div id="p5-auto-row" style="margin-top:10px">
+              <label for="discount">인하율 <span class="hint" id="discount-val">30%</span></label>
+              <input type="range" id="discount" data-k="discount" min="10" max="70" step="1" value="30">
+              <div class="row-note">4세대 대비 약 30% 인하(기본계약과 특약1만 가입하면 약 50% 수준), 1·2세대 대비
+                50% 이상 인하, 3세대는 30~50% 범위로 보고되어 보수적으로 30%를 기본값으로 둡니다.
+                자동 추정값은 결과에 <b>추정치</b>로 표시됩니다.</div>
+            </div>
+            <div id="p5-manual-row" hidden style="margin-top:10px">
+              <div class="amount-row">
+                <input type="number" id="p5" data-k="p5" inputmode="numeric" min="0" step="100"
+                       placeholder="예: 17000">
+                <span class="unit">원</span>
+              </div>
+              <div class="row-note">보험사가 제시한 5세대 전환 보험료를 입력하면 추정 없이 그 값으로 계산합니다.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-step">
+          <h3><span class="n">3</span> 연간 의료 이용 패턴</h3>
+          <p class="row-note" style="margin-top:-4px">지난 1년(또는 앞으로 1년 예상) 이용 금액을 넣습니다. 이용이 없으면 0으로 두세요.</p>
+          {_sim_amount_field('in_cov', '급여 입원', '(건강보험이 적용되는 입원 진료비)')}
+          <div class="field">
+            <label for="out-cov">급여 통원 <span class="hint">(건강보험이 적용되는 외래 진료비)</span></label>
+            <div class="amount-row">
+              <input type="number" id="out-cov" data-k="out_cov" inputmode="numeric" min="0"
+                     step="10000" max="20000000" placeholder="0" value="0">
+              <span class="unit">원</span>
+            </div>
+            <input type="range" data-range="out_cov" min="0" max="20000000" step="100000" value="0"
+                   aria-label="급여 통원 금액 슬라이더">
+            <div class="visit-row">
+              <label for="out-visits">통원 횟수 <span class="hint">(선택)</span></label>
+              <input type="number" id="out-visits" data-k="out_visits" inputmode="numeric"
+                     min="0" max="365" step="1" placeholder="0">
+              <span class="unit">회</span>
+            </div>
+            <div class="row-note">횟수를 넣으면 5세대 급여 통원의 최소 자기부담금(병·의원·약국 1만 원,
+              종합·상급종합병원 2만 원)을 회차별로 반영합니다.</div>
+          </div>
+          {_sim_amount_field('severe', '비급여 중증', '(암·뇌·심장·산정특례 질환 치료)')}
+          <div class="field">
+            <label for="mild">비급여 비중증 <span class="hint">(도수치료·체외충격파·비급여 주사제 등)</span></label>
+            <div class="amount-row">
+              <input type="number" id="mild" data-k="mild" inputmode="numeric" min="0"
+                     step="10000" max="20000000" placeholder="0" value="0">
+              <span class="unit">원</span>
+            </div>
+            <input type="range" data-range="mild" min="0" max="20000000" step="100000" value="0"
+                   aria-label="비급여 비중증 금액 슬라이더">
+            <div class="visit-row">
+              <label for="mild-visits">비중증 통원 횟수 <span class="hint">(선택)</span></label>
+              <input type="number" id="mild-visits" data-k="mild_visits" inputmode="numeric"
+                     min="0" max="365" step="1" placeholder="0">
+              <span class="unit">회</span>
+            </div>
+            <div class="row-note">5세대 비중증 비급여는 50%에 통원 최소 자기부담 5만 원이 적용됩니다.
+              횟수를 넣으면 회차별 최소 자기부담을 반영합니다.</div>
+          </div>
+          <div class="field">
+            <label for="inst">주로 이용하는 의료기관 규모</label>
+            <select id="inst" data-k="inst">
+              <option value="clinic">의원·약국 (통원 최소공제 1만 원)</option>
+              <option value="hospital">병원 (1만 5천 원)</option>
+              <option value="general">종합병원 (2만 원)</option>
+              <option value="tertiary">상급종합병원 (2만 원)</option>
+            </select>
+            <div class="row-note">통원 최소 자기부담금 계산에만 쓰입니다. 기관 이름은 받지 않습니다.</div>
+          </div>
+          <div class="field">
+            <label class="check-row" for="managed">
+              <input type="checkbox" id="managed" data-k="managed">
+              <span>관리급여(도수치료 등 2026년 7월 편입)를 이용하고 있습니다</span>
+            </label>
+            <div class="row-note">체크하면 관리급여 보상 방식과 선택형 할인 특약 면책 안내를 결과에 함께 표시합니다.
+              금액 계산에는 넣지 않습니다.</div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="result sim-result" id="sim-result">
+      <div class="result-head">
+        <h3>전환 손익 결과</h3>
+        <span class="sub">입력값은 브라우저에서만 계산됩니다</span>
+      </div>
+      <div id="sim-out" aria-live="polite">
+        <div class="sim-hold"><b>현재 월 보험료를 입력하면 결과가 나옵니다.</b> 세대와 이용 금액을 넣고 보험료를 입력해 주세요.</div>
+      </div>
+      <div class="sim-share">
+        <button type="button" class="btn sm" data-share="card" disabled>카드 저장(PNG)</button>
+        <button type="button" class="btn sm ghost" data-share="kakao" disabled>카톡으로 공유</button>
+        <button type="button" class="btn sm ghost" data-share="image" disabled>이미지로 공유</button>
+        <button type="button" class="btn sm ghost" data-share="copy" disabled>결과 링크 복사</button>
+      </div>
+      <p class="sim-share-msg" id="sim-share-msg" role="status" aria-live="polite"></p>
+      <input type="text" id="sim-link" readonly hidden aria-label="복사할 결과 주소">
+      <p class="calc-foot">공유 카드에는 이름·월 보험료·세부 이용 내역을 넣지 않습니다. 카드와 링크에는
+        medical-finder-kr.pages.dev 주소와 참고용 추정치 고지가 함께 표시됩니다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2>세대별 자기부담률 기준</h2>
+    <p class="section-lead">이 시뮬레이터가 쓰는 표준 자기부담률입니다. 개별 계약은 약관이 우선합니다.</p>
+    <div class="table-wrap">
+      <table class="plain stack">
+        <thead><tr><th scope="col">세대</th><th scope="col">급여 입원</th><th scope="col">급여 통원</th>
+          <th scope="col">비급여 중증</th><th scope="col">비급여 비중증</th></tr></thead>
+        <tbody>{rate_html}</tbody>
+      </table>
+    </div>
+    <p class="calc-foot">표의 %는 모두 <b>자기부담률</b>(환자가 부담하는 비중)입니다. <b>Max(A, B)</b>는
+      '비율로 계산한 금액'과 '최소 공제액' 중 큰 금액을 환자 부담으로 본다는 뜻입니다.
+      1세대는 계약별 차이가 커 직접 입력을 받고, 2·3세대는 대표 유형(표준형·선택형)만 반영합니다.</p>
+
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card prose">
+        <h2 style="font-size:17px">계산 방법</h2>
+        <p style="font-size:13.5px">연간 총비용 = <b>월 보험료 × 12 + 연간 자기부담금</b>입니다.
+          같은 이용 패턴을 현재 세대와 5세대 규칙에 각각 적용해 두 총비용의 차이를 냅니다.</p>
+        <ul style="font-size:13.5px">
+          <li>Δ = 현재 세대 연간 총비용 − 5세대 연간 총비용</li>
+          <li>Δ가 양수면 전환 시 그만큼 <b>절약</b>, 음수면 그만큼 <b>손해</b>입니다.</li>
+          <li>연 |Δ| 가 5만 원 이하면 이용 패턴이 조금만 달라져도 결과가 뒤집히므로 <b>판단 보류</b>로 표시합니다.</li>
+          <li>손익분기 그래프는 비중증 비급여 이용액만 0부터 늘리며 Δ가 0이 되는 지점을 찾습니다.</li>
+          <li>5세대 특약1·특약2의 연간 보장한도(5,000만 원·1,000만 원)는 보험사 지급 상한으로 적용합니다.</li>
+        </ul>
+        <h3>계산에 넣지 않은 항목</h3>
+        <ul style="font-size:13.5px">
+          <li>비급여 보험료 차등제 할증 — 할증률이 보험사·상품별로 달라 단일 값이 없습니다. 첫 적용은 2028년 5월 이후 갱신분부터입니다.</li>
+          <li>관리급여(도수치료 95%) 금액 — 급여 규칙으로 따로 계산해야 합니다.</li>
+          <li>계약전환 할인(3년간 50%, 6개월 한시)·선택형 할인 특약 — 대상이 2013년 3월 이전 초기 실손으로 한정됩니다.</li>
+          <li>회차별 보장한도(5세대 통원 일당 20만 원, 병·의원 입원 회당 300만 원, 4세대 통원 회당 20만 원)</li>
+          <li>5세대 중증 입원 연간 자기부담 상한 500만 원 — 입원 여부·기관에 따라 달라 넣지 않았습니다.</li>
+        </ul>
+        <h3>고정 고지</h3>
+        <ul style="font-size:13px;color:#475467">
+          <li>비급여 이용량에 따라 차기 갱신 시 할증될 수 있습니다(할증률은 보험사·상품별로 다릅니다).
+            5세대 특약2 차등제의 첫 적용은 2028년 5월 이후 갱신분부터입니다. 할증 반영 계산은 준비 중입니다.</li>
+          <li>4·5세대는 5년마다 재가입하며, 재가입 시점의 약관이 적용됩니다.</li>
+          <li>전환 후 3개월 이내에는 조건 없이, 3~6개월은 보험금 미수령 시에만 철회할 수 있고 6개월이 지나면 철회할 수 없습니다.</li>
+          <li>모든 금액은 참고용 추정치입니다. 전환 전 약관을 확인하고, 궁금한 점은 금융감독원 상담센터(국번 없이 1332)에 문의하세요.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card prose">
+          <h2 style="font-size:17px">결과를 읽는 순서</h2>
+          <ol style="font-size:13.5px">
+            <li><b>큰 숫자</b> — 연간 절약·손해 금액과 판단 방향(전환 유리·유지 유리·판단 보류)입니다.</li>
+            <li><b>판단 근거 3줄</b> — 보험료 절감액, 자기부담 증가액, 손익분기점입니다.</li>
+            <li><b>손익분기 그래프</b> — 비중증 비급여를 얼마나 쓰면 결과가 뒤집히는지 보여 줍니다.</li>
+            <li><b>고지 문항</b> — 할증·관리급여·재가입·철회 기한은 계산에 넣지 않고 안내로 표시합니다.</li>
+          </ol>
+        </div>
+        <div class="card prose">
+          <h2 style="font-size:17px">공유 카드</h2>
+          <p style="font-size:13.5px">결과를 카드 이미지(PNG)로 저장하거나 카카오톡·링크로 공유할 수 있습니다.
+            카드에는 연간 절약·손해 금액과 판단 근거 1줄, 사이트 주소만 담기고 이름·보험료·이용 내역은 담기지 않습니다.</p>
+          <p style="font-size:13px;color:#667085">공유 링크에는 utm_source(카카오톡·이미지 공유·링크 복사),
+            utm_medium, utm_campaign과 결과 구분(절약·손해·보류)만 붙습니다. 입력값은 담지 않습니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:30px">자주 묻는 질문</h2>
+    {faq_html(faqs)}
+
+    <div class="card prose" style="margin-top:22px">
+      <h2 style="font-size:16px;margin-top:0">1차 출처</h2>
+      <ul style="font-size:13px">
+        <li>금융위원회·금융감독원 2026-05-06 보도자료 및 5세대 실손보험 출시 Q&A — 급여 20%, 통원 최소 자기부담금 1만·2만 원,
+          특약1(중증) 30%·연 5,000만 원, 특약2(비중증) 50%·연 1,000만 원·통원 Max[50%, 5만 원].</li>
+        <li>금융위원회 고시 제2026-16호 부칙 제3조(특례)① — 5세대 특약2 비급여 차등제 첫 적용 2028년 5월 6일 이후 갱신분.</li>
+        <li>삼성화재·DB손해보험 5세대 상품공시 — 재가입(갱신) 주기 5년, 회사별 할증률 상이.</li>
+        <li>보건복지부 2026-07-01 보도자료 · 심평원 고시 — 도수치료 관리급여 전환(1회 43,850원·본인부담 95%).</li>
+        <li>보험업계 공시(2026-11) — 계약전환 할인(3년간 50%)·선택형 할인 특약 시행.</li>
+      </ul>
+      <p class="calc-foot">이 계산기는 투자·보험 권유 도구가 아닙니다. 특정 보험사·상품을 추천하지 않으며
+        보험 제휴·설계사 알선을 하지 않습니다. 전환 전 약관을 확인하고, 궁금한 점은 금융감독원 상담센터
+        (국번 없이 1332)에 문의하세요. <a href="/ko/medical-disclaimer/">의료 면책 고지</a> ·
+        <a href="/ko/privacy/">개인정보처리방침</a></p>
+    </div>
+
+    <h2 style="margin-top:30px">함께 보면 좋은 가이드</h2>
+    <p class="section-lead">세대별 구조와 청구·관리급여 기준을 정리한 해설입니다.</p>
+    {guide_cards(heading="가이드")}
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld([("/ko/", "홈"), (path, "실손 5세대 전환 손익 시뮬레이터")]),
+        faq_jsonld(faqs),
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "실손 5세대 전환 손익 시뮬레이터",
+            "url": SITE_BASE + path,
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "description": ("내 실손 세대와 월 보험료, 연간 의료 이용 금액을 입력하면 5세대 전환 시 "
+                            "연간 절약·손해와 손익분기점을 계산하는 참고용 추정 도구입니다."),
+            "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"},
+            "publisher": {"@type": "Organization", "name": BRAND},
+        },
+    ]
+    return layout(path, f"실손 5세대 전환 손익 시뮬레이터 · {SITE_NAME}",
+                  "내 실손 세대와 월 보험료, 연간 급여·비급여 이용 금액을 넣으면 5세대 전환 시 연간 절약·손해와 "
+                  "손익분기점을 계산합니다. 결과를 카드로 저장해 공유할 수 있는 참고용 추정 도구입니다.",
+                  body, [("/ko/", "홈"), (path, "실손 5세대 전환 손익 시뮬레이터")], jsonld,
+                  og_image=og_image, extra_js='<script src="/assets/switch-gen5.js" defer></script>')
 
 
 def page_items(items: list[dict]) -> str:
@@ -2149,7 +2528,7 @@ def write(path: str, text: str) -> None:
 # Cloudflare가 style.css 등을 최대 4시간 캐시해, 내용을 바꿔 배포해도 방문자
 # 브라우저가 이전 스타일시트를 물고 있으면 모바일 헤더가 예전 모양으로 깨진다.
 # 파일 내용의 SHA-256 앞 8자리를 ?v=<hash8> 로 붙여, 내용이 바뀔 때만 새 URL이 되게 한다.
-BUST_ASSETS = ("style.css", "calc.js", "app.js")
+BUST_ASSETS = ("style.css", "calc.js", "app.js", "switch-gen5.js")
 
 
 def asset_versions(dist: Path) -> dict[str, str]:
@@ -2204,6 +2583,7 @@ def build(out: Path, base: str, live: bool) -> dict:
     pages = {
         "ko/index.html": page_landing(items),
         "ko/calc/index.html": page_calc(items),
+        "ko/switch-gen5/index.html": page_switch_gen5(),
         "ko/items/index.html": page_items(items),
         "ko/regions/index.html": page_regions(items),
         "ko/insurance/index.html": page_insurance(),
@@ -2224,8 +2604,11 @@ def build(out: Path, base: str, live: bool) -> dict:
 
     # 자산
     (DIST / "assets").mkdir(parents=True, exist_ok=True)
-    for name in ("style.css", "calc.js", "app.js", "favicon.svg", "favicon.ico"):
+    for name in ("style.css", "calc.js", "app.js", "switch-gen5.js", "favicon.svg", "favicon.ico"):
         shutil.copyfile(ASSETS / name, DIST / "assets" / name)
+    og_png = ASSETS / "og-switch-gen5.png"
+    if og_png.exists():
+        shutil.copyfile(og_png, DIST / "assets" / "og-switch-gen5.png")
     if (DATA / "hospitals.json").exists():
         shutil.copyfile(DATA / "hospitals.json", DIST / "assets" / "hospitals.json")
     med_items = []
@@ -2285,6 +2668,8 @@ def build(out: Path, base: str, live: bool) -> dict:
         path = p.replace("ko/", "/ko/").replace("/index.html", "/")
         if path.startswith("/ko/regions/"):
             prio = "0.8"
+        elif path == "/ko/switch-gen5/":
+            prio = "0.9"
         elif path in ("/ko/about/", "/ko/contact/"):
             prio = "0.6"
         elif path in ("/ko/editorial-policy/", "/ko/medical-disclaimer/"):
