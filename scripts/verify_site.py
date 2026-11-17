@@ -354,6 +354,7 @@ def main() -> int:
 
         # ------------------------------------------------------------ 모든 페이지 가로 스크롤·배너
         pages = ["/ko/", "/ko/calc/", "/ko/items/", "/ko/insurance/", "/ko/guide/", "/ko/privacy/",
+                 "/ko/about/", "/ko/editorial-policy/", "/ko/medical-disclaimer/", "/ko/contact/",
                  "/ko/items/brain-mri/", "/ko/items/manual-therapy/", "/ko/items/zirconia-implant/",
                  "/ko/regions/", "/ko/regions/seoul/", "/ko/regions/gyeonggi/", "/ko/regions/jeonnam/",
                  "/ko/regions/jeju/"]

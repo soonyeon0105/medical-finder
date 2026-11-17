@@ -37,6 +37,26 @@ DIST = BASE_DIR / "dist"
 SITE_NAME = "메디컬 비급여 시세 파인더"
 SITE_BASE = "https://medical-finder.pages.dev"   # --base 로 교체
 OWNER = "내 손안에 복지 (9welfare)"
+
+# ── 브랜딩 (2026-11-17 K-MediCheck 클린 메디컬 톤 통일)
+BRAND = "K-MediCheck"
+COL_TEAL = "#0F766E"
+COL_NAVY = "#0F2942"
+MARK_PATH = "M16 7.4V24.6M7.4 16H20.4L26.6 10.4"
+# 구글 폼 (tearsstream52@gmail.com · 2026-11-17 생성 · 응답자 이메일 미수집 · 게시·응답중)
+GOOGLE_FORM_KO = ("https://docs.google.com/forms/d/e/"
+                  "1FAIpQLSe-mSKsokTH-X-Pmvrlv5CUSMQjXzUNlzK_-gNK0ZPPy0-YIQ/viewform")
+ADS_TXT = "google.com, pub-9496998678693709, DIRECT, f08c47fec0942fa0\n"
+
+
+def logo_svg(size: int = 30, cls: str = "logo-mark") -> str:
+    return (
+        f'<svg class="{cls}" width="{size}" height="{size}" viewBox="0 0 32 32" '
+        'aria-hidden="true" focusable="false">'
+        f'<rect width="32" height="32" rx="7.5" fill="{COL_NAVY}"/>'
+        f'<path d="{MARK_PATH}" fill="none" stroke="#14B8A6" stroke-width="4.6" '
+        'stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    )
 BUILD_TS = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M KST")
 DATA_DATE = "2026-11-17"          # 오픈API 수집·조회일
 DATA_PERIOD = "건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17"
@@ -204,6 +224,8 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta property="og:url" content="{esc(canonical)}">
 <meta name="theme-color" content="#0f766e">
 <meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="stylesheet" href="/assets/style.css">
 {GA4_SNIPPET}
 {ld}
@@ -212,7 +234,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 {banner}
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="/ko/"><span class="mark" aria-hidden="true">🏥</span><span class="txt">{esc(SITE_NAME)}</span></a>
+    <a class="logo" href="/ko/">{logo_svg(28)}<span class="txt">{esc(SITE_NAME)}</span></a>
     <nav class="nav" aria-label="주요 메뉴">{nav_html}</nav>
   </div>
 </header>
@@ -235,8 +257,15 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
         <a href="/ko/items/">비급여 항목 {ITEM_COUNT}개</a><br>
         <a href="/ko/regions/">지역별 시세 17개 시·도</a><br>
         <a href="/ko/insurance/">1~5세대 실손 정리</a><br>
-        <a href="/ko/guide/">이용 안내 · 데이터 출처</a><br>
-        <a href="/ko/privacy/">개인정보처리방침 · 면책</a>
+        <a href="/ko/guide/">이용 안내 · 데이터 출처</a>
+      </div>
+      <div>
+        <b>사이트 정보</b><br>
+        <a href="/ko/about/">사이트 소개</a><br>
+        <a href="/ko/editorial-policy/">편집·데이터 정책</a><br>
+        <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
+        <a href="/ko/contact/">문의 및 오류 제보</a><br>
+        <a href="/ko/privacy/">개인정보처리방침</a>
       </div>
       <div>
         <b>데이터</b><br>
@@ -253,7 +282,8 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
       본 사이트는 병원급 이상 공개 가격만 다루며 의원급 <b>개별</b> 가격은 제공하지 않습니다
       (전국 의원급 평균·중간값은 통계청 KOSIS 통계 기준 참고값).
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
-      <a href="/ko/privacy/">개인정보처리방침 · 면책 고지</a>
+      <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
+      {BRAND} 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
       {esc(OWNER)} · {esc(BUILD_TS)} 빌드.
     </div>
   </div>
@@ -1749,7 +1779,7 @@ def page_privacy() -> str:
         <h2 style="font-size:17px">5. 면책 고지</h2>
         <ul style="font-size:13.5px">
           <li>이 사이트는 <b>정보 제공 사이트</b>이며 의료기관이 아니고, 진단·치료·처방을 하지 않습니다.
-            증상이 있으면 의료기관을 방문하세요.</li>
+            증상이 있으면 의료기관을 방문하세요. 자세한 경계는 <a href="/ko/medical-disclaimer/">의료 면책 고지</a>에 정리했습니다.</li>
           <li>실손보험 계산 결과는 입력값과 공개된 제도 기준으로 산출한 <b>추정치</b>입니다.
             실제 보험금 지급액은 가입 상품·약관·자기부담금 누적·청구 이력에 따라 달라집니다.</li>
           <li>의료기관 가격은 인력·시설·장비·판독 조건에 따라 달라지며, 변경 보고의 행정 처리 기간 때문에
@@ -1762,9 +1792,12 @@ def page_privacy() -> str:
         <p style="font-size:13.5px">지도·좌표 기반 기능을 제공하지 않으며, 병원정보서비스의 좌표값도 화면에 쓰지 않습니다
           (위치기반서비스사업 신고 전 노출 보류). 주소·종별·전화번호 수준의 텍스트 정보만 사용합니다.</p>
         <h3>7. 문의</h3>
-        <p style="font-size:13.5px">데이터 오류·정정 요청은 아래 운영 주소로 접수합니다. 개인정보를 받지 않으므로
-          접수 시 개인정보를 보내지 마세요.<br>
+        <p style="font-size:13.5px">데이터 오류·정정 요청은 <a href="/ko/contact/">문의 및 오류 제보</a> 폼으로 접수합니다.
+          개인정보를 받지 않으므로 접수 시 개인정보를 보내지 마세요.<br>
           <span class="muted">{esc(OWNER)} · {esc(SITE_BASE)}</span></p>
+        <p style="font-size:13.5px" class="muted">사이트의 목적과 데이터 출처는 <a href="/ko/about/">사이트 소개</a>,
+          가격 수집·표시 원칙은 <a href="/ko/editorial-policy/">편집·데이터 정책</a>,
+          진단·치료와의 경계는 <a href="/ko/medical-disclaimer/">의료 면책 고지</a>에서 확인할 수 있습니다.</p>
       </div>
     </div>
     <h2 style="margin-top:30px">자주 묻는 질문</h2>
@@ -1782,6 +1815,196 @@ def page_privacy() -> str:
     return layout("/ko/privacy/", f"개인정보처리방침 · 면책 고지 · {SITE_NAME}",
                   "계산 입력값은 전송하지 않고 GA4 방문 통계만 쓰는 처리방침과 면책 고지, 심평원 공공누리 제1유형·통계청 KOSIS 데이터 출처를 밝힙니다.",
                   body, [("/ko/", "홈"), ("/ko/privacy/", "개인정보처리방침")], jsonld)
+
+
+# ------------------------------------------------------------------ 신뢰 페이지 (애드센스 기반)
+DOC_SECTIONS = {
+    "about": {
+        "title": "사이트 소개",
+        "desc": ("병원급 이상 비급여 공개가와 1~5세대 실손 보장액을 비교하는 중립 정보 사이트의 목적, "
+                 "데이터 출처, 하지 않는 일과 운영 방식을 밝힙니다."),
+        "lead": ("병원급 이상 의료기관의 비급여 공개가와 1~5세대 실손 보장액을 한 화면에서 비교하는 "
+                 "중립 정보 사이트입니다. 특정 병원을 추천하거나 예약을 연결하지 않습니다."),
+        "body": [
+            ("무엇을 하는 사이트인가", [
+                "건강보험심사평가원이 공공데이터포털로 공개하는 <b>병원급 이상</b> 의료기관의 비급여 진료비를 "
+                "항목별로 모아 평균·중앙값·최저·최고가로 보여 주고, 같은 화면에서 2026년 5세대 실손과 "
+                "7월 도수치료 관리급여 전환까지 반영한 예상 환자 부담을 계산합니다.",
+                "가격과 보장액은 다른 값입니다. 화면의 '환자 최종 부담'은 공개가에서 예상 보장액을 뺀 "
+                "금액이며, 실제 청구액과 보험금은 가입 상품과 약관에 따라 달라집니다.",
+            ]),
+            ("숫자의 출처", [
+                "<b>건강보험심사평가원 비급여진료비정보조회서비스</b>(공공데이터포털 15001700) — "
+                "이용허락범위 공공누리 제1유형(출처표시). 병원급 이상 기관의 비급여 공개가.",
+                "<b>통계청 KOSIS 승인번호 354006</b>(작성기관 건강보험심사평가원) — 의원·치과의원 규모의 "
+                "전국 평균·중간값 참고값.",
+                "<b>제도 기준</b> — 5세대 실손은 금융위원회 2026-05-06 보도자료, 관리급여 전환은 "
+                "보건복지부 2026-07-01 보도자료의 공개 기준을 계산 규칙으로 옮겼습니다.",
+            ]),
+            ("하지 않는 일", [
+                "특정 의료기관의 <b>추천·순위·예약·상담 알선</b>을 하지 않습니다(의료법 제27조). "
+                "기관 목록은 공개가 순 나열이며 추천이 아닙니다.",
+                "진단·치료·처방에 대한 조언을 하지 않습니다. 증상이 있으면 의료기관을 방문하세요.",
+                "동네 의원·치과의원·한의원의 <b>개별 기관 가격</b>은 공개 API 제공 범위가 아니어서 "
+                "표시하지 않습니다. 전국 규모의 통계만 참고값으로 보여 줍니다.",
+            ]),
+            ("운영 주체와 운영비", [
+                f"{OWNER} 운영팀이 만들고 관리합니다. 글로벌판 <b>K-MediCheck</b>"
+                "(kmedicheck.com)와 같은 편집 원칙을 따르는 별도 사이트입니다.",
+                "사이트는 무료이며, 운영비는 광고(Google AdSense) 수익으로 충당할 수 있습니다. "
+                "광고는 라벨로 구분되고, 광고 수익은 공개가 데이터·계산 결과·항목 순서에 영향을 주지 "
+                "않습니다. 현재 제휴(어필리에이트) 링크는 두지 않았습니다.",
+            ]),
+            ("정정과 갱신", [
+                "가격은 기관이 신고한 시점의 금액이라 실제 청구액과 다를 수 있고, 변경 보고의 행정 처리 "
+                "기간 때문에 실시간 반영되지 않습니다. 오류를 발견하면 "
+                "<a href='/ko/contact/'>문의 및 오류 제보</a>로 알려 주세요. 영업일 기준 5일 이내 "
+                "1차 답변을 목표로 합니다.",
+            ]),
+        ],
+    },
+    "editorial-policy": {
+        "title": "편집·데이터 정책",
+        "desc": ("비급여 가격을 어떤 원칙으로 수집·표시하고, 어떤 값은 비워 두는지, 정정 요청과 광고·"
+                 "상업적 관계를 어떻게 분리하는지 정리했습니다."),
+        "lead": "가격을 어떻게 모으고, 어떻게 표시하며, 무엇과 섞지 않는지 정리했습니다.",
+        "body": [
+            ("1. 공개된 가격만", [
+                "병원급 가격은 심평원 비급여진료비정보조회서비스(공공데이터포털 15001700) 공개 자료만 "
+                "사용합니다. 의원급 규모 값은 통계청 KOSIS 공개 통계표(승인번호 354006)만 참고합니다.",
+                "확인되지 않은 가격, 비공개 견적, 커뮤니티에 돌는 금액은 제품 데이터로 쓰지 않습니다.",
+            ]),
+            ("2. 표시 규칙", [
+                "가격은 기관이 신고한 <b>비급여 최저·최고가</b>를 그대로 쓰고, 평균·중앙값은 그 범위에서 "
+                "산출합니다. 표본 수를 함께 표시합니다.",
+                "수집하지 못한 값은 <b>추정·보간하지 않고 비워 둡니다.</b> 화면에 '-'로 표시되는 항목은 "
+                "공개 자료에 값이 없거나 표시 기준을 충족하지 못한 경우입니다.",
+                "계산 결과는 입력값이 아니라 공개된 제도 기준의 <b>추정치</b>이며, 계산이 이루어진 기준과 "
+                "가정을 화면에 함께 표시합니다.",
+            ]),
+            ("3. 의원급을 표시하지 않는 이유", [
+                "심평원 비급여 공개 API는 병원급 이상 기관을 대상으로 합니다. 동네 의원·치과의원·한의원의 "
+                "개별 가격을 이 데이터로 추정하면 사실과 다른 가격이 되기 때문에 표시하지 않고, "
+                "방문 전 유선 확인을 안내합니다.",
+            ]),
+            ("4. 라이선스", [
+                "심평원 자료는 공공누리 제1유형(출처표시)으로 상업적 이용과 변경이 허용됩니다. "
+                "<b>공공누리 제4유형으로 배포되는 엑셀 파일은 사용하지 않습니다.</b>",
+                "KOSIS 통계는 출처를 표시해 이용하며, 화면과 개인정보처리방침에 출처를 명시합니다.",
+            ]),
+            ("5. 정정 절차", [
+                "가격이 다르거나, 화면과 계산이 맞지 않는다는 제보는 "
+                "<a href='/ko/contact/'>문의 및 오류 제보</a>로 받습니다. 원 공개 자료를 다시 확인하고, "
+                "차이가 확인되면 데이터·화면을 함께 고칩니다.",
+                "영업일 기준 5일 이내 1차 답변을 목표로 하며, 단순 문의보다 근거(기관명·항목·금액·"
+                "확인 경로)가 있는 제보를 먼저 처리합니다.",
+            ]),
+            ("6. 광고와 데이터의 분리", [
+                "광고는 라벨로 구분해 표시하고, 계산 버튼·입력창·결과 카드에 붙여 배치하지 않습니다.",
+                "광고주·제휴 파트너가 공개 전에 가격 데이터를 보거나, 항목의 노출 순서나 계산 결과에 "
+                "영향을 줄 수 없습니다. 특정 의료기관의 광고·제휴는 받지 않습니다.",
+            ]),
+        ],
+    },
+    "medical-disclaimer": {
+        "title": "의료 면책 고지",
+        "desc": ("이 사이트가 의료 서비스가 아니라는 점, 가격과 계산 결과의 한계, 실제 청구액·보험금과 "
+                 "다를 수 있는 이유, 응급 상황 안내를 밝힙니다."),
+        "lead": ("이 사이트는 공개된 가격과 제도 기준을 정리한 정보 사이트이며, 진단·치료·보험금 청구를 "
+                 "대신하지 않습니다."),
+        "body": [
+            ("의료 서비스가 아닙니다", [
+                "진단·치료·처방을 하지 않고, 특정 시술이나 검사가 필요한지 판단해 드리지 않습니다. "
+                "모든 의료적 판단은 환자를 진찰한 의료인이 합니다.",
+                "이 사이트는 의료기관이 아니며, 의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·"
+                "광고를 하지 않습니다.",
+            ]),
+            ("가격은 변동됩니다", [
+                "표시된 가격은 기관이 신고한 시점의 금액입니다. 인력·시설·장비·재료비 변동과 변경 "
+                "보고의 행정 처리 기간 때문에 실제 청구액과 다를 수 있습니다.",
+                "비급여 항목은 기관이 자율적으로 정하는 가격이므로 같은 항목이라도 기관마다 다릅니다. "
+                "방문 전에 기관에 직접 확인하세요.",
+            ]),
+            ("실손 계산은 추정치입니다", [
+                "계산 결과는 입력값과 공개된 제도 기준으로 산출한 참고값입니다. 실제 보험금은 가입 시기·"
+                "상품(표준형·선택형)·약관의 한도·자기부담금 누적·청구 이력에 따라 달라집니다.",
+                "계약 내용과 보장 여부에 대한 최종 판단은 보험회사와 약관이 기준입니다.",
+            ]),
+            ("응급 상황", [
+                "응급 증상이 있으면 119에 연락하거나 가까운 응급의료기관을 방문하세요. 이 사이트의 "
+                "정보를 이유로 진료를 미루지 마세요.",
+            ]),
+            ("개인정보", [
+                "이 사이트는 회원가입·로그인·결제가 없고, 계산기에 입력한 금액은 브라우저 안에서만 "
+                "처리됩니다. 자세한 내용은 <a href='/ko/privacy/'>개인정보처리방침</a>을 참고하세요.",
+            ]),
+        ],
+    },
+    "contact": {
+        "title": "문의 및 오류 제보",
+        "desc": ("가격 오류·데이터 출처·화면 문제를 접수하는 구글 폼입니다. 예약·진료 상담은 받지 "
+                 "않으며, 영업일 기준 5일 이내 답변을 목표로 합니다."),
+        "lead": ("가격이 다르거나 화면이 이상하면 알려 주세요. 예약·진료 상담과 의료 질문에는 "
+                 "답변하지 않습니다."),
+        "body": [],
+    },
+}
+
+
+def _doc_sections(sections: list[tuple[str, list[str]]]) -> str:
+    out = []
+    for head, paras in sections:
+        ps = "".join(f"\n        <p>{p}</p>" for p in paras)
+        out.append(f"      <section class=\"doc-sec\">\n        <h2>{head}</h2>{ps}\n      </section>")
+    return "\n".join(out)
+
+
+CONTACT_PANEL = f"""      <section class="doc-sec contact-sec">
+        <h2>빠른 답변을 위해 필요한 것</h2>
+        <ul class="doc-list">
+          <li>문제가 보인 페이지 주소 (예: /ko/items/mri-brain/)</li>
+          <li>어떤 값이 어떻게 보여야 하는지</li>
+          <li>가격 정정 요청이라면 기관이 공개한 가격과 확인한 곳</li>
+        </ul>
+        <p class="muted" style="font-size:13.5px">영업일 기준 5일 이내 1차 답변을 목표로 합니다.
+          폼은 이메일 주소를 자동으로 수집하지 않으며, 회신이 필요할 때만 폼 안에 회신처를 적어 주세요.
+          예약·진료 상담, 개인 진료기록에 대한 질문은 받지 않습니다.</p>
+        <p><a class="btn" href="{GOOGLE_FORM_KO}" target="_blank" rel="noopener">문의 폼 열기 ↗</a></p>
+        <p class="muted" style="font-size:13px">폼은 Google Forms로 제공되며 새 탭에서 열립니다.</p>
+        <div class="form-embed">
+          <iframe src="{GOOGLE_FORM_KO}?embedded=true" title="메디컬 비급여 시세 파인더 문의 폼"
+                  loading="lazy" width="100%" height="980" frameborder="0" marginheight="0"
+                  marginwidth="0"><a href="{GOOGLE_FORM_KO}" target="_blank" rel="noopener">문의 폼 열기</a></iframe>
+        </div>
+      </section>"""
+
+
+def page_trust(slug: str) -> str:
+    """ /ko/about · editorial-policy · medical-disclaimer · contact """
+    meta = DOC_SECTIONS[slug]
+    path = f"/ko/{slug}/"
+    crumbs = [("/ko/", "홈"), (path, meta["title"])]
+    body_sections = CONTACT_PANEL if slug == "contact" else _doc_sections(meta["body"])
+    body = f"""
+<section class="section" style="padding-top:10px">
+  <div class="wrap doc">
+    <div class="page-head">
+      <h1>{esc(meta['title'])}</h1>
+      <p class="section-lead">{esc(meta['lead'])}</p>
+      <p class="muted" style="font-size:12.5px">최종 수정 {esc(DATA_DATE)} · {esc(BRAND)} 패밀리</p>
+    </div>
+{body_sections}
+  </div>
+</section>
+"""
+    jsonld = [
+        breadcrumb_jsonld(crumbs),
+        {"@context": "https://schema.org", "@type": "WebPage", "name": meta["title"],
+         "description": meta["desc"], "inLanguage": "ko", "url": SITE_BASE + path,
+         "isPartOf": {"@type": "WebSite", "name": SITE_NAME, "url": SITE_BASE + "/ko/"}},
+    ]
+    return layout(path, f"{meta['title']} · {SITE_NAME}", meta["desc"], body,
+                  crumbs, jsonld)
 
 
 # ------------------------------------------------------------------ 빌드
@@ -1818,6 +2041,8 @@ def build(out: Path, base: str, live: bool) -> dict:
         "ko/guide/index.html": page_guide(),
         "ko/privacy/index.html": page_privacy(),
     }
+    for slug in ("about", "editorial-policy", "medical-disclaimer", "contact"):
+        pages[f"ko/{slug}/index.html"] = page_trust(slug)
     for it in items:
         pages[f"ko/items/{it['slug']}/index.html"] = page_item(it, items)
     for slug, _name, _full, _labels in REGIONS:
@@ -1828,7 +2053,7 @@ def build(out: Path, base: str, live: bool) -> dict:
 
     # 자산
     (DIST / "assets").mkdir(parents=True, exist_ok=True)
-    for name in ("style.css", "calc.js", "app.js"):
+    for name in ("style.css", "calc.js", "app.js", "favicon.svg", "favicon.ico"):
         shutil.copyfile(ASSETS / name, DIST / "assets" / name)
     if (DATA / "hospitals.json").exists():
         shutil.copyfile(DATA / "hospitals.json", DIST / "assets" / "hospitals.json")
@@ -1871,7 +2096,8 @@ def build(out: Path, base: str, live: bool) -> dict:
 <p class="section-lead">주소가 바뀌었거나 아직 준비되지 않은 페이지입니다.</p>
 <a class="btn" href="/ko/">홈으로</a> <a class="btn ghost" href="/ko/calc/">계산기로</a></div></main></body></html>""")
 
-    # robots / sitemap
+    # robots / sitemap / ads.txt
+    write("ads.txt", ADS_TXT)
     if PREVIEW:
         write("robots.txt", "User-agent: *\nDisallow: /\n# 테스트 픽스처 프리뷰 빌드 (--live 로 색인 허용)\n")
     else:
@@ -1881,7 +2107,14 @@ def build(out: Path, base: str, live: bool) -> dict:
         if p == "ko/index.html":
             continue
         path = p.replace("ko/", "/ko/").replace("/index.html", "/")
-        prio = "0.8" if path.startswith("/ko/regions/") else "0.9"
+        if path.startswith("/ko/regions/"):
+            prio = "0.8"
+        elif path in ("/ko/about/", "/ko/contact/"):
+            prio = "0.6"
+        elif path in ("/ko/editorial-policy/", "/ko/medical-disclaimer/"):
+            prio = "0.4"
+        else:
+            prio = "0.9"
         urls.append((path, prio))
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']

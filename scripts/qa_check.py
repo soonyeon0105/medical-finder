@@ -403,6 +403,46 @@ def main() -> int:
            "")
         ok("404 페이지", (dist / "404.html").exists(), "")
 
+    # ---------------------------------------------------------- H. 브랜딩 · 애드센스 기반
+    print("\n== H. 브랜딩 · 애드센스 기반")
+    ads = dist / "ads.txt"
+    ok("ads.txt 존재", ads.exists(), "")
+    if ads.exists():
+        ok("ads.txt 게시자 ID",
+           ads.read_text(encoding="utf-8").strip()
+           == "google.com, pub-9496998678693709, DIRECT, f08c47fec0942fa0",
+           ads.read_text(encoding="utf-8").strip())
+    for asset in ("favicon.svg", "favicon.ico"):
+        ok(f"assets/{asset}", (dist / "assets" / asset).exists(), "")
+    for slug, must in (("about", "사이트 소개"),
+                       ("editorial-policy", "편집·데이터 정책"),
+                       ("medical-disclaimer", "의료 면책 고지"),
+                       ("contact", "문의 및 오류 제보")):
+        f = dist / "ko" / slug / "index.html"
+        ok(f"/ko/{slug}/ 페이지", f.exists(), "")
+        if f.exists():
+            t = f.read_text(encoding="utf-8")
+            ok(f"/ko/{slug}/ 제목·내용", must in t, "")
+            ok(f"/ko/{slug}/ canonical", f"medical-finder-kr.pages.dev/ko/{slug}/" in t
+               if site_base.endswith("medical-finder-kr.pages.dev") else "/ko/" in t, "")
+    contact = (dist / "ko" / "contact" / "index.html").read_text(encoding="utf-8")
+    ok("contact: 구글 폼 연결", "docs.google.com/forms/d/e/1FAIpQLSe-mSKsokTH" in contact, "")
+    ok("contact: 응답 기한 안내", "5일 이내" in contact, "")
+    ok("contact: 예약·진료 상담 불가 안내", "예약·진료 상담" in contact or "예약" in contact, "")
+    brand_pages = 0
+    for p_ in pages:
+        t = p_.read_text(encoding="utf-8")
+        if p_.name != "index.html" or p_.parent == dist:
+            continue
+        if "K-MediCheck" in t:
+            brand_pages += 1
+        else:
+            fails.append(f"{p_.relative_to(dist)}: K-MediCheck 브랜드 표기 없음")
+    ok("브랜드 표기(K-MediCheck) 전 페이지", brand_pages >= len(main_pages) - 1, f"{brand_pages}페이지")
+    iframes = [(p_.relative_to(dist).as_posix()) for p_ in pages
+               if "<iframe" in p_.read_text(encoding="utf-8")]
+    ok("iframe은 문의 페이지에만", all(x.startswith("ko/contact/") for x in iframes), str(iframes))
+
     # ---------------------------------------------------------- 결과
     print()
     if warns:
