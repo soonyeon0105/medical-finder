@@ -142,3 +142,24 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
   화면 상단에 전환 고지와 시점 차이를 명시하고, 계산은 급여 수가 43,850원으로 한다.
 - 도수치료 관리급여 주기(주 2회·연 15회/예외 24회)는 누적 관리가 필요해 안내로만 표시.
 - 상업 게시 전 심평원과의 사전 협의가 필요한 항목(의원급)은 계속 제외한다.
+
+---
+
+## QA 확정 버그 수정 (2026-11-17 17:20) — 루트 301 · 조사 · 계산기 금액 경계
+
+`T-M04_라이브_교차QA_v1`의 M-01~M-03을 반영하고 Cloudflare Pages `medical-finder-kr` 프로덕션에 재배포했습니다
+(커밋 `3f2e57a`, 배포 zip `work/medical-finder-dist-qafix-20261117.zip` 62파일).
+
+| 항목 | 변경 |
+| --- | --- |
+| M-01 | `dist/_redirects` 에 `/ /ko/ 301` — 라이브 빌드에서만 생성. Pages는 자산보다 redirect를 먼저 적용하므로 `dist/index.html`(직접 요청·no-JS 대비)이 남아 있어도 `/`는 HTTP 301. 라이브 `curl -I https://medical-finder-kr.pages.dev/` → `301`, `Location: /ko/`, `/ko/` 200. |
+| M-02 | 항목 상세 20페이지 `470,000원로` → `470,000원으로`(`원`은 받침 ㄴ → 항상 `으로`). `qa_check.py` 에 `원로`·`원 로` 0건 검사 추가. |
+| M-03 | 금액 입력을 숫자만 추려 변환하던 동작 제거 — `-1000`을 `1000`으로 바꾸지 않는다. 0·빈 값·음수면 계산하지 않고 입력란 아래 `role="alert"` 안내(`금액은 0보다 큰 값으로 입력해 주세요.`) + 결과 표는 안내 한 줄. 5억 원 초과는 `#result-warnings`에 자릿수 오타 확인 경고. |
+
+검증: `qa_check.py --live` 48페이지 전항 통과 / `crosscheck_calc.py` 엔진 24,240건×5세대×6항목 = 727,200값 불일치 0 +
+화면 표본 37건 일치(0원 케이스는 안내 노출 확인) / `verify_site.py --live` 95/95 통과·콘솔 오류 0·가로 스크롤 0 /
+라이브 sitemap 48 URL 전수 200·`/ko/`·`/ko/calc/`·`/ko/items/*` 200·404 정상·GA4 `G-9EQ04J49YZ` 유지.
+스크린샷: `downloads/medical-mvp/qa-fix-medical-finder-amount-zero.png`·`-amount-negative.png`·`-amount-overcap.png`
+
+> 재배포 시: `python3 scripts/build_site.py --live --base https://medical-finder-kr.pages.dev` → `qa_check.py --live` →
+> `dist/` 루트만 zip → Cloudflare Pages `medical-finder-kr` → 배포 생성 → 업로드(62파일 확인) → 저장 및 배포.
