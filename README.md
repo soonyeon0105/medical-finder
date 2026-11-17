@@ -1,4 +1,4 @@
-# 🏥 메디컬·비급여 시세 비교 파인더 — M-04 실데이터 · KOSIS 연동 · 라이브 빌드
+# 🏥 메디컬·비급여 시세 비교 파인더 — M-07 항목 확장(20개) · KOSIS 연동 · 라이브 빌드
 
 병원급 이상 **심평원 공개 비급여 가격**(전수 수집)과 **1~5세대 실손 보장액**을 한 화면에서 계산하고,
 **통계청 KOSIS(승인번호 354006) 의원급 통계**를 참고값으로 함께 보여 주는 정적 사이트입니다.
@@ -13,21 +13,35 @@
 | 오퍼레이션 | 결과 | 비고 |
 | --- | --- | --- |
 | `getNonPaymentItemCodeList2` | **943/943건** | 항목 코드·공식 분류·`cmmtTxt` |
-| `getNonPaymentItemHospList2` | **13,650행 / 13개 항목** | 항목별 `totalCount` 와 일치(수집률 100%) |
+| `getNonPaymentItemHospList2` | **17,932행 / 20개 항목** | 항목별 `totalCount` 와 일치(수집률 100%) |
 | `getNonPaymentItemClcdList` | **714/714건** | 응답 35~44초·재호출 504 → 같은 날 JSON 스냅샷 사용 |
 | `getNonPaymentItemSidoCdList` | 사용 안 함 | 2페이지부터 504 → 기관 행의 `sidoCdNm` 으로 직접 집계 |
-| KOSIS 354006 (의원·치과의원) | **13개 항목** | 통계표 직접다운로드(CSV·UTF-8), 로그인·API키 불필요 |
+| KOSIS 354006 (의원·치과의원) | **20개 항목** | 통계표 조회화면에서 값 대조(로그인·API키 불필요) |
 
-항목별 수집 기관 수(전수): 뇌 MRI 932 · 경추 MRI 1,055 · 요천추 MRI 1,055 · 무릎 MRI 1,059 ·
+항목별 수집 기관 수(전수, 17,932행): 뇌 MRI 932 · 경추 MRI 1,055 · 요천추 MRI 1,055 · 무릎 MRI 1,059 ·
 복부 초음파 683 · 유방 초음파 900 · 갑상선 초음파 1,304 · 진정내시경 환자관리료 Ⅰ 339 ·
-지르코니아 임플란트 420 · 체외충격파 1,804 · 증식치료(사지) 1,141 · 도수치료 1,617 · 신장분사치료 1,341
+지르코니아 임플란트 420 · 체외충격파 1,804 · 증식치료(사지) 1,141 · 도수치료 1,617 · 신장분사치료 1,341 ·
+**백내장 다초점 인공수정체 72 · 지르코니아 크라운 458 · PFM 크라운 428 · 라식 26 · 대상포진 예방접종 1,345 ·
+진정내시경 환자관리료 Ⅱ 1,011 · Ⅲ 942**
+
+### 세대별 보장 제외 (`excluded_gens`)
+
+카탈로그의 `excluded_gens` 가 그 세대의 계산을 0원(전액 본인부담)으로 만든다. 표준 실손약관의
+시력교정술·예방접종·치과 비급여 보철 제외 문언을 반영한 것으로, `calc_engine.py` 와 `assets/calc.js` 가 같은 규칙을 쓴다.
+
+| 항목 | 보장 제외 세대 | 근거 |
+| --- | --- | --- |
+| 라식 | 1~5세대 | 시력교정술(미용·생활 편의) 면책 |
+| 대상포진 예방접종 | 1~5세대 | 예방 목적 — 질병 치료 목적 아님 |
+| 지르코니아·PFM 크라운, 지르코니아 임플란트 | 1~5세대 | 치과치료(K00~K08) 비급여 보장 제외 |
+| 백내장 다초점 인공수정체 | 2~5세대 | 2016.1 이후 약관의 시력교정술 면책(다초점 렌즈를 안경 대체로 봄) |
 
 ## 구조
 
 ```
 work/medical-finder/
 ├─ data/
-│  ├─ catalog_items.json      핵심 13개 항목 카탈로그(코드·공식 분류·5세대 처리)
+│  ├─ catalog_items.json      비급여 20개 항목 카탈로그(코드·공식 분류·세대별 보장 제외)
 │  ├─ kosis_2026.json         KOSIS 의원·치과의원 통계표에서 직접 수집한 참고값(코드↔분류 경로 확정)
 │  ├─ hira_dataset.json       prepare_data.py 산출물(항목별 시세·종별/시도 집계·커버리지)
 │  ├─ hospitals.json          항목별 병원급 기관 목록(시도/종별 필터용 경량 JSON)
@@ -54,7 +68,7 @@ cd work/medical-finder
 
 # 0) 인증키는 .env.local 에만 둔다(깃 제외). 형식: DATA_GO_KR_SERVICE_KEY_DEC=발급키
 python3 scripts/fetch_hira.py --op codes --rows 1000
-python3 scripts/fetch_hira.py --op hosp_list --rows 300            # 카탈로그 13개 항목 전수
+python3 scripts/fetch_hira.py --op hosp_list --rows 300            # 카탈로그 20개 항목 전수
 python3 scripts/prepare_data.py                                   # → data/hira_dataset.json, hospitals.json
 
 python3 scripts/build_site.py --live --base https://medical-finder.pages.dev   # → dist/
@@ -79,18 +93,18 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
 
 | 검사 | 결과 |
 | --- | --- |
-| `crosscheck_calc.py` | 엔진 16,176건 × 5세대 × 6항목 = **485,280개 값 불일치 0** + 화면 표본 48건(720값) 일치 |
+| `crosscheck_calc.py` | 엔진 24,240건 × 5세대 × 6항목 = **727,200개 값 불일치 0** + 화면 표본 48건(720값) 일치 |
 | `qa_check.py --live` | 범위 고지·프리뷰 배너/ noindex 부재·JSON-LD·canonical·내부 링크·sitemap 37개·골든 15케이스·**지역 페이지 17개 전수**·비밀값 0·제4유형 엑셀 0·의원 개별 기관 0 전부 통과 |
 | `verify_site.py --live` | 모바일 390px(innerWidth 390 확인)·데스크톱 1440px **86/86 통과**, 콘솔 오류 0, 가로 스크롤 0, 기관 필터(시도·종별·검색)·지역 필터(항목·시군구) 동작 확인 |
 | `fetch_hira.py --selftest` | XML 파서·페이지네이션·게이트웨이 오류(30)·NODATA·빈 응답·키 마스킹 통과 |
 
-스크린샷: `/workspace/downloads/medical-mvp/m04-*.png` (모바일 390 / 데스크톱 1440)
+스크린샷: `/workspace/downloads/medical-mvp/m04-*.png`(기존) · `m07-*.png`(신규 항목 20개 확장)
 
 ## 화면
 
-- `/ko/` — 계산기 + 병원급↔의원급(KOSIS) 비교표 + 13개 항목
+- `/ko/` — 계산기 + 병원급↔의원급(KOSIS) 비교표 + 20개 항목
 - `/ko/calc/` — 계산기 전체 옵션(입원/통원·종별·중증·2세대 유형·관리급여 횟수)
-- `/ko/items/`, `/ko/items/{slug}/` — 항목별 시세(종별·시도) + KOSIS 의원급 참고 카드 + **기관별 공개가 필터**
+- `/ko/items/`(20개), `/ko/items/{slug}/` — 항목별 시세(종별·시도) + KOSIS 의원급 참고 카드 + **기관별 공개가 필터** + 세대별 보장 제외 표시
 - `/ko/regions/`, `/ko/regions/{sido}/` — **17개 시·도별 비급여 시세**(항목별 평균·중간값·최저~최고·전국 대비, 종별 분포, 시·군·구 시세)
   + 지역 한정 **기관·항목별 공개가 검색**(항목·시·군·구·병원명 필터)
 - `/ko/insurance/` — 1~5세대 실손 정리(5세대 특약1·2, 도수치료 관리급여)

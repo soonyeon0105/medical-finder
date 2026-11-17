@@ -1,21 +1,21 @@
 {
- "generated": "2026-11-17 01:44:43 KST",
+ "generated": "2026-11-17 10:51:45 KST",
  "source": "raw",
- "items_with_data": 13,
+ "items_with_data": 20,
  "counts": {
   "api_codes": 943,
   "clcd_codes": 714,
-  "hosp_list_rows": 13650,
+  "hosp_list_rows": 17932,
   "duplicate_rows_removed": {
-   "codes": 943,
+   "codes": 1886,
    "hosp_list": 0,
    "clcd": 500
   },
-  "items_in_catalog": 13,
-  "items_with_data": 13,
+  "items_in_catalog": 20,
+  "items_with_data": 20,
   "items_without_data": 0,
-  "hospital_rows_used": 13650,
-  "kosis_items": 13
+  "hospital_rows_used": 17932,
+  "kosis_items": 20
  },
  "per_item": [
   {
@@ -185,6 +185,97 @@
    },
    "avg": 51308,
    "kosis_avg": 41472,
+   "displayed": true
+  },
+  {
+   "code": "BI0208EB",
+   "name": "백내장 다초점 인공수정체",
+   "n": 72,
+   "coverage": {
+    "collected": 72,
+    "total": 72,
+    "complete": true
+   },
+   "avg": 2520706,
+   "kosis_avg": 3020624,
+   "displayed": true
+  },
+  {
+   "code": "UW609F350",
+   "name": "지르코니아 크라운",
+   "n": 458,
+   "coverage": {
+    "collected": 458,
+    "total": 458,
+    "complete": true
+   },
+   "avg": 562354,
+   "kosis_avg": 513347,
+   "displayed": true
+  },
+  {
+   "code": "UW608F310",
+   "name": "PFM 크라운",
+   "n": 428,
+   "coverage": {
+    "collected": 428,
+    "total": 428,
+    "complete": true
+   },
+   "avg": 447094,
+   "kosis_avg": 422406,
+   "displayed": true
+  },
+  {
+   "code": "2Z9610001",
+   "name": "라식(레이저각막절삭성형술)",
+   "n": 26,
+   "coverage": {
+    "collected": 26,
+    "total": 26,
+    "complete": true
+   },
+   "avg": 2582285,
+   "kosis_avg": 2511784,
+   "displayed": true
+  },
+  {
+   "code": "3Z5200303",
+   "name": "대상포진 예방접종(싱그릭스)",
+   "n": 1345,
+   "coverage": {
+    "collected": 1345,
+    "total": 1345,
+    "complete": true
+   },
+   "avg": 245787,
+   "kosis_avg": 246718,
+   "displayed": true
+  },
+  {
+   "code": "EA0020000",
+   "name": "진정내시경 환자관리료 Ⅱ",
+   "n": 1011,
+   "coverage": {
+    "collected": 1011,
+    "total": 1011,
+    "complete": true
+   },
+   "avg": 65454,
+   "kosis_avg": 49274,
+   "displayed": true
+  },
+  {
+   "code": "EA0030000",
+   "name": "진정내시경 환자관리료 Ⅲ",
+   "n": 942,
+   "coverage": {
+    "collected": 942,
+    "total": 942,
+    "complete": true
+   },
+   "avg": 91871,
+   "kosis_avg": 73747,
    "displayed": true
   }
  ]

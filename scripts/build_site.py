@@ -4,13 +4,13 @@
 메디컬·비급여 시세 비교 파인더 — 국내(/ko/) 정적 사이트 빌더 (M-03 뼈대)
 
 입력
-  data/catalog_items.json      핵심 13개 항목 카탈로그
+  data/catalog_items.json      비급여 항목 카탈로그(개수는 catalog_items.json 이 정한다)
   data/hira_dataset.json       prepare_data.py 산출물(실데이터 또는 픽스처). 없으면 픽스처 모드로 동작
 
 출력 (dist/)
   /ko/                    랜딩 + 계산기
   /ko/calc/               계산기(전체 옵션)
-  /ko/items/              항목 13개 목록
+  /ko/items/              항목 전체 목록
   /ko/items/{slug}/       항목 상세
   /ko/insurance/          1~5세대 실손 정리(2026 개편 반영)
   /ko/guide/              이용 안내 · 데이터 출처 · 범위 고지
@@ -57,6 +57,8 @@ GA4_SNIPPET = (
 )
 
 PREVIEW = True     # --live 로 끌 수 있다
+ITEM_COUNT = 0   # build() 가 카탈로그 길이로 채운다(화면 문구용)
+HOSP_ROWS = 0    # build() 가 실제 수집 기관 행 수로 채운다(화면 문구용)
 DATASET: dict | None = None      # data/hira_dataset.json (없으면 가격 미표시)
 HOSPITALS: dict | None = None    # data/hospitals.json (병원급 기관 목록)
 
@@ -111,6 +113,9 @@ EXCLUDED5 = [
     ("근골격계 물리치료", "도수치료(2026.7 관리급여 전환)·신장분사치료 등", "MZ0070000"),
     ("체외충격파치료", "어깨 석회화·족저근막염 등", "SZ0840000"),
     ("비급여 주사제", "증식치료·신경성형술 등 주사 계열", "MY1420000"),
+    ("시력교정술(라식·라섹)", "미용·생활 편의 목적 — 세대와 관계없이 보장 제외", "2Z9610001"),
+    ("예방접종", "질병 치료 목적이 아니라 보장 대상 아님(대상포진·HPV 등)", "3Z5200303"),
+    ("치과 비급여 보철", "크라운·임플란트 등 치과치료 비급여 — 약관상 보장 제외", "UW609F350"),
     ("미등재 신의료기술", "첨단재생의료 등 미등재 기술", None),
     ("D등급 치료", "한국보건의료연구원 재평가 D등급(권고하지 않음)", None),
 ]
@@ -227,7 +232,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
       <div>
         <b>바로가기</b><br>
         <a href="/ko/calc/">실손 계산기</a><br>
-        <a href="/ko/items/">비급여 항목 13개</a><br>
+        <a href="/ko/items/">비급여 항목 {ITEM_COUNT}개</a><br>
         <a href="/ko/regions/">지역별 시세 17개 시·도</a><br>
         <a href="/ko/insurance/">1~5세대 실손 정리</a><br>
         <a href="/ko/guide/">이용 안내 · 데이터 출처</a><br>
@@ -826,7 +831,7 @@ def page_region(slug: str, items: list[dict]) -> str:
          f"{name}에서 공개에 응답한 기관은 {d['hospitals']:,}곳, 항목·기관 응답은 {d['rows']:,}건입니다."),
         (f"{name}은 전국 평균보다 비싼 편인가요?",
          f"항목별로 다릅니다. 이 페이지의 ‘전국 대비’ 열에서 항목마다 전국 병원급 평균과 비교한 차이를 볼 수 있습니다. "
-         f"13개 항목 가운데 전국 평균보다 높은 항목이 {higher}개, 낮은 항목이 {lower}개입니다. "
+         f"이 지역에서 공개된 {len(items)}개 항목 가운데 전국 평균보다 높은 항목이 {higher}개, 낮은 항목이 {lower}개입니다. "
          "다만 지역마다 응답 기관 수와 종별 구성(상급종합 비중)이 달라 단순 비교로 우열을 판단할 수는 없습니다."),
         (f"{name}에서 의원·치과의원 가격도 알 수 있나요?",
          "공개 오픈API는 병원급 이상만 제공해 동네 의원의 개별 가격은 표시할 수 없습니다. "
@@ -1071,7 +1076,7 @@ def compare_table_html(items: list[dict]) -> str:
             f"<tr><th scope=\"row\"><a href=\"/ko/items/{esc(it['slug'])}/\">{esc(it['name'])}</a></th>"
             f"<td class=\"num\">{h_avg}<br><span class=\"muted\">{h_n}</span></td>"
             f"<td class=\"num\">{c_avg}<br><span class=\"muted\">중간 {c_mid}</span></td>"
-            f"<td data-label=\"비고\">{'관리급여 95% 전환' if it['payment'] == '관리급여' else ('5세대 제외' if it['excluded5'] else '비중증 보장')}</td></tr>")
+            f"<td data-label=\"비고\">{'관리급여 95% 전환' if it['payment'] == '관리급여' else ('전 세대 보장 제외' if len(it.get('excluded_gens') or []) >= 5 else ('일부 세대 보장 제외' if it.get('excluded_gens') else ('5세대 제외' if it['excluded5'] else '비중증 보장')))}</td></tr>")
     return f"""
 <div class="table-wrap">
   <table class="plain stack" data-compare-table>
@@ -1087,9 +1092,11 @@ def page_landing(items: list[dict]) -> str:
     cards = "".join(f"""
       <a class="item-card" href="/ko/items/{esc(it['slug'])}/">
         <div class="top"><span class="nm">{esc(it['name'])}</span>
-          {'<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
-           else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
-                 else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else ''))}</div>
+          {'<span class="pill red">전 세대 제외</span>' if len(it.get('excluded_gens') or []) >= 5
+           else ('<span class="pill amber">일부 세대 제외</span>' if it.get('excluded_gens')
+           else ('<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
+                 else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
+                       else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else ''))))}</div>
         <div class="cd">{esc(it['code'])}</div>
         <div class="sm">{esc(it['summary'])}</div>
       </a>""" for it in items)
@@ -1153,11 +1160,12 @@ def page_landing(items: list[dict]) -> str:
           </div>
         </div>
         <div class="card">
-          <h3>5세대에서 보장되지 않는 항목</h3>
+          <h3>실손에서 보장되지 않는 항목</h3>
           <ul style="font-size:13px;padding-left:18px">
             {''.join(f'<li><b>{esc(n)}</b> — {esc(d)}</li>' for n, d, _ in EXCLUDED5)}
           </ul>
-          <p class="calc-foot">산정특례 대상 질환 치료로서 의학적 인과관계가 인정되는 경우의 판단은 보험사 심사 영역입니다.</p>
+          <p class="calc-foot">앞의 세 항목(시력교정술·예방접종·치과 비급여 보철)은 5세대뿐 아니라 이전 세대에서도 약관상 보장 제외입니다. '
+            '산정특례 대상 질환 치료로서 의학적 인과관계가 인정되는 경우의 판단은 보험사 심사 영역입니다.</p>
         </div>
       </div>
     </div>
@@ -1193,7 +1201,7 @@ def page_landing(items: list[dict]) -> str:
   <div class="wrap">
     <h2>핵심 비급여 {len(items)}개 항목</h2>
     <p class="section-lead">심평원 공식 코드로 묶은 항목입니다. 항목을 누르면 그 항목의 세대별 처리를 볼 수 있습니다.
-      (비급여 공개 코드 943건 가운데 먼저 다루는 13개입니다.)</p>
+      (비급여 공개 코드 943건 가운데 이번 단계에서 다루는 {len(items)}개입니다.)</p>
     <div class="item-grid">{cards}</div>
   </div>
 </section>
@@ -1304,9 +1312,11 @@ def page_items(items: list[dict]) -> str:
     cards = "".join(f"""
       <a class="item-card" href="/ko/items/{esc(it['slug'])}/">
         <div class="top"><span class="nm">{esc(it['name'])}</span>
-          {'<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
-           else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
-                 else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else '<span class="pill">기본</span>'))}</div>
+          {'<span class="pill red">전 세대 제외</span>' if len(it.get('excluded_gens') or []) >= 5
+           else ('<span class="pill amber">일부 세대 제외</span>' if it.get('excluded_gens')
+           else ('<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
+                 else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
+                       else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else '<span class="pill">기본</span>'))))}</div>
         <div class="cd">{esc(it['code'])}</div>
         <div class="sm">{esc(it['summary'])}</div>
       </a>""" for it in items)
@@ -1343,7 +1353,7 @@ def page_items(items: list[dict]) -> str:
          "itemListElement": [{"@type": "ListItem", "position": i, "name": it["name"],
                               "url": SITE_BASE + f"/ko/items/{it['slug']}/"} for i, it in enumerate(items, 1)]},
     ]
-    return layout("/ko/items/", f"비급여 항목 13개 코드 정리 · {SITE_NAME}",
+    return layout("/ko/items/", f"비급여 항목 {len(items)}개 코드 정리 · {SITE_NAME}",
                   "뇌·척추·관절 MRI, 초음파, 진정내시경, 지르코니아 임플란트, 체외충격파, 증식치료, 도수치료, 신장분사치료의 심평원 코드와 5세대 실손 처리.",
                   body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목")], jsonld, current="/ko/items/")
 
@@ -1353,7 +1363,12 @@ def page_item(it: dict, items: list[dict]) -> str:
     sib_html = "".join(f'<a class="item-card" href="/ko/items/{esc(x["slug"])}/"><div class="top">'
                        f'<span class="nm">{esc(x["name"])}</span></div><div class="cd">{esc(x["code"])}</div>'
                        f'<div class="sm">{esc(x["summary"])}</div></a>' for x in sib)
-    if it["payment"] == "관리급여":
+    excl_gens = it.get("excluded_gens") or []
+    if 5 in excl_gens:
+        gen5_cell = (f'<b>5세대 비급여 특약 보장 제외</b> — 사유: {esc(it.get("exclude_reason") or "보장 대상 아님")} '
+                     '특약1(중증)·특약2(비중증) 모두 같은 제외 문언이 적용됩니다.')
+        pay_pill = '<span class="pill red">전 세대 제외</span>' if len(excl_gens) >= 5 else '<span class="pill amber">일부 세대 제외</span>'
+    elif it["payment"] == "관리급여":
         gen5_cell = ('<b>비급여 특약 대상 아님</b> — 2026.7.1 관리급여 전환으로 급여 항목입니다. '
                      '5세대는 급여 통원 자기부담률을 건강보험 본인부담률(95%)에 연동해 실손 보장이 5% 수준입니다.')
         pay_pill = '<span class="pill blue">관리급여 95%</span>'
@@ -1365,10 +1380,24 @@ def page_item(it: dict, items: list[dict]) -> str:
         gen5_cell = ('<b>비중증 비급여(특약2)로 보장</b> — 입원 50% · 통원 Max(50%, 5만원). '
                      '산정특례(중증) 질환 치료면 특약1(입원 30%·통원 Max(30%, 3만원))이 적용됩니다.')
         pay_pill = '<span class="pill">비중증 보장</span>'
-    special3 = ('해당 — 3세대는 비급여 기본 특약으로 분리되어 통원 시 Max(30%, 2만원) 공제'
-                if it["special3"] and it["payment"] != "관리급여" else
-                ('2026.7 이전 비급여 시절 특약 대상이었으나, 지금은 급여로 계산' if it["payment"] == "관리급여"
-                 else "해당 없음 — 기본 비급여로 20% 공제"))
+    if 3 in excl_gens:
+        special3 = ("보장 제외 — 3세대도 약관상 보장하지 않는 항목입니다(" + (it.get("exclude_reason") or "") + ")")
+    else:
+        special3 = ('해당 — 3세대는 비급여 기본 특약으로 분리되어 통원 시 Max(30%, 2만원) 공제'
+                    if it["special3"] and it["payment"] != "관리급여" else
+                    ('2026.7 이전 비급여 시절 특약 대상이었으나, 지금은 급여로 계산' if it["payment"] == "관리급여"
+                     else "해당 없음 — 기본 비급여로 20% 공제"))
+    # 세대별 보장 한 줄 요약(제외 세대가 있는 항목만)
+    gen_cover_note = ""
+    if excl_gens:
+        covered = [g for g in (1, 2, 3, 4, 5) if g not in excl_gens]
+        names = {1: "1세대", 2: "2세대", 3: "3세대", 4: "4세대", 5: "5세대"}
+        excl_txt = "전 세대" if len(excl_gens) >= 5 else ", ".join(names[g] for g in excl_gens)
+        cov_txt = "·".join(names[g] for g in covered) if covered else "없음"
+        gen_cover_note = (
+            '<h3>세대별 보장</h3>'
+            f'<p style="font-size:13.5px">보장 제외: {excl_txt} · 계산에 반영되는 세대: {cov_txt}<br>'
+            '<span class="muted">가입 시기와 상품 약관(재가입·전환 여부)에 따라 판단이 달라질 수 있습니다.</span></p>')
     top_notice = ""
     if it["payment"] == "관리급여":
         top_notice = (
@@ -1404,6 +1433,7 @@ def page_item(it: dict, items: list[dict]) -> str:
           <p style="font-size:13.5px">{esc(special3)}</p>
           <h3>5세대 처리</h3>
           <p style="font-size:13.5px">{gen5_cell}</p>
+          {gen_cover_note}
           <a class="btn sm" href="/ko/calc/?item={esc(it['code'])}&amount={calc_amt}">이 항목으로 계산하기</a>
           <p class="calc-foot">링크를 누르면 금액이 <b>{won(calc_amt)}</b>로 채워집니다.
             실제 청구 금액으로 바꿔 계산하세요.</p>
@@ -1575,7 +1605,7 @@ def page_guide() -> str:
                 <td data-label="수집 결과">비급여 항목 코드 <b>943/943건</b></td></tr>
               <tr><th scope="row"><code>getNonPaymentItemHospList2</code></th>
                 <td data-label="응답"><span class="pill teal">전수</span></td>
-                <td data-label="수집 결과">핵심 13개 항목 <b>13,650곳</b> 전수 수집(항목별 100% 응답)</td></tr>
+                <td data-label="수집 결과">핵심 {ITEM_COUNT}개 항목 <b>{HOSP_ROWS:,}곳</b> 전수 수집(항목별 100% 응답)</td></tr>
               <tr><th scope="row"><code>getNonPaymentItemClcdList</code></th>
                 <td data-label="응답"><span class="pill amber">지연 504</span></td>
                 <td data-label="수집 결과">응답 35~44초·재호출 504로 실패 → 같은 날 수집한 714건 스냅샷 사용</td></tr>
@@ -1584,7 +1614,7 @@ def page_guide() -> str:
                 <td data-label="수집 결과">사용하지 않고 기관 행의 시도명으로 직접 집계</td></tr>
               <tr><th scope="row">KOSIS 354006 (의원·치과의원)</th>
                 <td data-label="응답"><span class="pill teal">전수</span></td>
-                <td data-label="수집 결과">2026년 통계표에서 13개 항목 평균·중간·최저·최고 수집(로그인·API키 불필요)</td></tr>
+                <td data-label="수집 결과">2026년 통계표에서 {ITEM_COUNT}개 항목 평균·중간·최저·최고 수집(로그인·API키 불필요)</td></tr>
             </tbody>
           </table>
         </div>
@@ -1747,7 +1777,7 @@ def write(path: str, text: str) -> None:
 
 
 def build(out: Path, base: str, live: bool) -> dict:
-    global DIST, SITE_BASE, PREVIEW, DATASET
+    global DIST, SITE_BASE, PREVIEW, DATASET, ITEM_COUNT, HOSP_ROWS
     DIST = out
     SITE_BASE = base.rstrip("/")
     PREVIEW = not live
@@ -1757,10 +1787,12 @@ def build(out: Path, base: str, live: bool) -> dict:
     DIST.mkdir(parents=True)
 
     items = json.loads((DATA / "catalog_items.json").read_text(encoding="utf-8"))["items"]
+    ITEM_COUNT = len(items)
     ds_path = DATA / "hira_dataset.json"
     DATASET = json.loads(ds_path.read_text(encoding="utf-8")) if ds_path.exists() else None
     hs_path = DATA / "hospitals.json"
     globals()["HOSPITALS"] = json.loads(hs_path.read_text(encoding="utf-8")) if hs_path.exists() else None
+    HOSP_ROWS = sum((i.get("stats") or {}).get("n", 0) for i in (DATASET or {}).get("items", []))
 
     pages = {
         "ko/index.html": page_landing(items),

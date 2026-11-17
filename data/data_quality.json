@@ -1,21 +1,21 @@
 {
- "checked": "2026-11-17 01:44:43 KST",
+ "checked": "2026-11-17 10:51:45 KST",
  "source": "raw",
  "issues": [],
  "counts": {
   "api_codes": 943,
   "clcd_codes": 714,
-  "hosp_list_rows": 13650,
+  "hosp_list_rows": 17932,
   "duplicate_rows_removed": {
-   "codes": 943,
+   "codes": 1886,
    "hosp_list": 0,
    "clcd": 500
   },
-  "items_in_catalog": 13,
-  "items_with_data": 13,
+  "items_in_catalog": 20,
+  "items_with_data": 20,
   "items_without_data": 0,
-  "hospital_rows_used": 13650,
-  "kosis_items": 13
+  "hospital_rows_used": 17932,
+  "kosis_items": 20
  },
  "warnings": [
   "getNonPaymentItemSidoCdList 는 2페이지 이후 504(SERVICETIMEOUT)로 전 항목 수집이 불가해 지역 통계는 getNonPaymentItemHospList2 기관 행의 sidoCdNm 으로 직접 집계했다(by_sido).",

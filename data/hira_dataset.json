@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-17 01:44:43 KST",
+ "generated": "2026-11-17 10:51:45 KST",
  "source": "raw",
  "synthetic": false,
  "license": "건강보험심사평가원 비급여진료비정보서비스 · 공공누리 제1유형(출처표시)",
@@ -36,7 +36,7 @@
    "평균금액",
    "중간금액"
   ],
-  "note": "KOSIS 통계표의 항목 축은 진료비용별(1)(중분류)·(2)(소분류)·(3)(상세) 3단이며, CSV 직접다운로드는 (3)단만 남아 상위 분류를 잃는다. 따라서 값은 CSV로 받고 분류 경로는 통계표 조회화면에서 대조해 code↔(중분류/소분류/상세)를 확정했다. 값은 KOSIS 표기를 그대로 옮겼고 추정·보간하지 않았다.",
+  "note": "KOSIS 통계표의 항목 축은 진료비용별(1)(중분류)·(2)(소분류)·(3)(상세) 3단이며, CSV 직접다운로드는 (3)단만 남아 상위 분류를 잃는다. 따라서 값은 CSV로 받고 분류 경로는 통계표 조회화면에서 대조해 code↔(중분류/소분류/상세)를 확정했다. 값은 KOSIS 표기를 그대로 옮겼고 추정·보간하지 않았다. 2026-11-17 추가 7개 항목은 같은 통계표 조회화면에서 값을 직접 대조해 옮겼다(추정·보간 없음).",
   "license_note": "공공누리 제4유형 엑셀(비급여 진료비용 및 제증명수수료 통계 표)은 사용하지 않았다. 이 파일은 KOSIS(승인번호 354006) 공개 통계표에서 직접 수집한 값만 담는다."
  },
  "note": "실수집 데이터(data/raw + snapshots)에서 정제한 결과입니다.",
@@ -10723,6 +10723,5341 @@
      "Min": 3000,
      "Avg": 70689,
      "Middle": 50000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "BI0208EB",
+   "slug": "cataract-multifocal-iol",
+   "name": "백내장 다초점 인공수정체",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "치료재료",
+    "sub": "조절성 인공수정체",
+    "dtl": "ACRYSOF IQ PANOPTIX PRESBYOPIA-CORRECTING IOL"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "BI0208EB",
+    "n": 72,
+    "price": {
+     "min": 1723340,
+     "max": 5810950,
+     "avg": 2520706,
+     "median": 2250000,
+     "mode": 2138400,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 17,
+      "avg": 3455629,
+      "median": 3100000,
+      "min": 2000000,
+      "max": 5810950
+     },
+     "상급종합": {
+      "n": 21,
+      "avg": 2043606,
+      "median": 2004486,
+      "min": 1754500,
+      "max": 2457000
+     },
+     "종합병원": {
+      "n": 34,
+      "avg": 2347922,
+      "median": 2234495,
+      "min": 1723340,
+      "max": 3840000
+     }
+    },
+    "by_sido": {
+     "강원": {
+      "n": 1,
+      "avg": 2900000,
+      "median": 2900000
+     },
+     "경기": {
+      "n": 12,
+      "avg": 2460098,
+      "median": 2149200
+     },
+     "경남": {
+      "n": 5,
+      "avg": 2182818,
+      "median": 1786070
+     },
+     "경북": {
+      "n": 5,
+      "avg": 2436000,
+      "median": 1980000
+     },
+     "대구": {
+      "n": 6,
+      "avg": 2163525,
+      "median": 1918975
+     },
+     "대전": {
+      "n": 2,
+      "avg": 2614574,
+      "median": 2614574
+     },
+     "부산": {
+      "n": 8,
+      "avg": 2664589,
+      "median": 2275000
+     },
+     "서울": {
+      "n": 18,
+      "avg": 2589058,
+      "median": 2339766
+     },
+     "세종시": {
+      "n": 1,
+      "avg": 1937382,
+      "median": 1937382
+     },
+     "울산": {
+      "n": 3,
+      "avg": 3616667,
+      "median": 4000000
+     },
+     "인천": {
+      "n": 2,
+      "avg": 2540000,
+      "median": 2540000
+     },
+     "전남광주": {
+      "n": 4,
+      "avg": 2744672,
+      "median": 2747145
+     },
+     "전북": {
+      "n": 3,
+      "avg": 2296667,
+      "median": 2300000
+     },
+     "충남": {
+      "n": 2,
+      "avg": 2054700,
+      "median": 2054700
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "창원경상국립대학교병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경남",
+      "sggu": "창원성산구",
+      "min": 1723340,
+      "max": 1723340
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQ0NjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "대구가톨릭대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "대구",
+      "sggu": "대구남구",
+      "min": 1754500,
+      "max": 1754500
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQyNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "양산부산대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "경남",
+      "sggu": "양산시",
+      "min": 1764680,
+      "max": 1764680
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "경상국립대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "경남",
+      "sggu": "진주시",
+      "min": 1786070,
+      "max": 1786070
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "경상북도포항의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "포항북구",
+      "min": 1800000,
+      "max": 1800000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "연세대학교 의과대학 용인세브란스병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "용인기흥구",
+      "min": 1867820,
+      "max": 1867820
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "삼성서울병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "강남구",
+      "min": 1880000,
+      "max": 1880000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "경북대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "대구",
+      "sggu": "대구중구",
+      "min": 1888700,
+      "max": 1888700
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "칠곡경북대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "대구",
+      "sggu": "대구북구",
+      "min": 1888700,
+      "max": 1888700
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQ0NjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "경상북도김천의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "김천시",
+      "min": 1900000,
+      "max": 1900000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "부산대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "부산",
+      "sggu": "부산서구",
+      "min": 1900000,
+      "max": 1900000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "성남시의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "성남수정구",
+      "min": 1918060,
+      "max": 1918060
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "충남대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "대전",
+      "sggu": "대전중구",
+      "min": 1920916,
+      "max": 1937382
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "세종충남대학교병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "세종시",
+      "sggu": "세종시",
+      "min": 1937382,
+      "max": 1937382
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "영남대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "대구",
+      "sggu": "대구남구",
+      "min": 1949250,
+      "max": 1949250
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "가톨릭대학교의정부성모병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "의정부시",
+      "min": 1958000,
+      "max": 1958000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQyNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "차의과학대학교분당차병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "성남분당구",
+      "min": 1973000,
+      "max": 1973000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "순천향대학교 부속 구미병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "구미시",
+      "min": 1980000,
+      "max": 1980000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "전남대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "전남광주",
+      "sggu": "광주동구",
+      "min": 1984400,
+      "max": 1984400
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "서울특별시보라매병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "동작구",
+      "min": 1989000,
+      "max": 1989000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQzNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "새길병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 2000000,
+      "max": 2500000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "연세대학교의과대학 강남세브란스병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "강남구",
+      "min": 2004486,
+      "max": 2004486
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "단국대학교의과대학부속병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "충남",
+      "sggu": "천안동남구",
+      "min": 2039400,
+      "max": 2039400
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "국민건강보험공단일산병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "고양일산동구",
+      "min": 2040000,
+      "max": 2040000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "순천향대학교부속 천안병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "충남",
+      "sggu": "천안동남구",
+      "min": 2070000,
+      "max": 2070000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQyNjE0ODEjODEjJDEjJDIjJDgz",
+      "name": "인제대학교 해운대백병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "부산",
+      "sggu": "부산해운대구",
+      "min": 2138400,
+      "max": 2138400
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNTEjJDEjJDYjJDgz",
+      "name": "인제대학교부산백병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 2138400,
+      "max": 2138400
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "인제대학교일산백병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "고양일산서구",
+      "min": 2138400,
+      "max": 2138400
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjEyMjIjODEjJDEjJDIjJDgz",
+      "name": "경희대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "동대문구",
+      "min": 2157000,
+      "max": 2157000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ2MiQzNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "중앙대학교광명병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "광명시",
+      "min": 2160000,
+      "max": 2160000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "중앙대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "동작구",
+      "min": 2160000,
+      "max": 2160000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQ0NjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "한양대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "성동구",
+      "min": 2160000,
+      "max": 2160000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "한림대학교 강남성심병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "영등포구",
+      "min": 2170440,
+      "max": 2170440
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "의료법인 길의료재단 길병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "인천",
+      "sggu": "인천남동구",
+      "min": 2180000,
+      "max": 2180000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "서울특별시서울의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "중랑구",
+      "min": 2203640,
+      "max": 2203640
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "전북대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "전북",
+      "sggu": "전주덕진구",
+      "min": 2250000,
+      "max": 2250000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "학교법인 울산공업학원 울산대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "울산",
+      "sggu": "울산동구",
+      "min": 2250000,
+      "max": 2250000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ3OSQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "한림대학교동탄성심병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "화성동탄구",
+      "min": 2265350,
+      "max": 2265350
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQ0NjE0ODEjODEjJDEjJDIjJDgz",
+      "name": "경기도의료원 수원병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "수원장안구",
+      "min": 2300000,
+      "max": 2300000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3OSQyNjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "밝은눈안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 2300000,
+      "max": 2300000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "온누리안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "전주완산구",
+      "min": 2300000,
+      "max": 2300000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "인제대학교 상계백병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "노원구",
+      "min": 2316600,
+      "max": 2316600
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjODEjJDEjJDIjJDgz",
+      "name": "재단법인예수병원유지재단예수병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전북",
+      "sggu": "전주완산구",
+      "min": 2340000,
+      "max": 2340000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "국립중앙의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "중구",
+      "min": 2362932,
+      "max": 2362932
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQ0NjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "강북삼성병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "종로구",
+      "min": 2394000,
+      "max": 2394000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "이화여자대학교의과대학부속목동병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "양천구",
+      "min": 2457000,
+      "max": 2457000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjEyMjIjODEjJDEjJDYjJDgz",
+      "name": "이화여자대학교의과대학부속서울병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "강서구",
+      "min": 2457000,
+      "max": 2457000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQ0NjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "의료법인 은성의료재단 좋은강안병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "부산",
+      "sggu": "부산수영구",
+      "min": 2500000,
+      "max": 2500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "제일안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 2500000,
+      "max": 2500000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "의료법인한전의료재단 한일병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "도봉구",
+      "min": 2520000,
+      "max": 2520000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5MiQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "원광대학교 산본병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "군포시",
+      "min": 2600000,
+      "max": 2600000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "성애의료재단 성애병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "영등포구",
+      "min": 2620000,
+      "max": 2620000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "하남성심병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "광주광산구",
+      "min": 2700000,
+      "max": 2700000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ2MiQzNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "보라안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 2794290,
+      "max": 2794290
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "창원파티마병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경남",
+      "sggu": "창원의창구",
+      "min": 2800000,
+      "max": 2800000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQ0NjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "창원한마음병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경남",
+      "sggu": "창원의창구",
+      "min": 2840000,
+      "max": 2840000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "강원대학교병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "강원",
+      "sggu": "춘천시",
+      "min": 2900000,
+      "max": 2900000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQxMyQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인한길의료재단한길안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "인천",
+      "sggu": "인천부평구",
+      "min": 2900000,
+      "max": 2900000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ4OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "누네안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구중구",
+      "min": 3000000,
+      "max": 3000000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ3MiQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "의료법인 세경의료재단 새빛안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "고양일산동구",
+      "min": 3000000,
+      "max": 3000000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 72,
+    "total": 72,
+    "complete": true
+   },
+   "kosis": {
+    "code": "BI0208EB",
+    "table": "의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A016",
+    "path": [
+     "치료재료",
+     "조절성 인공수정체",
+     "ACRYSOF IQ PANOPTIX PRESBYOPIA-CORRECTING IOL"
+    ],
+    "min": 800000,
+    "max": 5800000,
+    "avg": 3020624,
+    "median": 3000000,
+    "caveat": "KOSIS 의원 통계는 이 제품군의 의원 신고 범위입니다. 수술료(급여)는 포함되지 않은 렌즈 재료비입니다."
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "치료재료/조절성 인공수정체/ACRYSOF IQ PANOPTIX PRESBYOPIA-CORRECTING IOL",
+    "전체": {
+     "Max": 5810950,
+     "Min": 1723340,
+     "Avg": 2400328,
+     "Middle": 2203640
+    },
+    "상급종합": {
+     "Max": 2457000,
+     "Min": 1754500,
+     "Avg": 2033564,
+     "Middle": 1994443
+    },
+    "종합병원": {
+     "Max": 3840000,
+     "Min": 1723340,
+     "Avg": 2268159,
+     "Middle": 2203640
+    },
+    "병원": {
+     "Max": 5810950,
+     "Min": 2000000,
+     "Avg": 3388650,
+     "Middle": 3050000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "UW609F350",
+   "slug": "zirconia-crown",
+   "name": "지르코니아 크라운",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "치과의 보철료",
+    "sub": "크라운",
+    "dtl": "Zirconia"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "UW609F350",
+    "n": 458,
+    "price": {
+     "min": 180000,
+     "max": 1248000,
+     "avg": 562354,
+     "median": 550000,
+     "mode": 500000,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 30,
+      "avg": 504503,
+      "median": 500000,
+      "min": 250000,
+      "max": 650000
+     },
+     "상급종합": {
+      "n": 31,
+      "avg": 724907,
+      "median": 699000,
+      "min": 224000,
+      "max": 1248000
+     },
+     "요양병원": {
+      "n": 7,
+      "avg": 535714,
+      "median": 550000,
+      "min": 400000,
+      "max": 600000
+     },
+     "정신병원": {
+      "n": 3,
+      "avg": 483333,
+      "median": 500000,
+      "min": 450000,
+      "max": 500000
+     },
+     "종합병원": {
+      "n": 152,
+      "avg": 546799,
+      "median": 550000,
+      "min": 180000,
+      "max": 920000
+     },
+     "치과병원": {
+      "n": 235,
+      "avg": 560160,
+      "median": 550000,
+      "min": 270000,
+      "max": 1222730
+     }
+    },
+    "by_sido": {
+     "강원": {
+      "n": 13,
+      "avg": 536952,
+      "median": 504000
+     },
+     "경기": {
+      "n": 92,
+      "avg": 549978,
+      "median": 550000
+     },
+     "경남": {
+      "n": 39,
+      "avg": 558169,
+      "median": 550000
+     },
+     "경북": {
+      "n": 22,
+      "avg": 515909,
+      "median": 500000
+     },
+     "대구": {
+      "n": 21,
+      "avg": 574693,
+      "median": 550000
+     },
+     "대전": {
+      "n": 12,
+      "avg": 572588,
+      "median": 537500
+     },
+     "부산": {
+      "n": 45,
+      "avg": 548088,
+      "median": 550000
+     },
+     "서울": {
+      "n": 97,
+      "avg": 610398,
+      "median": 590000
+     },
+     "세종시": {
+      "n": 4,
+      "avg": 570500,
+      "median": 585250
+     },
+     "울산": {
+      "n": 11,
+      "avg": 578373,
+      "median": 600000
+     },
+     "인천": {
+      "n": 25,
+      "avg": 585093,
+      "median": 550000
+     },
+     "전남광주": {
+      "n": 28,
+      "avg": 539766,
+      "median": 512500
+     },
+     "전북": {
+      "n": 8,
+      "avg": 537500,
+      "median": 512500
+     },
+     "제주": {
+      "n": 3,
+      "avg": 483333,
+      "median": 500000
+     },
+     "충남": {
+      "n": 22,
+      "avg": 544159,
+      "median": 550000
+     },
+     "충북": {
+      "n": 16,
+      "avg": 496419,
+      "median": 500000
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "강원대학교병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "강원",
+      "sggu": "춘천시",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "재단법인아산사회복지재단 서울아산병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "송파구",
+      "min": 224000,
+      "max": 1029000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQwMyQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "의료법인 우리아이들 의료재단 우리아이들병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "구로구",
+      "min": 250000,
+      "max": 600000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ5OSQyNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "뷰티앤디지털치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "파주시",
+      "min": 270000,
+      "max": 270000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "드림분당예치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "성남분당구",
+      "min": 280000,
+      "max": 280000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "연세대학교 원주세브란스기독병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "강원",
+      "sggu": "원주시",
+      "min": 288000,
+      "max": 720000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "가톨릭대학교인천성모병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "인천",
+      "sggu": "인천부평구",
+      "min": 312000,
+      "max": 1248000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "대자인병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전북",
+      "sggu": "전주덕진구",
+      "min": 350000,
+      "max": 550000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "경희대학교치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "동대문구",
+      "min": 374000,
+      "max": 1018000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "성남시의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "성남수정구",
+      "min": 380000,
+      "max": 380000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "국립중앙의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "중구",
+      "min": 385000,
+      "max": 508000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4MiQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "가이드치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경북",
+      "sggu": "구미시",
+      "min": 400000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjEyMjIjNTEjJDEjJDIjJDgz",
+      "name": "그랜드치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "여수시",
+      "min": 400000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkOTkkNTgxMzUxIzExIyQxIyQzIyQ2MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "동해요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "강원",
+      "sggu": "동해시",
+      "min": 400000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjEyMjIjNjEjJDEjJDQjJDgz",
+      "name": "명인치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 400000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "서울더블유치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "충북",
+      "sggu": "충주시",
+      "min": 400000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "스마트원치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 400000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQzNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "아이(i)서울병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산영도구",
+      "min": 400000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ4OSQyNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "영암한국병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "영암군",
+      "min": 400000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ3OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "울산이손병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "울산",
+      "sggu": "울산울주군",
+      "min": 400000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인 백제병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "충남",
+      "sggu": "논산시",
+      "min": 400000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "의료법인한성재단포항세명기독병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "포항남구",
+      "min": 400000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "연세대학교치과대학치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "서대문구",
+      "min": 440000,
+      "max": 950000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "KS병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "광주광산구",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3MiQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "경산미르치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경북",
+      "sggu": "경산시",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQ0NjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "경상북도김천의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "김천시",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjE4MzIjNjEjJDEjJDgjJDgz",
+      "name": "경희치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "충남",
+      "sggu": "태안군",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ5OSQyNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "광교365리움치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "수원영통구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "굿윌치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 450000,
+      "max": 550000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "대구파티마병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 450000,
+      "max": 550000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "마음심는치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "용인처인구",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkNjIkMzgxMzUxIzExIyQyIyQzIyQwMCQ0NjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "메디칼치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경남",
+      "sggu": "거제시",
+      "min": 450000,
+      "max": 550000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "부천이(e)-편한치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "부천소사구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ4MiQzNjE4MzIjODEjJDEjJDYjJDgz",
+      "name": "서울병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "송파구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "서울치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "대전",
+      "sggu": "대전동구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ2MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "석정웰파크병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "고창군",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "수성중동병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구수성구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ5OSQzNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "시카고치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "동대문구",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "씨엔씨푸른병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "청주흥덕구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "안동성소병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "안동시",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ3OSQ0NjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "안산예치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "안산단원구",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ5MiQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "연세미래엔미소치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "강동구",
+      "min": 450000,
+      "max": 600000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "오산한국병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "오산시",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE4MzIjNjEjJDEjJDAjJDgz",
+      "name": "오성치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "대구",
+      "sggu": "대구수성구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "오오치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "부산",
+      "sggu": "부산연제구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkNjIkMzgxMzUxIzExIyQyIyQzIyQwMCQzNjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "온아치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "충남",
+      "sggu": "아산시",
+      "min": 450000,
+      "max": 550000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4MiQyNjE4MzIjNjEjJDEjJDAjJDgz",
+      "name": "우가주치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경남",
+      "sggu": "김해시",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "우리들40플란트치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "부산",
+      "sggu": "부산남구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ3OSQzNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "위례서울치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "성남수정구",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzIxIyQxIyQxIyQ3OSQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "유디치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "서초구",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "유앤아이치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "부산",
+      "sggu": "부산연제구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "유치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "중구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQzIyQxMyQ0NjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "의료법인 대광의료재단 괴산성모병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "괴산군",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQxMyQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인 성누가의료재단 성누가병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "은평구",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkNjIkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "의료법인 성전의료재단 온스타치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "대전",
+      "sggu": "대전유성구",
+      "min": 450000,
+      "max": 600000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "의료법인 영제 의료재단 엔케이세종병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "세종시",
+      "sggu": "세종시",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "의료법인 이손의료재단 이손치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "충남",
+      "sggu": "당진시",
+      "min": 450000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인샘의료재단청주복음병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "청주서원구",
+      "min": 450000,
+      "max": 550000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ2MiQ0NjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인창성의료재단 일신365치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "부산",
+      "sggu": "부산기장군",
+      "min": 450000,
+      "max": 500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjE4MzIjODEjJDEjJDYjJDgz",
+      "name": "의료법인한마음의료재단하나병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "충북",
+      "sggu": "청주흥덕구",
+      "min": 450000,
+      "max": 600000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 458,
+    "total": 458,
+    "complete": true
+   },
+   "kosis": {
+    "code": "UW609F350",
+    "table": "치과의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A018",
+    "path": [
+     "치과의 보철료",
+     "크라운",
+     "Zirconia"
+    ],
+    "min": 140000,
+    "max": 4000000,
+    "avg": 513347,
+    "median": 500000
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "치과의 보철료/크라운/Zirconia",
+    "전체": {
+     "Max": 1248000,
+     "Min": 180000,
+     "Avg": 573801,
+     "Middle": 550000
+    },
+    "상급종합": {
+     "Max": 1248000,
+     "Min": 224000,
+     "Avg": 696135,
+     "Middle": 690000
+    },
+    "종합병원": {
+     "Max": 920000,
+     "Min": 180000,
+     "Avg": 549552,
+     "Middle": 550000
+    },
+    "병원": {
+     "Max": 650000,
+     "Min": 250000,
+     "Avg": 503415,
+     "Middle": 500000
+    },
+    "요양병원": {
+     "Max": 600000,
+     "Min": 400000,
+     "Avg": 537500,
+     "Middle": 550000
+    },
+    "치과병원": {
+     "Max": 1222730,
+     "Min": 270000,
+     "Avg": 572322,
+     "Middle": 550000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "UW608F310",
+   "slug": "pfm-crown",
+   "name": "PFM 크라운",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "치과의 보철료",
+    "sub": "크라운",
+    "dtl": "PFM"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "UW608F310",
+    "n": 428,
+    "price": {
+     "min": 80000,
+     "max": 1072000,
+     "avg": 447094,
+     "median": 425000,
+     "mode": 400000,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 30,
+      "avg": 383987,
+      "median": 389300,
+      "min": 320000,
+      "max": 500000
+     },
+     "상급종합": {
+      "n": 37,
+      "avg": 554365,
+      "median": 569250,
+      "min": 80000,
+      "max": 1072000
+     },
+     "요양병원": {
+      "n": 5,
+      "avg": 390000,
+      "median": 400000,
+      "min": 350000,
+      "max": 400000
+     },
+     "정신병원": {
+      "n": 4,
+      "avg": 325000,
+      "median": 300000,
+      "min": 300000,
+      "max": 400000
+     },
+     "종합병원": {
+      "n": 170,
+      "avg": 425502,
+      "median": 400000,
+      "min": 300000,
+      "max": 800000
+     },
+     "치과병원": {
+      "n": 182,
+      "avg": 460109,
+      "median": 450000,
+      "min": 204000,
+      "max": 892000
+     }
+    },
+    "by_sido": {
+     "강원": {
+      "n": 17,
+      "avg": 416621,
+      "median": 400000
+     },
+     "경기": {
+      "n": 83,
+      "avg": 441584,
+      "median": 400000
+     },
+     "경남": {
+      "n": 37,
+      "avg": 433061,
+      "median": 400000
+     },
+     "경북": {
+      "n": 22,
+      "avg": 400591,
+      "median": 400000
+     },
+     "대구": {
+      "n": 23,
+      "avg": 437711,
+      "median": 450000
+     },
+     "대전": {
+      "n": 12,
+      "avg": 431429,
+      "median": 400000
+     },
+     "부산": {
+      "n": 43,
+      "avg": 447687,
+      "median": 450000
+     },
+     "서울": {
+      "n": 81,
+      "avg": 492852,
+      "median": 480000
+     },
+     "세종시": {
+      "n": 3,
+      "avg": 474200,
+      "median": 509000
+     },
+     "울산": {
+      "n": 10,
+      "avg": 453500,
+      "median": 450000
+     },
+     "인천": {
+      "n": 21,
+      "avg": 483960,
+      "median": 500000
+     },
+     "전남광주": {
+      "n": 30,
+      "avg": 412680,
+      "median": 390000
+     },
+     "전북": {
+      "n": 8,
+      "avg": 480312,
+      "median": 450000
+     },
+     "제주": {
+      "n": 5,
+      "avg": 416260,
+      "median": 400000
+     },
+     "충남": {
+      "n": 18,
+      "avg": 434889,
+      "median": 425000
+     },
+     "충북": {
+      "n": 15,
+      "avg": 407793,
+      "median": 400000
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNTEjJDEjJDYjJDgz",
+      "name": "인제대학교부산백병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 80000,
+      "max": 600000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3MiQ0NjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "경북대학교치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "대구",
+      "sggu": "대구중구",
+      "min": 204000,
+      "max": 714000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjEyMjIjNjEjJDEjJDQjJDgz",
+      "name": "명인치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 250000,
+      "max": 250000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "가톨릭대학교인천성모병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "인천",
+      "sggu": "인천부평구",
+      "min": 268000,
+      "max": 1072000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "이화여자대학교의과대학부속목동병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "양천구",
+      "min": 290000,
+      "max": 390000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "경상북도포항의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "포항북구",
+      "min": 300000,
+      "max": 300000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "국립나주병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "전남광주",
+      "sggu": "나주시",
+      "min": 300000,
+      "max": 300000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ4OSQzNjEyMjIjNTEjJDEjJDIjJDgz",
+      "name": "국립부곡병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "경남",
+      "sggu": "창녕군",
+      "min": 300000,
+      "max": 300000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ4OSQyNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "서울특별시은평병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "서울",
+      "sggu": "은평구",
+      "min": 300000,
+      "max": 300000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "순천향대학교부속부천병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "경기",
+      "sggu": "부천원미구",
+      "min": 300000,
+      "max": 300000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "연세대학교 원주세브란스기독병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "강원",
+      "sggu": "원주시",
+      "min": 300000,
+      "max": 540000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "의료법인동춘의료재단문경제일병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "문경시",
+      "min": 300000,
+      "max": 300000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "서울특별시서남병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "양천구",
+      "min": 310000,
+      "max": 310000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "대자인병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전북",
+      "sggu": "전주덕진구",
+      "min": 315000,
+      "max": 450000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "대구의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "대구",
+      "sggu": "대구서구",
+      "min": 320000,
+      "max": 320000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5OSQzNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "은혜병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창원마산합포구",
+      "min": 320000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "아주대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "경기",
+      "sggu": "수원영통구",
+      "min": 335000,
+      "max": 397000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "국군강릉병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "강원",
+      "sggu": "강릉시",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ4MiQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "국군구리병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "구리시",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjE4MzIjNjEjJDEjJDAjJDgz",
+      "name": "국군대구병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경북",
+      "sggu": "경산시",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "국군대전치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "대전",
+      "sggu": "대전유성구",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5MiQzNjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "국군수도병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "성남분당구",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "국군수도치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "성남분당구",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ3MiQzNjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "국군양주병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "양주시",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "국군춘천병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "강원",
+      "sggu": "춘천시",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNjEjJDEjJDQjJDgz",
+      "name": "국군함평치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "함평군",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "국군홍천병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "강원",
+      "sggu": "홍천군",
+      "min": 338000,
+      "max": 338000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "성남시의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "성남수정구",
+      "min": 340000,
+      "max": 340000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "KS병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "광주광산구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "강원대학교병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "강원",
+      "sggu": "춘천시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "강원특별자치도강릉의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "강원",
+      "sggu": "강릉시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQ0NjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "강원특별자치도원주의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "강원",
+      "sggu": "원주시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "강일병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경남",
+      "sggu": "김해시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "경기도의료원 안성병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "안성시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQ0NjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "경상북도김천의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경북",
+      "sggu": "김천시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQzNjE4MzIjNjEjJDEjJDgjJDgz",
+      "name": "경찰병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "송파구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "광주보훈병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "광주광산구",
+      "min": 350000,
+      "max": 380000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjEyMjIjNTEjJDEjJDIjJDgz",
+      "name": "그랜드치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "여수시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQ0NjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "남양주 한양병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "남양주시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "대전보훈병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "대전",
+      "sggu": "대전대덕구",
+      "min": 350000,
+      "max": 380000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkOTkkNTgxMzUxIzExIyQxIyQzIyQ2MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "동해요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "강원",
+      "sggu": "동해시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ5MiQyNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "로이스제일치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경북",
+      "sggu": "안동시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "마음심는치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "용인처인구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjE4MzIjODEjJDEjJDYjJDgz",
+      "name": "목포한국병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "목포시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "서울더블유치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "충북",
+      "sggu": "충주시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "서울적십자병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "종로구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ3MiQzNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "서울특별시어린이병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "서초구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQzIyQ2MiQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "스마트원치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "씨엔씨푸른병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "청주흥덕구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "아산충무병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "충남",
+      "sggu": "아산시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQzNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "아이(i)서울병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산영도구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ3OSQ0NjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "안산예치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "안산단원구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "여수전남병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "여수시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ3OSQyNjEyMjIjODEjJDEjJDIjJDgz",
+      "name": "여천전남병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "여수시",
+      "min": 350000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "영광종합병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "영광군",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ4OSQyNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "영암한국병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "영암군",
+      "min": 350000,
+      "max": 400000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "오산한국병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "오산시",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ3OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "울산이손병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "울산",
+      "sggu": "울산울주군",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkNjIkMzgxMzUxIzExIyQxIyQ3IyQ3OSQzNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "위례서울치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "경기",
+      "sggu": "성남수정구",
+      "min": 350000,
+      "max": 350000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkNjIkMzgxMzUxIzIxIyQxIyQxIyQ3OSQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "유디치과병원",
+      "clCd": "41",
+      "clCdNm": "치과병원",
+      "sido": "서울",
+      "sggu": "서초구",
+      "min": 350000,
+      "max": 350000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 428,
+    "total": 428,
+    "complete": true
+   },
+   "kosis": {
+    "code": "UW608F310",
+    "table": "치과의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A018",
+    "path": [
+     "치과의 보철료",
+     "크라운",
+     "PFM"
+    ],
+    "min": 150000,
+    "max": 1500000,
+    "avg": 422406,
+    "median": 400000
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "치과의 보철료/크라운/PFM",
+    "전체": {
+     "Max": 1072000,
+     "Min": 80000,
+     "Avg": 460498,
+     "Middle": 450000
+    },
+    "상급종합": {
+     "Max": 1072000,
+     "Min": 80000,
+     "Avg": 546238,
+     "Middle": 541800
+    },
+    "종합병원": {
+     "Max": 800000,
+     "Min": 300000,
+     "Avg": 430328,
+     "Middle": 400000
+    },
+    "병원": {
+     "Max": 500000,
+     "Min": 320000,
+     "Avg": 382956,
+     "Middle": 400000
+    },
+    "요양병원": {
+     "Max": 400000,
+     "Min": 350000,
+     "Avg": 390000,
+     "Middle": 400000
+    },
+    "치과병원": {
+     "Max": 892000,
+     "Min": 204000,
+     "Avg": 472617,
+     "Middle": 450000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "2Z9610001",
+   "slug": "lasik",
+   "name": "라식(레이저각막절삭성형술)",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "시력교정술료",
+    "sub": "레이저각막절삭성형술(라식)",
+    "dtl": "레이저각막절삭성형술(라식)"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "2Z9610001",
+    "n": 26,
+    "price": {
+     "min": 1000000,
+     "max": 7500000,
+     "avg": 2582285,
+     "median": 2550000,
+     "mode": 2200000,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 17,
+      "avg": 2704706,
+      "median": 2750000,
+      "min": 1000000,
+      "max": 7500000
+     },
+     "상급종합": {
+      "n": 6,
+      "avg": 2616500,
+      "median": 2465000,
+      "min": 2000000,
+      "max": 4394800
+     },
+     "종합병원": {
+      "n": 3,
+      "avg": 1820133,
+      "median": 1962000,
+      "min": 1000000,
+      "max": 2498400
+     }
+    },
+    "by_sido": {
+     "경기": {
+      "n": 3,
+      "avg": 2333333,
+      "median": 2200000
+     },
+     "경남": {
+      "n": 1,
+      "avg": 3767000,
+      "median": 3767000
+     },
+     "대전": {
+      "n": 2,
+      "avg": 3400000,
+      "median": 3400000
+     },
+     "부산": {
+      "n": 4,
+      "avg": 2757500,
+      "median": 2490000
+     },
+     "서울": {
+      "n": 6,
+      "avg": 2522333,
+      "median": 2571000
+     },
+     "울산": {
+      "n": 2,
+      "avg": 2425000,
+      "median": 2425000
+     },
+     "인천": {
+      "n": 1,
+      "avg": 3100000,
+      "median": 3100000
+     },
+     "전남광주": {
+      "n": 3,
+      "avg": 2370000,
+      "median": 2260000
+     },
+     "전북": {
+      "n": 1,
+      "avg": 2750000,
+      "median": 2750000
+     },
+     "제주": {
+      "n": 1,
+      "avg": 1000000,
+      "median": 1000000
+     },
+     "충남": {
+      "n": 2,
+      "avg": 2299200,
+      "median": 2299200
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3OSQyNjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "밝은눈안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 1000000,
+      "max": 7500000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkOCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "제주대학교병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "제주",
+      "sggu": "제주시",
+      "min": 1000000,
+      "max": 1000000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQxMyQ0NjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "부산성모안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산해운대구",
+      "min": 1300000,
+      "max": 2300000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQ1IyQwMCQzNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "밝은안과21병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 1400000,
+      "max": 4500000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "서울특별시보라매병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "동작구",
+      "min": 1446000,
+      "max": 2478000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3OSQzNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "아이윤병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "울산",
+      "sggu": "울산중구",
+      "min": 1500000,
+      "max": 3000000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "온누리안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "전주완산구",
+      "min": 1500000,
+      "max": 4000000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ2MiQzNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "보라안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 1600000,
+      "max": 2200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ5OSQzNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "밝은누리안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대전",
+      "sggu": "대전서구",
+      "min": 1700000,
+      "max": 5000000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "단국대학교의과대학부속병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "충남",
+      "sggu": "천안동남구",
+      "min": 2000000,
+      "max": 2200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ3MiQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "의료법인 세경의료재단 새빛안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "고양일산동구",
+      "min": 2000000,
+      "max": 3200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "전남대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "전남광주",
+      "sggu": "광주동구",
+      "min": 2110000,
+      "max": 2410000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQ3IyQwMyQ0NjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "누네안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "남양주시",
+      "min": 2200000,
+      "max": 2200000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQzNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "새길병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 2200000,
+      "max": 2200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQyIyQxIyQwMCQzNjEyMjIjNTEjJDEjJDYjJDgz",
+      "name": "서울성모안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "수원영통구",
+      "min": 2200000,
+      "max": 2200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ4MiQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "좋은의사들안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "울산",
+      "sggu": "울산남구",
+      "min": 2200000,
+      "max": 3000000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQxMyQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인한길의료재단한길안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "인천",
+      "sggu": "인천부평구",
+      "min": 2350000,
+      "max": 3850000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQzIyQwMCQyNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "학교법인가톨릭학원가톨릭대학교서울성모병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "서초구",
+      "min": 2402000,
+      "max": 2882000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ2MiQzNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "연세대학교의과대학 강남세브란스병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "강남구",
+      "min": 2430000,
+      "max": 2430000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQ0NjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "순천향대학교부속 천안병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "충남",
+      "sggu": "천안동남구",
+      "min": 2498400,
+      "max": 2498400
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "연세대학교의과대학세브란스병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "서울",
+      "sggu": "서대문구",
+      "min": 2500000,
+      "max": 2500000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ2MiQyNjEyMjIjNTEjJDEjJDYjJDgz",
+      "name": "정근안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 2580000,
+      "max": 2980000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5OSQzNjEyMjIjNTEjJDEjJDIjJDgz",
+      "name": "건양의료재단 김안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "영등포구",
+      "min": 2800000,
+      "max": 2800000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQzNjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "누네안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "강남구",
+      "min": 2800000,
+      "max": 2800000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQyNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "양산부산대학교병원",
+      "clCd": "01",
+      "clCdNm": "상급종합",
+      "sido": "경남",
+      "sggu": "양산시",
+      "min": 3139200,
+      "max": 4394800
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzExIyQxIyQzIyQwMyQzNjEyMjIjNDEjJDEjJDQjJDgz",
+      "name": "이안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대전",
+      "sggu": "대전중구",
+      "min": 3400000,
+      "max": 3500000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 26,
+    "total": 26,
+    "complete": true
+   },
+   "kosis": {
+    "code": "2Z9610001",
+    "table": "의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A016",
+    "path": [
+     "시력교정술료",
+     "레이저각막절삭성형술(라식)",
+     "소계"
+    ],
+    "min": 690000,
+    "max": 7700000,
+    "avg": 2511784,
+    "median": 2495000,
+    "caveat": "수술 전 검사·약제 포함 여부가 기관마다 달라 최저~최고 폭이 큽니다."
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "시력교정술료/레이저각막절삭성형술(라식)",
+    "전체": {
+     "Max": 7500000,
+     "Min": 1000000,
+     "Avg": 2860245,
+     "Middle": 2500000
+    },
+    "상급종합": {
+     "Max": 4394800,
+     "Min": 2000000,
+     "Avg": 2700463,
+     "Middle": 2500000
+    },
+    "종합병원": {
+     "Max": 2498400,
+     "Min": 1000000,
+     "Avg": 1908300,
+     "Middle": 1961000
+    },
+    "병원": {
+     "Max": 7500000,
+     "Min": 1000000,
+     "Avg": 2999589,
+     "Middle": 2700000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "3Z5200303",
+   "slug": "shingles-vaccine",
+   "name": "대상포진 예방접종(싱그릭스)",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "예방접종료",
+    "sub": "대상포진",
+    "dtl": "싱그릭스주"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "3Z5200303",
+    "n": 1345,
+    "price": {
+     "min": 160000,
+     "max": 350000,
+     "avg": 245787,
+     "median": 250000,
+     "mode": 250000,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 758,
+      "avg": 247543,
+      "median": 250000,
+      "min": 160000,
+      "max": 330000
+     },
+     "상급종합": {
+      "n": 45,
+      "avg": 238759,
+      "median": 240000,
+      "min": 208440,
+      "max": 255750
+     },
+     "요양병원": {
+      "n": 105,
+      "avg": 243705,
+      "median": 250000,
+      "min": 170000,
+      "max": 350000
+     },
+     "정신병원": {
+      "n": 20,
+      "avg": 240270,
+      "median": 250000,
+      "min": 180400,
+      "max": 300000
+     },
+     "종합병원": {
+      "n": 294,
+      "avg": 245958,
+      "median": 250000,
+      "min": 174610,
+      "max": 302500
+     },
+     "한방병원": {
+      "n": 123,
+      "avg": 239805,
+      "median": 250000,
+      "min": 185000,
+      "max": 330000
+     }
+    },
+    "by_sido": {
+     "강원": {
+      "n": 39,
+      "avg": 249994,
+      "median": 250000
+     },
+     "경기": {
+      "n": 307,
+      "avg": 245949,
+      "median": 250000
+     },
+     "경남": {
+      "n": 116,
+      "avg": 243990,
+      "median": 250000
+     },
+     "경북": {
+      "n": 56,
+      "avg": 248750,
+      "median": 250000
+     },
+     "대구": {
+      "n": 82,
+      "avg": 244463,
+      "median": 250000
+     },
+     "대전": {
+      "n": 51,
+      "avg": 243980,
+      "median": 250000
+     },
+     "부산": {
+      "n": 104,
+      "avg": 244863,
+      "median": 250000
+     },
+     "서울": {
+      "n": 203,
+      "avg": 246511,
+      "median": 250000
+     },
+     "세종시": {
+      "n": 7,
+      "avg": 243286,
+      "median": 250000
+     },
+     "울산": {
+      "n": 32,
+      "avg": 251406,
+      "median": 250000
+     },
+     "인천": {
+      "n": 69,
+      "avg": 238750,
+      "median": 250000
+     },
+     "전남광주": {
+      "n": 139,
+      "avg": 247839,
+      "median": 250000
+     },
+     "전북": {
+      "n": 56,
+      "avg": 243172,
+      "median": 250000
+     },
+     "제주": {
+      "n": 7,
+      "avg": 247079,
+      "median": 250000
+     },
+     "충남": {
+      "n": 40,
+      "avg": 247250,
+      "median": 250000
+     },
+     "충북": {
+      "n": 37,
+      "avg": 248378,
+      "median": 250000
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ3MiQzNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "서울특별시어린이병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "서초구",
+      "min": 160000,
+      "max": 160000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxMzUxIzIxIyQxIyQxIyQwMyQzNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "아리채요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "대구",
+      "sggu": "대구북구",
+      "min": 170000,
+      "max": 170000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "서울특별시서울의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "중랑구",
+      "min": 174610,
+      "max": 174610
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzQxIyQxIyQ3IyQ2MiQzNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "부천21세기병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "부천소사구",
+      "min": 175000,
+      "max": 175000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ5OSQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "서울특별시서북병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "은평구",
+      "min": 179600,
+      "max": 179600
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "서울특별시 동부병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "동대문구",
+      "min": 179610,
+      "max": 179610
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3MiQyNjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "서울특별시 북부병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "중랑구",
+      "min": 179610,
+      "max": 179610
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQ3IyQ3OSQyNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "디딤병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "부천원미구",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzIxIyQxIyQxIyQ3OSQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "삼성본어스병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "시흥시",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQyIyQzIyQwMCQzNjEyMjIjODEjJDEjJDIjJDgz",
+      "name": "생생병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "부천소사구",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQ3IyQ2MiQzNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "연세하나병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "김포시",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzIxIyQxIyQxIyQ5OSQzNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "일어나병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "시흥시",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkNTgxMzUxIzExIyQxIyQ3IyQ4MiQzNjEyMjIjNTEjJDEjJDIjJDgz",
+      "name": "첨단THE선요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "전남광주",
+      "sggu": "광주북구",
+      "min": 180000,
+      "max": 180000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ4OSQyNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "서울특별시은평병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "서울",
+      "sggu": "은평구",
+      "min": 180400,
+      "max": 180400
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "성남시의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "성남수정구",
+      "min": 180970,
+      "max": 180970
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3OSQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "사회복지법인내원 마하재활병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "거제시",
+      "min": 181500,
+      "max": 181500
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkMTMkMzgxMTkxIzIxIyQxIyQ5IyQ2MiQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "경희백한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "인천",
+      "sggu": "인천미추홀구",
+      "min": 185000,
+      "max": 185000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkMTMkMzgxMTkxIzExIyQxIyQ3IyQ4OSQzNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "메디암한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "대구",
+      "sggu": "대구남구",
+      "min": 185000,
+      "max": 185000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ2MiQ0NjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "청주탑병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "청주상당구",
+      "min": 185000,
+      "max": 185000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQyNjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "국립중앙의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "중구",
+      "min": 186933,
+      "max": 186933
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkMTMkMzgxMTkxIzExIyQxIyQzIyQ3MiQyNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "마디한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "전북",
+      "sggu": "익산시",
+      "min": 188000,
+      "max": 188000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkMTMkMzgxMTkxIzIxIyQxIyQxIyQ5MiQyNjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "미래한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "경기",
+      "sggu": "수원팔달구",
+      "min": 190000,
+      "max": 190000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkNTgxMzUxIzExIyQxIyQ3IyQwMyQzNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "상록요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "경기",
+      "sggu": "화성만세구",
+      "min": 190000,
+      "max": 190000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "원주센텀병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "강원",
+      "sggu": "원주시",
+      "min": 190000,
+      "max": 190000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ2MiQzNjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "제이원병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구서구",
+      "min": 190000,
+      "max": 190000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQ1IyQ3OSQ0NjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "평택21세기병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "평택시",
+      "min": 190000,
+      "max": 190000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ5OSQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "대구보건대학교병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구북구",
+      "min": 190500,
+      "max": 190500
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3MiQyNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "근로복지공단 창원병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경남",
+      "sggu": "창원성산구",
+      "min": 195000,
+      "max": 195000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3MiQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "서울패밀리병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창원성산구",
+      "min": 195000,
+      "max": 195000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQyNjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "의료법인 순영의료재단 순영병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "경남",
+      "sggu": "사천시",
+      "min": 195000,
+      "max": 195000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ4MiQzNjEyMjIjNjEjJDEjJDQjJDgz",
+      "name": "의료법인나누리의료재단나누리병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "인천",
+      "sggu": "인천부평구",
+      "min": 195000,
+      "max": 195000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkMTMkMzgxMTkxIzIxIyQxIyQ5IyQ5OSQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "인천더하다한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "인천",
+      "sggu": "인천남동구",
+      "min": 195000,
+      "max": 195000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ4MiQ0NjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "홍익재활병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창원성산구",
+      "min": 195000,
+      "max": 195000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "서울특별시서남병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "서울",
+      "sggu": "양천구",
+      "min": 195610,
+      "max": 195610
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkMTMkMzgxMTkxIzIxIyQxIyQ1IyQ5MiQzNjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "동탄더하다한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "경기",
+      "sggu": "화성동탄구",
+      "min": 199000,
+      "max": 199000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzIxIyQxIyQxIyQ5MiQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "바로서구병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "인천",
+      "sggu": "인천서해구",
+      "min": 199000,
+      "max": 199000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5MiQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "국립암센터",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경기",
+      "sggu": "고양일산동구",
+      "min": 199661,
+      "max": 199661
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ5MiQ0NjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "(재)예수의꽃동네유지재단 인곡자애병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "음성군",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQyNjEyMjIjODEjJDEjJDYjJDgz",
+      "name": "경상남도마산의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "경남",
+      "sggu": "창원마산합포구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkMTMkMzgxMTkxIzExIyQxIyQ3IyQ4OSQzNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "고려에이치한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "대구",
+      "sggu": "대구수성구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4OSQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "광주보훈병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "광주광산구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQyNjE0ODEjODEjJDEjJDIjJDgz",
+      "name": "근로복지공단인천병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "인천",
+      "sggu": "인천부평구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkMTMkMzgxMTkxIzIxIyQxIyQxIyQ5MiQzNjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "김포보배한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "경기",
+      "sggu": "김포시",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "대전보훈병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "대전",
+      "sggu": "대전대덕구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkMTMkMzgxMTkxIzExIyQxIyQzIyQwMyQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "레메디한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "충남",
+      "sggu": "아산시",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkMTMkMzgxMTkxIzIxIyQxIyQ5IyQ2MiQyNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "미사경희한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "경기",
+      "sggu": "하남시",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQ3IyQ4MiQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "바르다임병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "화성동탄구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ4OSQzNjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "사랑플러스병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "강동구",
+      "min": 200000,
+      "max": 250000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3OSQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "상쾌한병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산수영구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQzNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "새길병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQzNjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "새로나병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충남",
+      "sggu": "천안동남구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDU4MTI3MSM2MSMkMSMkMiMkMTMkMzgxMTkxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "세명한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "인천",
+      "sggu": "인천연수구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzQxIyQxIyQ3IyQ2MiQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "세솟는정형외과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "마포구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQyIyQ3IyQwMCQzNjE4MzIjNjEjJDEjJDAjJDgz",
+      "name": "세흥병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 200000,
+      "max": 250000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQxMyQzNjEyMjIjNDEjJDEjJDQjJDgz",
+      "name": "신일병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "강북구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQxMyQzNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "워크재활병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산동래구",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkNTgxMzUxIzExIyQxIyQzIyQ4OSQyNjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "의료법인 구암의료재단 군산요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "전북",
+      "sggu": "군산시",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인 백제병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "충남",
+      "sggu": "논산시",
+      "min": 200000,
+      "max": 200000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ5OSQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "의료법인 아인의료재단 아인병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "인천",
+      "sggu": "인천미추홀구",
+      "min": 200000,
+      "max": 250000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkNTgxMzUxIzIxIyQxIyQxIyQ2MiQzNjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "의료법인승도의료재단메트로요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "경남",
+      "sggu": "창원마산회원구",
+      "min": 200000,
+      "max": 200000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 1345,
+    "total": 1345,
+    "complete": true
+   },
+   "kosis": {
+    "code": "3Z5200303",
+    "table": "의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A016",
+    "path": [
+     "예방접종료",
+     "대상포진",
+     "싱그릭스주"
+    ],
+    "min": 100000,
+    "max": 420000,
+    "avg": 246718,
+    "median": 250000,
+    "caveat": "싱그릭스 1회 접종 기준이며 2회 접종이 표준입니다."
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "예방접종료/대상포진/싱그릭스주",
+    "전체": {
+     "Max": 350000,
+     "Min": 160000,
+     "Avg": 245795,
+     "Middle": 250000
+    },
+    "상급종합": {
+     "Max": 255750,
+     "Min": 208440,
+     "Avg": 238599,
+     "Middle": 240000
+    },
+    "종합병원": {
+     "Max": 302500,
+     "Min": 174610,
+     "Avg": 245924,
+     "Middle": 250000
+    },
+    "병원": {
+     "Max": 330000,
+     "Min": 160000,
+     "Avg": 247430,
+     "Middle": 250000
+    },
+    "요양병원": {
+     "Max": 350000,
+     "Min": 170000,
+     "Avg": 243705,
+     "Middle": 250000
+    },
+    "한방병원": {
+     "Max": 330000,
+     "Min": 185000,
+     "Avg": 239685,
+     "Middle": 250000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "EA0020000",
+   "slug": "sedation-endoscopy-2",
+   "name": "진정내시경 환자관리료 Ⅱ",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "내시경, 천자 및 생검료",
+    "sub": "진정내시경환자관리료",
+    "dtl": "Ⅱ"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "EA0020000",
+    "n": 1011,
+    "price": {
+     "min": 20000,
+     "max": 313000,
+     "avg": 65454,
+     "median": 60000,
+     "mode": 50000,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 609,
+      "avg": 54598,
+      "median": 50000,
+      "min": 20000,
+      "max": 240000
+     },
+     "상급종합": {
+      "n": 46,
+      "avg": 137330,
+      "median": 126500,
+      "min": 51910,
+      "max": 313000
+     },
+     "요양병원": {
+      "n": 12,
+      "avg": 43333,
+      "median": 40000,
+      "min": 20000,
+      "max": 70000
+     },
+     "정신병원": {
+      "n": 7,
+      "avg": 35000,
+      "median": 35000,
+      "min": 20000,
+      "max": 50000
+     },
+     "종합병원": {
+      "n": 331,
+      "avg": 77287,
+      "median": 70000,
+      "min": 30000,
+      "max": 220500
+     },
+     "치과병원": {
+      "n": 1,
+      "avg": 50000,
+      "median": 50000,
+      "min": 50000,
+      "max": 50000
+     },
+     "한방병원": {
+      "n": 5,
+      "avg": 42000,
+      "median": 50000,
+      "min": 20000,
+      "max": 50000
+     }
+    },
+    "by_sido": {
+     "강원": {
+      "n": 40,
+      "avg": 72131,
+      "median": 63364
+     },
+     "경기": {
+      "n": 213,
+      "avg": 69420,
+      "median": 60000
+     },
+     "경남": {
+      "n": 87,
+      "avg": 58815,
+      "median": 55000
+     },
+     "경북": {
+      "n": 43,
+      "avg": 65570,
+      "median": 65909
+     },
+     "대구": {
+      "n": 63,
+      "avg": 57621,
+      "median": 50000
+     },
+     "대전": {
+      "n": 20,
+      "avg": 63154,
+      "median": 60965
+     },
+     "부산": {
+      "n": 103,
+      "avg": 54678,
+      "median": 50000
+     },
+     "서울": {
+      "n": 145,
+      "avg": 84915,
+      "median": 70000
+     },
+     "세종시": {
+      "n": 2,
+      "avg": 63940,
+      "median": 63940
+     },
+     "울산": {
+      "n": 22,
+      "avg": 72062,
+      "median": 70000
+     },
+     "인천": {
+      "n": 48,
+      "avg": 71722,
+      "median": 60000
+     },
+     "전남광주": {
+      "n": 110,
+      "avg": 51579,
+      "median": 50000
+     },
+     "전북": {
+      "n": 42,
+      "avg": 55827,
+      "median": 50000
+     },
+     "제주": {
+      "n": 10,
+      "avg": 77000,
+      "median": 75000
+     },
+     "충남": {
+      "n": 33,
+      "avg": 59173,
+      "median": 60000
+     },
+     "충북": {
+      "n": 30,
+      "avg": 61049,
+      "median": 60000
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkNTgxMzUxIzExIyQxIyQzIyQxMyQyNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "논산하나요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "충남",
+      "sggu": "논산시",
+      "min": 20000,
+      "max": 20000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkMTMkMzgxMTkxIzExIyQxIyQzIyQ3OSQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "대구한의대한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 20000,
+      "max": 20000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQxMyQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "열린중앙병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구달성군",
+      "min": 20000,
+      "max": 20000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ3MiQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "의료법인 세경의료재단 새빛안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "고양일산동구",
+      "min": 20000,
+      "max": 20000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ4OSQyNjE4MzIjNjEjJDEjJDAjJDgz",
+      "name": "의료법인배성의료재단 배성병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구북구",
+      "min": 20000,
+      "max": 20000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5MiQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "장림한서병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 20000,
+      "max": 20000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ5OSQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "대동병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 25000,
+      "max": 25000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQyNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "연제일신병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산연제구",
+      "min": 25000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ3MiQyNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "나무정원여성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "양주시",
+      "min": 30000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQwMyQyNjEyMjIjODEjJDEjJDYjJDgz",
+      "name": "목화병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQxMyQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "미래아이병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3MiQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "미래여성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQzNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "믿음병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "김제시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3MiQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "본바른병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "양산시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzExIyQxIyQzIyQwMyQ0NjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "본병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "전주완산구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3MiQ0NjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "부산본병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4MiQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "새봄병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산동래구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4OSQ0NjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "세일병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산동구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ2MiQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "센텀힐병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "양산시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "아산사회복지재단 보성아산병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "보성군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQzNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "아이(i)서울병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산영도구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ5OSQzNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "오산세종병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "오산시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQzIyQwMyQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "오창중앙병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "청주청원구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ3OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "울산이손병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "울산",
+      "sggu": "울산울주군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5OSQzNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "은혜병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창원마산합포구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "의)청십자의료재단 행복한병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQxMyQ0NjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "의료법인 라움의료재단 세웅병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산금정구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQyNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인 명신의료재단 괴산서부병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "괴산군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ4MiQ0NjE0ODEjODEjJDEjJDIjJDgz",
+      "name": "의료법인 생명사랑의료재단 밀양윤병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "밀양시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "의료법인 혜성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "부안군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3OSQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "의료법인 힐튼의료재단 솔병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "부안군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4MiQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인대송의료재단 곡성사랑병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "곡성군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzExIyQxIyQ3IyQwMyQ0NjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "의료법인삼영의료재단 둔산병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대전",
+      "sggu": "대전서구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5OSQyNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인서일의료재단문경중앙병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경북",
+      "sggu": "문경시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3MiQ0NjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "의료법인성신의료재단 다대수병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5MiQ0NjE0ODEjODEjJDEjJDIjJDgz",
+      "name": "의료법인양경의료재단 중앙U병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ5MiQ0NjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "의료법인인성의료재단 함평성심병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "함평군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQyNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "의료법인창녕서울의료재단창녕서울병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창녕군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ2MiQyNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "의료법인행복나눔의료재단 장성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "장성군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "의료법인행촌의료재단 해남종합병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "해남군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQyIyQzIyQwMCQzNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "이천엘리야병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "이천시",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4OSQ0NjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "장흥우리병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "장흥군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ4MiQ0NjE0ODEjODEjJDEjJDYjJDgz",
+      "name": "진도한국병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "진도군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3OSQ0NjEwMDIjODEjJDEjJDIjJDgz",
+      "name": "큐병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "경희병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ5OSQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "나노병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "밀양시",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3OSQzNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "더 조은병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "고성군",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ4MiQyNjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "더필종합병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "대구",
+      "sggu": "대구서구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3OSQ0NjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "세민병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구서구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ4OSQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "열경의료재단동부허병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3OSQyNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "웰하이여성아동병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산강서구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인 서해병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충남",
+      "sggu": "서천군",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ5MiQzNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인 심연의료재단 세명병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창원진해구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkNTgxMzUxIzExIyQxIyQ3IyQ3OSQzNjEyMjIjODEjJDEjJDIjJDgz",
+      "name": "의료법인은경의료재단 인창요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "부산",
+      "sggu": "부산동구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ3OSQzNjE4MzIjNDEjJDEjJDQjJDgz",
+      "name": "의료법인한성재단동아메디병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구수성구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "전라남도 강진의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "강진군",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQxMyQzNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "전라남도 순천의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "순천시",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQyIyQ3IyQwMCQ0NjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "하나병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ4OSQyNjE4MzIjNjEjJDEjJDAjJDgz",
+      "name": "한가람병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3MiQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "한사랑병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "경남",
+      "sggu": "김해시",
+      "min": 35000,
+      "max": 35000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 1011,
+    "total": 1011,
+    "complete": true
+   },
+   "kosis": {
+    "code": "EA0020000",
+    "table": "의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A016",
+    "path": [
+     "내시경, 천자 및 생검료",
+     "진정내시경 환자관리료",
+     "Ⅱ"
+    ],
+    "min": 7000,
+    "max": 200000,
+    "avg": 49274,
+    "median": 50000
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "내시경, 천자 및 생검료 /진정내시경환자관리료 /Ⅱ",
+    "전체": {
+     "Max": 313000,
+     "Min": 20000,
+     "Avg": 68957,
+     "Middle": 60000
+    },
+    "상급종합": {
+     "Max": 313000,
+     "Min": 51910,
+     "Avg": 139729,
+     "Middle": 132800
+    },
+    "종합병원": {
+     "Max": 220500,
+     "Min": 30000,
+     "Avg": 80983,
+     "Middle": 75000
+    },
+    "병원": {
+     "Max": 240000,
+     "Min": 20000,
+     "Avg": 55180,
+     "Middle": 50000
+    },
+    "요양병원": {
+     "Max": 70000,
+     "Min": 20000,
+     "Avg": 43333,
+     "Middle": 40000
+    },
+    "치과병원": {
+     "Max": 50000,
+     "Min": 50000,
+     "Avg": 50000,
+     "Middle": 50000
+    },
+    "한방병원": {
+     "Max": 50000,
+     "Min": 20000,
+     "Avg": 42000,
+     "Middle": 50000
+    }
+   },
+   "sido_stats": null
+  },
+  {
+   "code": "EA0030000",
+   "slug": "sedation-endoscopy-3",
+   "name": "진정내시경 환자관리료 Ⅲ",
+   "payment": "비급여",
+   "special3": false,
+   "excluded5": null,
+   "official": {
+    "mid": "내시경, 천자 및 생검료",
+    "sub": "진정내시경환자관리료",
+    "dtl": "Ⅲ"
+   },
+   "cmmt": "",
+   "material": {
+    "included": null,
+    "note": "치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인이 필요합니다.",
+    "basis": "cmmtTxt 없음(심평원 오픈API는 대부분 항목에 상세설명을 제공하지 않음)"
+   },
+   "has_data": true,
+   "stats": {
+    "item": "EA0030000",
+    "n": 942,
+    "price": {
+     "min": 12000,
+     "max": 406000,
+     "avg": 91871,
+     "median": 80000,
+     "mode": 70000,
+     "basis": "기관별 (최저+최고)/2 의 평균·중간·최빈"
+    },
+    "by_clcd": {
+     "병원": {
+      "n": 552,
+      "avg": 77530,
+      "median": 80000,
+      "min": 12000,
+      "max": 220000
+     },
+     "상급종합": {
+      "n": 46,
+      "avg": 179678,
+      "median": 163775,
+      "min": 72260,
+      "max": 406000
+     },
+     "요양병원": {
+      "n": 9,
+      "avg": 71333,
+      "median": 70000,
+      "min": 40000,
+      "max": 120000
+     },
+     "정신병원": {
+      "n": 3,
+      "avg": 66667,
+      "median": 70000,
+      "min": 50000,
+      "max": 80000
+     },
+     "종합병원": {
+      "n": 327,
+      "avg": 104905,
+      "median": 100000,
+      "min": 35000,
+      "max": 300000
+     },
+     "치과병원": {
+      "n": 1,
+      "avg": 100000,
+      "median": 100000,
+      "min": 100000,
+      "max": 100000
+     },
+     "한방병원": {
+      "n": 4,
+      "avg": 58750,
+      "median": 65000,
+      "min": 25000,
+      "max": 80000
+     }
+    },
+    "by_sido": {
+     "강원": {
+      "n": 34,
+      "avg": 104741,
+      "median": 96605
+     },
+     "경기": {
+      "n": 206,
+      "avg": 95666,
+      "median": 89000
+     },
+     "경남": {
+      "n": 81,
+      "avg": 85403,
+      "median": 80000
+     },
+     "경북": {
+      "n": 41,
+      "avg": 91672,
+      "median": 90000
+     },
+     "대구": {
+      "n": 56,
+      "avg": 91854,
+      "median": 87500
+     },
+     "대전": {
+      "n": 20,
+      "avg": 98740,
+      "median": 99000
+     },
+     "부산": {
+      "n": 95,
+      "avg": 81359,
+      "median": 76100
+     },
+     "서울": {
+      "n": 137,
+      "avg": 111065,
+      "median": 100000
+     },
+     "세종시": {
+      "n": 2,
+      "avg": 96435,
+      "median": 96435
+     },
+     "울산": {
+      "n": 20,
+      "avg": 89750,
+      "median": 80000
+     },
+     "인천": {
+      "n": 45,
+      "avg": 96085,
+      "median": 90000
+     },
+     "전남광주": {
+      "n": 106,
+      "avg": 73195,
+      "median": 70000
+     },
+     "전북": {
+      "n": 35,
+      "avg": 80948,
+      "median": 70000
+     },
+     "제주": {
+      "n": 8,
+      "avg": 99358,
+      "median": 95000
+     },
+     "충남": {
+      "n": 28,
+      "avg": 81453,
+      "median": 80000
+     },
+     "충북": {
+      "n": 28,
+      "avg": 91271,
+      "median": 100000
+     }
+    },
+    "hospitals": [
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ3MiQyNjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "의료법인 일민의료재단 세강병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구달서구",
+      "min": 12000,
+      "max": 12000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ3MiQyNjE4MzIjODEjJDEjJDIjJDgz",
+      "name": "나무정원여성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "양주시",
+      "min": 20000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkMTMkMzgxMTkxIzExIyQxIyQzIyQ3OSQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "대구한의대한방병원",
+      "clCd": "92",
+      "clCdNm": "한방병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 25000,
+      "max": 25000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ3OSQ0NjEwMDIjODEjJDEjJDYjJDgz",
+      "name": "울산이손병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "울산",
+      "sggu": "울산울주군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4MiQzNjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인대송의료재단 곡성사랑병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "곡성군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5MiQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "장림한서병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5MiQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "해남한국병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "해남군",
+      "min": 30000,
+      "max": 30000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3OSQzNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "더 조은병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "고성군",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQzNjEyMjIjNjEjJDEjJDAjJDgz",
+      "name": "의료법인행촌의료재단 해남종합병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "해남군",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQyIyQ3IyQwMCQ0NjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "하나병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 35000,
+      "max": 35000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQxIyQ3MiQyNjE4MzIjNTEjJDEjJDYjJDgz",
+      "name": "의료법인 세경의료재단 새빛안과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "고양일산동구",
+      "min": 37000,
+      "max": 37000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxMzUxIzExIyQxIyQzIyQ3OSQyNjEwMDIjNjEjJDEjJDQjJDgz",
+      "name": "경상북도립안동노인전문요양병원",
+      "clCd": "28",
+      "clCdNm": "요양병원",
+      "sido": "경북",
+      "sggu": "안동시",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQzNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "경희병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3OSQzNjE4MzIjNjEjJDEjJDgjJDgz",
+      "name": "김제우석병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "김제시",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQzNjEyMjIjODEjJDEjJDYjJDgz",
+      "name": "뿌리병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "청주청원구",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3OSQ0NjEwMDIjNjEjJDEjJDgjJDgz",
+      "name": "새천년병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경북",
+      "sggu": "경주시",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQyNjE0ODEjNTEjJDEjJDIjJDgz",
+      "name": "의료법인 명신의료재단 괴산서부병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "괴산군",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5OSQyNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인서일의료재단문경중앙병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경북",
+      "sggu": "문경시",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ2MiQyNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "의료법인행복나눔의료재단 장성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "장성군",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4OSQ0NjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "장흥우리병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "장흥군",
+      "min": 40000,
+      "max": 40000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQ5IyQwMCQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "순천희망병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "순천시",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkMiMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5OSQ0NjEwMDIjNzEjJDEjJDgjJDgz",
+      "name": "의료법인 서해병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충남",
+      "sggu": "서천군",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5MiQyNjEyMjIjNTEjJDEjJDIjJDgz",
+      "name": "의료법인청언의료재단 순천제일병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "순천시",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "전라남도 강진의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "강진군",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQ3IyQ4MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "조앤조병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "중랑구",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ5MiQzNjE0ODEjNDEjJDEjJDQjJDgz",
+      "name": "한일병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광주남구",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQyIyQzIyQwMCQ0NjE0ODEjNjEjJDEjJDAjJDgz",
+      "name": "행복한외과병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "구리시",
+      "min": 45000,
+      "max": 45000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ4MiQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "강남병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광양시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkNCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQ0NjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "강원특별자치도원주의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "강원",
+      "sggu": "원주시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQ3IyQ4OSQyNjEyMjIjNjEjJDEjJDQjJDgz",
+      "name": "광주일곡병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "광주북구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQxIyQwMCQyNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "동명병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광주동구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ4MiQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "모두병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "인천",
+      "sggu": "인천남동구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ5OSQyNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "목포시의료원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "목포시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ2MiQzNjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "무지개병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "광주서구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQxMyQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "미래아이병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQ3MiQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "미래여성병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3OSQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "민병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "강북구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTg4MSM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQyIyQ5IyQwMCQyNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "바로선병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "서울",
+      "sggu": "도봉구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4OSQzNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "바른병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산서구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ3MiQyNjEyMjIjNDEjJDEjJDgjJDgz",
+      "name": "본바른병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "양산시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3MiQ0NjEwMDIjNDEjJDEjJDgjJDgz",
+      "name": "부산본병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산사하구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ2MiQzNjEwMDIjNjEjJDEjJDAjJDgz",
+      "name": "부산큰병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산진구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ5OSQyNjE4MzIjNDEjJDEjJDgjJDgz",
+      "name": "새부산병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산동구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM2MSMkMSMkNiMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ2MiQzNjEyMjIjNzEjJDEjJDgjJDgz",
+      "name": "석정웰파크병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전북",
+      "sggu": "고창군",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ4OSQ0NjE0ODEjNzEjJDEjJDgjJDgz",
+      "name": "세일병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산동구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ2MiQyNjE4MzIjNTEjJDEjJDIjJDgz",
+      "name": "센텀힐병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "양산시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkOTkkMzgxMzUxIzMxIyQxIyQzIyQ2MiQyNjE4MzIjNjEjJDEjJDQjJDgz",
+      "name": "순천하나병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "전남광주",
+      "sggu": "순천시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkNTgxOTYxIzExIyQxIyQzIyQ4OSQ0NjEwMDIjNTEjJDEjJDYjJDgz",
+      "name": "열경의료재단동부허병원",
+      "clCd": "29",
+      "clCdNm": "정신병원",
+      "sido": "대구",
+      "sggu": "대구동구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ1IyQxMyQzNjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "열린중앙병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "대구",
+      "sggu": "대구달성군",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQ3OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "영광종합병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "영광군",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxOTYxIzExIyQxIyQzIyQ5OSQzNjEwMDIjNTEjJDEjJDIjJDgz",
+      "name": "오산세종병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "오산시",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQ1IyQ4MiQyNjE4MzIjNzEjJDEjJDgjJDgz",
+      "name": "오정본병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "부천오정구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkMCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ4MiQyNjE0ODEjNTEjJDEjJDYjJDgz",
+      "name": "울진군의료원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경북",
+      "sggu": "울진군",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzUxIyQxIyQ1IyQ5MiQzNjEyMjIjODEjJDEjJDYjJDgz",
+      "name": "원당연세병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경기",
+      "sggu": "고양덕양구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQxIyQ3OSQyNjEwMDIjNDEjJDEjJDQjJDgz",
+      "name": "웰하이여성아동병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산강서구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM4MSMkMSMkNCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQ5OSQzNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "은혜병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "경남",
+      "sggu": "창원마산합포구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTAxMiM1MSMkMSMkMCMkOTkkMzgxMzUxIzIxIyQxIyQ5IyQxMyQ0NjE0ODEjNjEjJDEjJDQjJDgz",
+      "name": "의료법인 라움의료재단 세웅병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "부산",
+      "sggu": "부산금정구",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM3MSMkMSMkMCMkODkkMzgxMzUxIzExIyQxIyQzIyQwMyQzNjE0ODEjNjEjJDEjJDgjJDgz",
+      "name": "의료법인 우범의료재단 장흥종합병원",
+      "clCd": "11",
+      "clCdNm": "종합병원",
+      "sido": "전남광주",
+      "sggu": "장흥군",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQ3IyQ3OSQ0NjE0ODEjNDEjJDEjJDgjJDgz",
+      "name": "의료법인 정민의료재단 보은한양병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "보은군",
+      "min": 50000,
+      "max": 50000
+     },
+     {
+      "ykiho": "JDQ4MTYyMiM1MSMkMSMkOCMkOTkkMzgxMzUxIzExIyQxIyQzIyQ5MiQyNjEyMjIjNjEjJDEjJDgjJDgz",
+      "name": "의료법인 조윤의료재단 영동병원",
+      "clCd": "21",
+      "clCdNm": "병원",
+      "sido": "충북",
+      "sggu": "영동군",
+      "min": 50000,
+      "max": 50000
+     }
+    ],
+    "dropped": []
+   },
+   "coverage": {
+    "collected": 942,
+    "total": 942,
+    "complete": true
+   },
+   "kosis": {
+    "code": "EA0030000",
+    "table": "의원 비급여 진료비용",
+    "tbl_id": "DT_354006_2021A016",
+    "path": [
+     "내시경, 천자 및 생검료",
+     "진정내시경 환자관리료",
+     "Ⅲ"
+    ],
+    "min": 10000,
+    "max": 500000,
+    "avg": 73747,
+    "median": 70000
+   },
+   "raw_stats_preview": null,
+   "clcd_stats": {
+    "name": "내시경, 천자 및 생검료 /진정내시경환자관리료 /Ⅲ",
+    "전체": {
+     "Max": 406000,
+     "Min": 12000,
+     "Avg": 99277,
+     "Middle": 90000
+    },
+    "상급종합": {
+     "Max": 406000,
+     "Min": 72260,
+     "Avg": 179494,
+     "Middle": 168250
+    },
+    "종합병원": {
+     "Max": 300000,
+     "Min": 35000,
+     "Avg": 113500,
+     "Middle": 100000
+    },
+    "병원": {
+     "Max": 220000,
+     "Min": 12000,
+     "Avg": 77762,
+     "Middle": 80000
+    },
+    "요양병원": {
+     "Max": 120000,
+     "Min": 40000,
+     "Avg": 71333,
+     "Middle": 70000
+    },
+    "치과병원": {
+     "Max": 100000,
+     "Min": 100000,
+     "Avg": 100000,
+     "Middle": 100000
+    },
+    "한방병원": {
+     "Max": 80000,
+     "Min": 25000,
+     "Avg": 58750,
+     "Middle": 65000
     }
    },
    "sido_stats": null

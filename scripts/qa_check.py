@@ -169,10 +169,11 @@ def main() -> int:
                 broken.append((str(p.relative_to(dist)), href))
     ok("내부 링크", not broken, f"검사 {checked}개 · 깨짐 {len(broken)} {broken[:3]}")
 
-    # 항목 페이지 13개
+    # 항목 페이지 — 카탈로그 개수와 일치해야 한다
     item_pages = sorted((dist / "ko" / "items").glob("*/index.html"))
-    ok("항목 상세 페이지 13개", len(item_pages) == 13, f"{len(item_pages)}개")
     catalog = E.load_catalog()
+    ok("항목 상세 페이지 = 카탈로그 항목 수", len(item_pages) == len(catalog),
+       f"{len(item_pages)}개 / 카탈로그 {len(catalog)}개")
     for it in catalog:
         p = dist / "ko" / "items" / it["slug"] / "index.html"
         if not p.exists():
@@ -307,7 +308,7 @@ def main() -> int:
     print("\n== F. 데이터 파이프라인")
     import prepare_data  # noqa: E402
     dataset, quality, summary, hospitals = prepare_data.build(use_fixtures=True)
-    ok("prepare_data: 픽스처 정제 실행", summary["counts"]["items_in_catalog"] == 13,
+    ok("prepare_data: 픽스처 정제 실행", summary["counts"]["items_in_catalog"] == len(E.load_catalog()),
        json.dumps(summary["counts"], ensure_ascii=False))
     ok("prepare_data: synthetic 표시", dataset["synthetic"] is True, "")
     ok("prepare_data: 픽스처는 표시용 데이터 아님", all(not i["has_data"] for i in dataset["items"]), "")
@@ -379,12 +380,12 @@ def main() -> int:
     ds_live = json.loads((BASE / "data" / "hira_dataset.json").read_text(encoding="utf-8"))
     if not ds_live.get("synthetic"):
         ok("라이브 데이터셋: synthetic=false", ds_live.get("synthetic") is False, "")
-        ok("라이브 데이터셋: 13개 항목 전수(coverage 100%)",
+        ok("라이브 데이터셋: 전 항목 전수 수집(coverage 100%)",
            all((i.get("coverage") or {}).get("complete") for i in ds_live["items"]),
            str([(i["code"], i.get("coverage")) for i in ds_live["items"]
                 if not (i.get("coverage") or {}).get("complete")][:2]))
-        ok("라이브 데이터셋: KOSIS 의원급 값 13건",
-           sum(1 for i in ds_live["items"] if i.get("kosis")) >= 13,
+        ok("라이브 데이터셋: KOSIS 의원급 값 전 항목",
+           sum(1 for i in ds_live["items"] if i.get("kosis")) == len(ds_live["items"]),
            str(sum(1 for i in ds_live["items"] if i.get("kosis"))))
         brain = (dist / "ko" / "items" / "brain-mri" / "index.html").read_text(encoding="utf-8")
         ok("항목 페이지: KOSIS 출처·의원급 평균 표시",

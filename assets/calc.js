@@ -157,8 +157,13 @@
     var capApplied = false;
     var extraNote = [];
     var raw = 0;
+    var excludedGens = item.excluded_gens || [];
+    var genExcluded = excludedGens.indexOf(gen) >= 0;
 
-    if (gen === 5 && !managed && item.excluded5 && !ctx.severe) {
+    if (genExcluded) {
+      status = 'excluded';
+      copay = base;
+    } else if (gen === 5 && !managed && item.excluded5 && !ctx.severe) {
       status = 'excluded';
       copay = base;
     } else if (gen === 1) {
@@ -234,12 +239,18 @@
     }
 
     if (managed) { badges.unshift('관리급여 95%'); }
-    if (gen === 5 && !managed && item.excluded5) { badges.push('5세대 보장 제외'); }
+    if (genExcluded) { badges.push('약관상 보장 제외'); }
+    else if (gen === 5 && !managed && item.excluded5) { badges.push('5세대 보장 제외'); }
 
     var limits = limitsFor(gen, ctx, item);
     for (var k = 0; k < extraNote.length; k++) { limits.push(extraNote[k]); }
     var rate = rateLabel(gen, ctx, item);
-    if (status === 'excluded') {
+    if (status === 'excluded' && genExcluded) {
+      rate = '보장 제외';
+      limits = ['약관상 보장 제외(사유: ' + (item.exclude_reason || '보장 대상 아님') + ')',
+        '가입 시기·상품 약관에 따라 판단이 달라질 수 있어 보험사 확인이 필요합니다',
+        '같은 날 받은 급여 항목의 본인부담금은 별도로 청구할 수 있습니다'];
+    } else if (status === 'excluded') {
       rate = '보장 제외';
       limits = ['5세대 특약2 보장 대상에서 제외(사유: ' + item.excluded5 + ')',
         '산정특례 대상 질환 치료 등 특약1 해당 여부는 보험사 심사로 확인',
@@ -262,7 +273,9 @@
       else if (ctx.severe) { rule = '5세대 특약1(중증 비급여): 입원 30% · 통원 Max(30%, 3만원), 상급·종합 입원 연 자기부담 상한 500만원'; }
       else { rule = '5세대 특약2(비중증 비급여): 입원 50% · 통원 Max(50%, 5만원), 입원 회당 300만·통원 일당 20만 한도'; }
     }
-    if (status === 'excluded') {
+    if (status === 'excluded' && genExcluded) {
+      rule = '약관상 보장 제외 — ' + (item.exclude_reason || '보장 대상이 아닙니다.');
+    } else if (status === 'excluded') {
       rule = '5세대 비중증 비급여 보장 제외 항목(' + item.excluded5 + ') — 특약2에서 보장하지 않습니다.';
     }
 
@@ -300,6 +313,10 @@
     }
     if (!INSTITUTIONS[ctx.institution].api_scope) {
       warnings.push('의원은 심평원 비급여 공개 API 대상이 아닙니다(병원급 이상만 제공). 종별 공제액 계산을 위한 참고 선택이며, 의원 가격은 방문 전 유선 확인이 필요합니다.');
+    }
+    if (ctx.item.excluded_gens && ctx.item.excluded_gens.length) {
+      warnings.push('이 항목은 표준 실손약관상 보장 제외 대상입니다 — ' + (ctx.item.exclude_reason || '') +
+        ' 세대별 표시를 확인하고, 실제 지급 여부는 가입 약관과 보험사 심사로 확인하세요.');
     }
     if (ctx.severe) {
       warnings.push('중증(산정특례) 여부는 5세대 특약1·2 구분에만 영향을 줍니다. 1~4세대는 해당 질환도 비급여 자기부담률이 같습니다(단, 4세대 비급여 차등할증에서 중증은 제외).');

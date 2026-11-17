@@ -315,7 +315,9 @@ table.plain td.num, table.plain th.num { text-align: right; font-variant-numeric
   .grid.g2 { grid-template-columns: 1.15fr .85fr; align-items: start; }
   /* 계산기 전용 페이지: 입력 폼(좌) + 결과(우) 2단 */
   .calc-page .calc { display: grid; grid-template-columns: minmax(340px, 420px) 1fr;
-    grid-template-areas: "head result" "body result"; align-items: start; }
+    grid-template-areas: "head result" "body result"; align-items: start;
+    /* 결과 표가 길어도 입력 폼이 아래로 밀리지 않게 행 높이를 고정한다 */
+    grid-template-rows: auto 1fr; align-content: start; }
   .calc-page .calc-head { grid-area: head; padding-bottom: 4px; }
   .calc-page .calc-body { grid-area: body; }
   .calc-page .result { grid-area: result; border-top: 0; border-left: 8px solid var(--bg-soft);

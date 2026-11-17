@@ -42,6 +42,15 @@ def check(name: str, ok: bool, detail="") -> bool:
     return bool(ok)
 
 
+
+def region_expected_count(slug: str) -> int:
+    """data/hospitals.json 기준 해당 시·도의 중복 제거 기관 수(페이지 표기와 대조용)."""
+    import build_site as BS
+    hs = json.loads((BASE / "data" / "hospitals.json").read_text(encoding="utf-8"))["items"]
+    uniq = {(r[0], r[3], r[1]) for rows in hs.values() for r in rows
+            if BS.region_match(slug, r[2], r[3])}
+    return len(uniq)
+
 def shot(page, name: str, full: bool = False) -> str:
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / f"{SHOTS}-{name}.png"
@@ -293,8 +302,9 @@ def main() -> int:
         page.goto(base + "/ko/regions/gyeonggi/", wait_until="load")
         page.wait_for_function("document.querySelector('[data-hosp-body] tr') && document.querySelector('[data-hosp-count]').textContent.indexOf('이 지역') === 0", timeout=8000)
         gy_txt = page.inner_text("main")
-        check("경기: 병원급 기관 수 표기", "647곳" in gy_txt, "647곳 기대")
-        check("경기: 항목별 시세 13행", len(page.query_selector_all("table.stack tbody tr")) >= 13,
+        gy_expect = region_expected_count("gyeonggi")
+        check("경기: 병원급 기관 수 표기", f"{gy_expect:,}곳" in gy_txt, f"{gy_expect:,}곳 기대")
+        check("경기: 항목별 시세 전 항목 행", len(page.query_selector_all("table.stack tbody tr")) >= len(json.loads((BASE / "data" / "catalog_items.json").read_text(encoding="utf-8"))["items"]),
               str(len(page.query_selector_all("table.stack tbody tr"))))
         count_gy_r = page.inner_text("[data-hosp-count]")
         rows_gy_r = page.evaluate("Array.from(document.querySelectorAll('[data-hosp-body] tr')).map(tr => tr.children[2].textContent)")
@@ -322,7 +332,8 @@ def main() -> int:
         page.goto(base + "/ko/regions/sejong/", wait_until="load")
         page.wait_for_timeout(400)
         sj = page.inner_text("main")
-        check("세종: 소규모 지역 페이지 렌더", "세종" in sj and "10곳" in sj, "")
+        sj_expect = region_expected_count("sejong")
+        check("세종: 소규모 지역 페이지 렌더", "세종" in sj and f"{sj_expect:,}곳" in sj, f"{sj_expect:,}곳 기대")
         page.goto(base + "/ko/regions/gwangju/", wait_until="load")
         page.wait_for_timeout(300)
         gj = page.inner_text("main")

@@ -214,7 +214,15 @@ def _gen_row(gen: int, ctx: dict) -> dict:
     cap_applied = False
     extra_note: list[str] = []
 
-    if gen == 5 and not managed and item["excluded5"] and not ctx["severe"]:
+    # 약관상 보장 제외 항목(시력교정술·예방접종·치과 비급여 보철 등)
+    # 카탈로그의 excluded_gens 에 든 세대는 계산 없이 0원(전액 본인부담)으로 둔다.
+    excluded_gens = item.get("excluded_gens") or []
+    gen_excluded = gen in excluded_gens
+
+    if gen_excluded:
+        status = "excluded"
+        copay = base
+    elif gen == 5 and not managed and item["excluded5"] and not ctx["severe"]:
         status = "excluded"
         copay = base
     elif gen == 1:
@@ -291,13 +299,20 @@ def _gen_row(gen: int, ctx: dict) -> dict:
 
     if managed:
         badges.insert(0, "관리급여 95%")
-    if gen == 5 and not managed and item["excluded5"]:
+    if gen_excluded:
+        badges.append("약관상 보장 제외")
+    elif gen == 5 and not managed and item["excluded5"]:
         badges.append("5세대 보장 제외")
 
     limits = _limits_for(gen, ctx, item)
     limits.extend(extra_note)
     rate_label = _rate_label(gen, ctx, item)
-    if status == "excluded":
+    if status == "excluded" and gen_excluded:
+        rate_label = "보장 제외"
+        limits = [f"약관상 보장 제외(사유: {item.get('exclude_reason') or '보장 대상 아님'})",
+                  "가입 시기·상품 약관에 따라 판단이 달라질 수 있어 보험사 확인이 필요합니다",
+                  "같은 날 받은 급여 항목의 본인부담금은 별도로 청구할 수 있습니다"]
+    elif status == "excluded":
         rate_label = "보장 제외"
         limits = [f"5세대 특약2 보장 대상에서 제외(사유: {item['excluded5']})",
                   "산정특례 대상 질환 치료 등 특약1 해당 여부는 보험사 심사로 확인",
@@ -318,7 +333,9 @@ def _gen_row(gen: int, ctx: dict) -> dict:
              "5세대 급여: 통원 자기부담률을 건강보험 본인부담률(관리급여 95%)에 연동 → 실손 보장 5% 수준")),
     }[gen]
 
-    if status == "excluded":
+    if status == "excluded" and gen_excluded:
+        rule = ("약관상 보장 제외 — " + (item.get("exclude_reason") or "보장 대상이 아닙니다."))
+    elif status == "excluded":
         rule = f"5세대 비중증 비급여 보장 제외 항목({item['excluded5']}) — 특약2에서 보장하지 않습니다."
 
     return {
@@ -356,6 +373,11 @@ def compute(req: dict, items: list[dict] | None = None) -> dict:
         warnings.append(
             "의원은 심평원 비급여 공개 API 대상이 아닙니다(병원급 이상만 제공). "
             "종별 공제액 계산을 위한 참고 선택이며, 의원 가격은 방문 전 유선 확인이 필요합니다."
+        )
+    if ctx["item"].get("excluded_gens"):
+        warnings.append(
+            "이 항목은 표준 실손약관상 보장 제외 대상입니다 — " + (ctx["item"].get("exclude_reason") or "") +
+            " 세대별 표시를 확인하고, 실제 지급 여부는 가입 약관과 보험사 심사로 확인하세요."
         )
     if ctx["severe"]:
         warnings.append(
