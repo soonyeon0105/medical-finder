@@ -427,6 +427,20 @@ def faq_jsonld(faqs: list[tuple[str, str]]) -> dict:
     }
 
 
+def coverage_label(it: dict) -> str:
+    """목록·표에 쓰는 한 줄 보장 표기(세대별 제외 → 관리급여 → 5세대 제외 → 비중증)."""
+    excl = it.get("excluded_gens") or []
+    if len(excl) >= 5:
+        return "전 세대 보장 제외"
+    if excl:
+        return "일부 세대 보장 제외"
+    if it.get("payment") == "관리급여":
+        return "관리급여 95%"
+    if it.get("excluded5"):
+        return "5세대 보장 제외"
+    return "비중증 보장"
+
+
 def ds_item(code: str) -> dict | None:
     for it in (DATASET or {}).get("items", []):
         if it["code"] == code:
@@ -1324,20 +1338,20 @@ def page_items(items: list[dict]) -> str:
         f"<tr><th scope=\"row\"><a href=\"/ko/items/{esc(it['slug'])}/\">{esc(it['name'])}</a></th>"
         f"<td data-label=\"코드\"><code>{esc(it['code'])}</code></td>"
         f"<td data-label=\"심평원 분류\">{esc(it['official_mid'])} &gt; {esc(it['official_sub'])}</td>"
-        f"<td data-label=\"5세대\">{'보장 제외' if it['excluded5'] else ('관리급여 95%' if it['payment'] == '관리급여' else '비중증 보장')}</td></tr>"
+        f"<td data-label=\"보장\">{coverage_label(it)}</td></tr>"
         for it in items)
     body = f"""
 <section class="section" style="padding-top:10px">
   <div class="wrap">
     <div class="page-head">
       <h1>비급여 항목 {len(items)}개</h1>
-      <p class="section-lead">심평원 공식 분류 코드 기준입니다. 항목별로 세대별 계산 방식과 5세대 처리 여부가 다릅니다.</p>
+      <p class="section-lead">심평원 공식 분류 코드 기준입니다. 항목별로 세대별 계산 방식과 보장 제외 여부가 다릅니다.</p>
     </div>
     <div class="item-grid">{cards}</div>
     <h2 style="margin-top:28px">항목 코드 표</h2>
     <div class="table-wrap">
       <table class="plain stack">
-        <thead><tr><th scope="col">항목</th><th scope="col">코드</th><th scope="col">심평원 분류</th><th scope="col">5세대</th></tr></thead>
+        <thead><tr><th scope="col">항목</th><th scope="col">코드</th><th scope="col">심평원 분류</th><th scope="col">실손 보장</th></tr></thead>
         <tbody>{rows}</tbody>
       </table>
     </div>
