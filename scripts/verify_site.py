@@ -215,6 +215,29 @@ def main() -> int:
         uniq = {s["sum"] for s in sums if s["gen"] != "5"}
         check("무결성: 보장액+부담액=기준액(1~4세대 동일)", len(uniq) == 1, sums)
 
+        # ------------------------------------------------------------ M-03 금액 경계값
+        for raw, expect_msg in (("", "금액을 입력해 주세요."), ("0", "0보다 큰"), ("-1000", "0보다 큰")):
+            page.fill("#amount-input", raw)
+            page.dispatch_event("#amount-input", "input")
+            page.wait_for_timeout(150)
+            err_vis = page.is_visible("#amount-error")
+            err_txt = page.inner_text("#amount-error") if err_vis else ""
+            gen_rows = page.eval_on_selector_all("#result-table tbody tr[data-gen]", "els => els.length")
+            meta_txt = page.inner_text("#result-meta")
+            check(f"M-03: 금액 '{raw}' → 계산 대신 안내",
+                  err_vis and expect_msg in err_txt and gen_rows == 0 and "금액을 입력하면" in meta_txt,
+                  f"{err_txt} / rows={gen_rows} / {meta_txt}")
+        page.fill("#amount-input", "600000000")
+        page.dispatch_event("#amount-input", "input")
+        page.wait_for_timeout(200)
+        w = page.inner_text("#result-warnings")
+        check("M-03: 5억 초과 금액 경고", "5억 원을 넘습니다" in w, w[:60])
+        page.fill("#amount-input", "300000")
+        page.dispatch_event("#amount-input", "input")
+        page.wait_for_timeout(150)
+        check("M-03: 유효 금액 복귀 시 안내 제거", not page.is_visible("#amount-error"), "")
+        shot(page, "mobile-390-calc-amount-validation")
+
         # ------------------------------------------------------------ 딥링크
         page.goto(base + "/ko/calc/?item=SZ0840000&visit=out&inst=hospital", wait_until="load")
         page.wait_for_selector("[data-calc][data-ready='1']")

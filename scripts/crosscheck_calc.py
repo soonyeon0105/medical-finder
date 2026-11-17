@@ -160,6 +160,11 @@ def main() -> int:
                 pg.fill("#amount-input", str(c["amount"]))
                 pg.dispatch_event("#amount-input", "input")
                 pg.wait_for_timeout(20)
+            if c["amount"] <= 0:
+                # M-03: 0·음수는 화면이 계산하지 않고 입력 안내를 띄운다(엔진 비교는 위에서 이미 끝남).
+                if not pg.is_visible("#amount-error"):
+                    mismatches.append(f"UI 0/음수 금액 안내 없음 ({c})")
+                continue
             pg.click(f"#visit-group button[data-visit='{c['visit']}']")
             pg.click(f"#inst-group button[data-inst='{c['institution']}']")
             pg.click(f"#severe-group button[data-severe='{1 if c['severe'] else 0}']")

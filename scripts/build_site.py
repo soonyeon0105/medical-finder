@@ -323,9 +323,10 @@ def calc_block(items: list[dict], default_code: str, heading: str = "1~5세대 �
         <span class="chip-inline" id="amount-chip">예시 금액</span></label>
       <div class="amount-row">
         <input type="number" id="amount-input" inputmode="numeric" min="0" step="1000"
-               value="{default_amount(first)}" aria-describedby="item-hint">
+               value="{default_amount(first)}" aria-describedby="item-hint amount-error">
         <span class="unit">원</span>
       </div>
+      <p class="field-error" id="amount-error" role="alert" aria-live="polite" hidden></p>
       <div class="row-note" id="item-hint">{esc(first['name'])} · {esc(first['summary'])}</div>
     </div>
     <div class="field">
@@ -1482,7 +1483,7 @@ def page_item(it: dict, items: list[dict]) -> str:
           <p style="font-size:13.5px">{gen5_cell}</p>
           {gen_cover_note}
           <a class="btn sm" href="/ko/calc/?item={esc(it['code'])}&amount={calc_amt}">이 항목으로 계산하기</a>
-          <p class="calc-foot">링크를 누르면 금액이 <b>{won(calc_amt)}</b>로 채워집니다.
+          <p class="calc-foot">링크를 누르면 금액이 <b>{won(calc_amt)}</b>으로 채워집니다.
             실제 청구 금액으로 바꿔 계산하세요.</p>
         </div>
         <div class="card prose">
@@ -2117,7 +2118,10 @@ def build(out: Path, base: str, live: bool) -> dict:
           "window.MED_CATALOG=" + json.dumps(med_data, ensure_ascii=False) + ";\n"
           "window.MED_PREVIEW=" + ("true" if PREVIEW else "false") + ";\n")
 
-    # 루트 → /ko/
+    # 루트 → /ko/ (HTTP 301)
+    # 2026-11-17 M-01: 크롤러가 빈 meta-refresh 페이지를 받지 않도록 Cloudflare Pages
+    # _redirects 로 301을 건다. Pages는 자산보다 redirect를 먼저 적용하므로 dist/index.html
+    # (직접 요청·no-JS 대비)이 남아 있어도 '/' 요청은 301로 처리된다.
     write("index.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <title>{esc(SITE_NAME)}</title><link rel="canonical" href="{esc(SITE_BASE)}/ko/">
 <meta name="robots" content="{'noindex' if PREVIEW else 'index,follow'}">
@@ -2125,6 +2129,8 @@ def build(out: Path, base: str, live: bool) -> dict:
 <meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <script>location.replace('/ko/');</script></head>
 <body><p><a href="/ko/">국내 비급여·실손 파인더로 이동</a></p></body></html>""")
+    if not PREVIEW:
+        write("_redirects", "/ /ko/ 301\n")
 
     # 네이버 서치어드바이저 소유확인 파일(사이트 루트)
     write(NAVER_VERIFY_FILE, f"naver-site-verification: {NAVER_VERIFY_FILE}")

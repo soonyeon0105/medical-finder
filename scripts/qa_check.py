@@ -239,6 +239,23 @@ def main() -> int:
     ok("sitemap ↔ 실제 페이지", not missing, str(missing[:3]))
     ok("sitemap 절대 URL", all(l.startswith("https://") for l in locs), "")
 
+    # M-01: 크롤러가 meta-refresh 대신 HTTP 301 을 받도록 Cloudflare Pages _redirects 를 dist 루트에 넣는다.
+    if not preview:
+        red = dist / "_redirects"
+        ok("_redirects: 루트 → /ko/ 301", red.exists() and "/ /ko/ 301" in red.read_text(encoding="utf-8"),
+           red.read_text(encoding="utf-8").strip() if red.exists() else "파일 없음")
+        root_html = (dist / "index.html").read_text(encoding="utf-8")
+        ok("루트 index.html: /ko/ canonical", f'{site_base}/ko/' in root_html, "")
+
+    # M-02: '470,000원로' 는 틀린 조사 — '원' 받침 ㄴ 이므로 항상 '원으로'.
+    typo_hits = []
+    for p in pages:
+        t = p.read_text(encoding="utf-8")
+        for pat in ("원로", "원 로", "원</b>로"):
+            if pat in t:
+                typo_hits.append(f"{p.relative_to(dist)}: {pat}")
+    ok("조사 '원으로' 표기(원로·원 로 0건)", not typo_hits, str(typo_hits[:3]))
+
     # ---------------------------------------------------------- E. 계산 규칙 골든 케이스
     print("\n== E. 계산 규칙 골든 케이스")
     items = catalog

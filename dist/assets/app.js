@@ -59,7 +59,9 @@
       if (qs.get('gen2') === 'select2') { state.gen2 = 'select2'; }
       if (qs.get('rounds')) { state.rounds = Math.max(1, parseInt(qs.get('rounds'), 10) || 1); }
       if (qs.get('amount') !== null && qs.get('amount') !== '') {
-        state.amount = Math.max(0, parseInt(qs.get('amount'), 10) || 0);
+        // M-03: -1000 을 1000 으로 바꾸지 않고 그대로 읽어 검증 단계에서 막는다.
+        var qa = Number(qs.get('amount'));
+        state.amount = isFinite(qa) ? qa : NaN;
       } else {
         state.amount = state.item === 'direct' ? 300000 : defAmount(itemByCode(state.item));
       }
@@ -77,6 +79,27 @@
     var summary = $(root, '#result-summary');
     var warnBox = $(root, '#result-warnings');
     var metaBox = $(root, '#result-meta');
+    var amountError = $(root, '#amount-error');
+
+    // ---------------------------------------------------- 금액 검증 (M-03)
+    // 0·빈 값·읍수는 계산하지 않고 입력란 열에 바로 안내한다(조용한 0원 계산 금지).
+    var AMOUNT_MAX_WARN = 500000000;  // 5억 원 — 넘으면 자릿수 오타 확인 안내
+    function amountProblem() {
+      var raw = String(amountInput.value == null ? '' : amountInput.value).trim();
+      var n = state.amount;
+      if (raw === '' || typeof n !== 'number' || !isFinite(n)) { return '금액을 입력해 주세요.'; }
+      if (n < 0) { return '금액은 0보다 큰 값으로 입력해 주세요.'; }
+      if (n === 0) { return '금액은 0보다 큰 값으로 입력해 주세요.'; }
+      return '';
+    }
+    function setAmountError(msg) {
+      if (amountError) {
+        amountError.textContent = msg || '';
+        amountError.hidden = !msg;
+      }
+      if (msg) { amountInput.setAttribute('aria-invalid', 'true'); amountInput.classList.add('is-invalid'); }
+      else { amountInput.removeAttribute('aria-invalid'); amountInput.classList.remove('is-invalid'); }
+    }
 
     // ---------------------------------------------------- 항목 목록
     CAT.forEach(function (it) {
@@ -121,7 +144,7 @@
         managedBox.classList.remove('show');
         if (it && resetAmount) { state.amount = defAmount(it); }
         else if (!it && resetAmount) { state.amount = 300000; }
-        amountInput.value = state.amount;
+        amountInput.value = isFinite(state.amount) ? state.amount : '';
       }
       if (hint) {
         if (it) {
@@ -150,6 +173,23 @@
 
     function render() {
       var it = currentItem();
+      var problem = amountProblem();
+      if (problem) {
+        setAmountError(problem);
+        tbody.innerHTML = '';
+        var badRow = el('tr');
+        var badCell = el('td', null, problem);
+        badCell.colSpan = 5;
+        badCell.style.color = '#667085';
+        badRow.appendChild(badCell);
+        tbody.appendChild(badRow);
+        summary.innerHTML = '';
+        warnBox.innerHTML = '';
+        warnBox.style.display = 'none';
+        if (metaBox) { metaBox.textContent = '금액을 입력하면 세대별 보장액을 계산합니다'; }
+        return;
+      }
+      setAmountError('');
       var req = {
         item_code: state.item,
         amount: state.amount,
@@ -244,8 +284,12 @@
 
       // 경고/안내
       warnBox.innerHTML = '';
-      res.warnings.forEach(function (w) { warnBox.appendChild(el('li', null, w)); });
-      if (res.warnings.length) { warnBox.style.display = ''; } else { warnBox.style.display = 'none'; }
+      var extraWarn = [];
+      if (res.input.amount > AMOUNT_MAX_WARN) {
+        extraWarn.push('입력한 금액이 5억 원을 넘습니다. 액수를 다시 한 번 확인해 주세요(자릿수 오타 가능성).');
+      }
+      extraWarn.concat(res.warnings).forEach(function (w) { warnBox.appendChild(el('li', null, w)); });
+      if (extraWarn.length + res.warnings.length) { warnBox.style.display = ''; } else { warnBox.style.display = 'none'; }
 
       // 기준 정보
       if (metaBox) {
@@ -297,8 +341,10 @@
       trackCalc();
     });
     amountInput.addEventListener('input', function () {
-      var v = parseInt(String(amountInput.value).replace(/[^0-9]/g, ''), 10);
-      state.amount = isNaN(v) ? 0 : v;
+      // M-03: 숫자만 뽑아내면 -1000 이 1000 이 된다. 입력값을 그대로 해석해 검증에 맡긴다.
+      var raw = String(amountInput.value == null ? '' : amountInput.value).trim();
+      var n = raw === '' ? NaN : Number(raw);
+      state.amount = isFinite(n) ? n : NaN;
       render();
       trackCalc();
     });
@@ -334,8 +380,9 @@
     if (g2) { g2.addEventListener('change', function () { state.gen2 = g2.value; render(); }); }
 
     // 초기 상태
-    if (state.item === 'direct') { state.amount = state.amount || 300000; }
-    else if (!parseInt(state.amount, 10) && state.item !== 'direct') { state.amount = defAmount(itemByCode(state.item)); }
+    if (typeof state.amount !== 'number' || !isFinite(state.amount)) {
+      state.amount = state.item === 'direct' ? 300000 : defAmount(itemByCode(state.item));
+    }
     syncItemUi(true);
     syncSegButtons();
     if (cumInput) { cumInput.value = state.severeCum || ''; }
