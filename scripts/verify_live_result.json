@@ -1,0 +1,135 @@
+{
+ "checks": [
+  {
+   "name": "라이브 /ko/switch-gen5/ 200",
+   "ok": true,
+   "detail": "200"
+  },
+  {
+   "name": "라이브 페이지: 시뮬레이터 요소",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "라이브 페이지: canonical·OG",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "라이브 페이지: 고지(1332·2028년 5월·할증)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "라이브 페이지: 초안 표기 0건",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "라이브 OG 이미지 200·1200×630",
+   "ok": true,
+   "detail": "200 1200×630"
+  },
+  {
+   "name": "라이브 JS: 200·UTM 규격",
+   "ok": true,
+   "detail": "200"
+  },
+  {
+   "name": "라이브 sitemap: /ko/switch-gen5/ 포함",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "라이브 sitemap URL 수(57)",
+   "ok": true,
+   "detail": "57"
+  },
+  {
+   "name": "라이브 계산기 → 시뮬레이터 링크",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "라이브 robots.txt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "desktop-1440: 타이틀·h1",
+   "ok": true,
+   "detail": "실손 5세대 전환 손익 시뮬레이터 · 메디컬 비급여 시세 파인더"
+  },
+  {
+   "name": "desktop-1440: 가로 스크롤 없음",
+   "ok": true,
+   "detail": "overflow=0px"
+  },
+  {
+   "name": "desktop-1440: 계산 결과(연 124,800원 손해)",
+   "ok": true,
+   "detail": "유지 유리 연 124,800원 손해  입력한 이용 패턴으로는 지금 세대를 유지하는 쪽이 연"
+  },
+  {
+   "name": "desktop-1440: 판단 근거 3줄·차트",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "desktop-1440: 공유 버튼 활성",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "desktop-1440: OG 이미지 라이브 로드 1200×630",
+   "ok": true,
+   "detail": "[1200, 630]"
+  },
+  {
+   "name": "mobile-390: 타이틀·h1",
+   "ok": true,
+   "detail": "실손 5세대 전환 손익 시뮬레이터 · 메디컬 비급여 시세 파인더"
+  },
+  {
+   "name": "mobile-390: 가로 스크롤 없음",
+   "ok": true,
+   "detail": "overflow=0px"
+  },
+  {
+   "name": "mobile-390: 계산 결과(연 124,800원 손해)",
+   "ok": true,
+   "detail": "유지 유리 연 124,800원 손해  입력한 이용 패턴으로는 지금 세대를 유지하는 쪽이 연"
+  },
+  {
+   "name": "mobile-390: 판단 근거 3줄·차트",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "mobile-390: 공유 버튼 활성",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "mobile-390: 카드 PNG 저장",
+   "ok": true,
+   "detail": "silson-gen5-loss.png 589,594B"
+  },
+  {
+   "name": "콘솔 오류 없음",
+   "ok": true,
+   "detail": "[]"
+  }
+ ],
+ "screenshots": [
+  "/workspace/downloads/medical-mvp/tm13-live-desktop-1440-switch-top.png",
+  "/workspace/downloads/medical-mvp/tm13-live-desktop-1440-switch-result.png",
+  "/workspace/downloads/medical-mvp/tm13-live-desktop-1440-switch-full.png",
+  "/workspace/downloads/medical-mvp/tm13-live-desktop-1440-calc-teaser.png",
+  "/workspace/downloads/medical-mvp/tm13-live-mobile-390-switch-top.png",
+  "/workspace/downloads/medical-mvp/tm13-live-mobile-390-switch-result.png",
+  "/workspace/downloads/medical-mvp/tm13-live-mobile-390-switch-bottom.png",
+  "/workspace/downloads/medical-mvp/tm13-live-card.png"
+ ],
+ "console_errors": []
+}
