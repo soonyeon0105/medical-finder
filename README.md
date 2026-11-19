@@ -41,7 +41,7 @@
 ```
 work/medical-finder/
 ├─ data/
-│  ├─ catalog_items.json      비급여 20개 항목 카탈로그(코드·공식 분류·세대별 보장 제외)
+│  ├─ catalog_items.json      비급여 34개 항목 카탈로그(코드·공식 분류·세대별 보장 제외)
 │  ├─ kosis_2026.json         KOSIS 의원·치과의원 통계표에서 직접 수집한 참고값(코드↔분류 경로 확정)
 │  ├─ hira_dataset.json       prepare_data.py 산출물(항목별 시세·종별/시도 집계·커버리지)
 │  ├─ hospitals.json          항목별 병원급 기관 목록(시도/종별 필터용 경량 JSON)
@@ -68,7 +68,7 @@ cd work/medical-finder
 
 # 0) 인증키는 .env.local 에만 둔다(깃 제외). 형식: DATA_GO_KR_SERVICE_KEY_DEC=발급키
 python3 scripts/fetch_hira.py --op codes --rows 1000
-python3 scripts/fetch_hira.py --op hosp_list --rows 300            # 카탈로그 20개 항목 전수
+python3 scripts/fetch_hira.py --op hosp_list --rows 300            # 카탈로그 34개 항목 전수
 python3 scripts/prepare_data.py                                   # → data/hira_dataset.json, hospitals.json
 
 python3 scripts/build_site.py --live --base https://medical-finder.pages.dev   # → dist/
@@ -102,9 +102,9 @@ MED_SHOTS_DIR=/workspace/downloads/medical-mvp python3 scripts/verify_site.py --
 
 ## 화면
 
-- `/ko/` — 계산기 + 병원급↔의원급(KOSIS) 비교표 + 20개 항목
+- `/ko/` — 계산기 + 병원급↔의원급(KOSIS) 비교표 + 34개 항목
 - `/ko/calc/` — 계산기 전체 옵션(입원/통원·종별·중증·2세대 유형·관리급여 횟수)
-- `/ko/items/`(20개), `/ko/items/{slug}/` — 항목별 시세(종별·시도) + KOSIS 의원급 참고 카드 + **기관별 공개가 필터** + 세대별 보장 제외 표시
+- `/ko/items/`(34개), `/ko/items/{slug}/` — 항목별 시세(종별·시도) + KOSIS 의원급 참고 카드 + **기관별 공개가 필터** + 세대별 보장 제외 표시
 - `/ko/regions/`, `/ko/regions/{sido}/` — **17개 시·도별 비급여 시세**(항목별 평균·중간값·최저~최고·전국 대비, 종별 분포, 시·군·구 시세)
   + 지역 한정 **기관·항목별 공개가 검색**(항목·시·군·구·병원명 필터)
 - `/ko/insurance/` — 1~5세대 실손 정리(5세대 특약1·2, 도수치료 관리급여)
