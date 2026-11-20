@@ -88,6 +88,7 @@ GA4_SNIPPET = (
 PREVIEW = True     # --live 로 끌 수 있다
 ITEM_COUNT = 0   # build() 가 카탈로그 길이로 채운다(화면 문구용)
 HOSP_ROWS = 0    # build() 가 실제 수집 기관 행 수로 채운다(화면 문구용)
+COLLECTED_ITEMS = 0  # build() 가 기관 행이 있는 항목 수로 채운다(화면 문구용)
 DATASET: dict | None = None      # data/hira_dataset.json (없으면 가격 미표시)
 HOSPITALS: dict | None = None    # data/hospitals.json (병원급 기관 목록)
 
@@ -2215,7 +2216,7 @@ def page_guide() -> str:
                 <td data-label="수집 결과">비급여 항목 코드 <b>943/943건</b></td></tr>
               <tr><th scope="row"><code>getNonPaymentItemHospList2</code></th>
                 <td data-label="응답"><span class="pill teal">전수</span></td>
-                <td data-label="수집 결과">핵심 {ITEM_COUNT}개 항목 <b>{HOSP_ROWS:,}곳</b> 전수 수집(항목별 100% 응답)</td></tr>
+                <td data-label="수집 결과">핵심 {ITEM_COUNT}개 항목 중 {COLLECTED_ITEMS}개 수집 완료 · <b>{HOSP_ROWS:,}곳</b>(항목별 100% 응답) · 나머지 {ITEM_COUNT - COLLECTED_ITEMS}개 항목은 코드 확정 후 수집 예정</td></tr>
               <tr><th scope="row"><code>getNonPaymentItemClcdList</code></th>
                 <td data-label="응답"><span class="pill amber">지연 504</span></td>
                 <td data-label="수집 결과">응답 35~44초·재호출 504로 실패 → 같은 날 수집한 714건 스냅샷 사용</td></tr>
@@ -2619,7 +2620,7 @@ def apply_cache_busting(dist: Path) -> dict[str, str]:
 
 
 def build(out: Path, base: str, live: bool) -> dict:
-    global DIST, SITE_BASE, PREVIEW, DATASET, ITEM_COUNT, HOSP_ROWS
+    global DIST, SITE_BASE, PREVIEW, DATASET, ITEM_COUNT, HOSP_ROWS, COLLECTED_ITEMS
     DIST = out
     SITE_BASE = base.rstrip("/")
     PREVIEW = not live
@@ -2635,6 +2636,7 @@ def build(out: Path, base: str, live: bool) -> dict:
     hs_path = DATA / "hospitals.json"
     globals()["HOSPITALS"] = json.loads(hs_path.read_text(encoding="utf-8")) if hs_path.exists() else None
     HOSP_ROWS = sum((i.get("stats") or {}).get("n", 0) for i in (DATASET or {}).get("items", []))
+    COLLECTED_ITEMS = sum(1 for i in (DATASET or {}).get("items", []) if (i.get("stats") or {}).get("n", 0) > 0)
 
     pages = {
         "ko/index.html": page_landing(items),
