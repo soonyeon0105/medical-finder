@@ -88,6 +88,7 @@ GA4_SNIPPET = (
 PREVIEW = True     # --live 로 끌 수 있다
 ITEM_COUNT = 0   # build() 가 카탈로그 길이로 채운다(화면 문구용)
 HOSP_ROWS = 0    # build() 가 실제 수집 기관 행 수로 채운다(화면 문구용)
+COLLECTED_ITEMS = 0  # build() 가 기관 행이 있는 항목 수로 채운다(화면 문구용)
 DATASET: dict | None = None      # data/hira_dataset.json (없으면 가격 미표시)
 HOSPITALS: dict | None = None    # data/hospitals.json (병원급 기관 목록)
 
@@ -169,13 +170,30 @@ def ds_item(code: str) -> dict | None:
 
 
 def default_amount(item: dict) -> int:
-    """계산기 초기 금액 — 실데이터가 있으면 병원급 중간값, 없으면 카탈로그 예시값."""
+    """계산기 초기 금액 — 실데이터가 있으면 병원급 중간값, 없으면 카탈로그 예시값.
+    price_fixture가 null인 항목(심평원 공개 목록 미수록)은 지어낸 금액을 넣지 않고 0."""
     if item.get("payment") == "관리급여":
         return int(item["price_fixture"])
     ds = ds_item(item["code"])
     if ds and ds.get("has_data") and (ds.get("stats") or {}).get("price"):
         return int(ds["stats"]["price"]["median"] or ds["stats"]["price"]["avg"])
-    return int(item["price_fixture"])
+    return int(item.get("price_fixture") or 0)
+
+
+def not_listed(item: dict) -> bool:
+    """심평원 비급여 공개 목록(15001700) 미수록 확정 항목 — 공개 코드·가격이 없다."""
+    return item.get("code_status") == "not_listed"
+
+
+def code_disp(item: dict) -> str:
+    """카드·표의 코드 표기. 미수록 항목은 내부 코드를 심평원 코드처럼 보이지 않게 한다."""
+    return "심평원 공개 코드 없음" if not_listed(item) else item["code"]
+
+
+def codes_inline(item: dict) -> str:
+    """복수 코드 항목의 전체 코드 병기 (대표 코드 포함)."""
+    return "<br>".join(
+        f"<code>{esc(c['code'])}</code> {esc(c['label'])}" for c in item.get("codes") or [])
 
 
 # ------------------------------------------------------------------ 공통 레이아웃
@@ -322,7 +340,8 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 def calc_block(items: list[dict], default_code: str, heading: str = "1~5세대 실손 보장액 계산",
                sub: str = "항목·금액·입원/통원만 고르면 5개 세대를 한 번에 비교합니다.") -> str:
     opts = "".join(
-        f'<option value="{esc(it["code"])}">{esc(it["name"])} ({esc(it["code"])})</option>' for it in items)
+        f'<option value="{esc(it["code"])}">{esc(it["name"])} '
+        f'({"공개 코드 없음" if not_listed(it) else esc(it["code"])})</option>' for it in items)
     first = next((it for it in items if it["code"] == default_code), items[0])
     return f"""
 <section class="calc" data-calc aria-labelledby="calc-title">
@@ -1086,18 +1105,32 @@ def price_block(item: dict) -> str:
         n = ds["raw_stats_preview"].get("n", 0)
         fix = (f'<br><span style="color:#b45309"><b>파이프라인 검증용 픽스처</b>: {n}개 기관 행이 정상 정제되었으나 '
                '실제 공개가가 아니므로 화면에는 표시하지 않습니다.</span>')
+    if not_listed(item):
+        price_row = ('<b>심평원 공개 가격</b> — 심평원 비급여 진료비 공개 목록(15001700)에 수록되지 않은 항목이라 '
+                     '공개 가격이 없습니다. 금액을 지어내 표시하지 않으며, 실제 비용은 기관마다 달라 방문 전 확인이 필요합니다.')
+        code_row = (f'<b>항목 코드</b> — 없음 (2026-11-20 심평원 API 전수 대조로 미수록 확정). '
+                    f'카탈로그 코드 <code>{esc(item["code"])}</code>는 이 사이트 내부 구분용이며 심평원 코드가 아닙니다.')
+    else:
+        price_row = ('<b>심평원 공개 가격</b> — 이 항목의 실수집 데이터가 없어 금액을 표시하지 않습니다. '
+                     '수집 파이프라인(<code>scripts/fetch_hira.py</code> → <code>scripts/prepare_data.py</code>)을 실행하면 '
+                     f'기관별 최저·최고·평균·중간 금액이 이 자리에 채워집니다.{fix}')
+        if item.get("codes"):
+            code_row = (f'<b>항목 코드</b> — <code>{esc(item["code"])}</code> (대표) 외 {len(item["codes"]) - 1}개<br>'
+                        f'{codes_inline(item)}<br>'
+                        f'({esc(item["official_mid"])} &gt; {esc(item["official_sub"])}'
+                        f'{("&gt; " + esc(item["official_dtl"])) if item["official_dtl"] else ""})')
+        else:
+            code_row = (f'<b>항목 코드</b> — <code>{esc(item["code"])}</code> '
+                        f'({esc(item["official_mid"])} &gt; {esc(item["official_sub"])}'
+                        f'{("&gt; " + esc(item["official_dtl"])) if item["official_dtl"] else ""})')
     return f"""
 <div class="card">
   <h3>가격 데이터 상태</h3>
   <div class="data-status">
     <div class="row"><span class="dot off"></span><div>
-      <b>심평원 공개 가격</b> — 이 항목의 실수집 데이터가 없어 금액을 표시하지 않습니다.
-      수집 파이프라인(<code>scripts/fetch_hira.py</code> → <code>scripts/prepare_data.py</code>)을 실행하면
-      기관별 최저·최고·평균·중간 금액이 이 자리에 채워집니다.{fix}
+      {price_row}
     </div></div>
-    <div class="row"><span class="dot on"></span><div><b>항목 코드</b> — <code>{esc(item['code'])}</code>
-      ({esc(item['official_mid'])} &gt; {esc(item['official_sub'])}
-      {('&gt; ' + esc(item['official_dtl'])) if item['official_dtl'] else ''})</div></div>
+    <div class="row"><span class="dot on"></span><div>{code_row}</div></div>
     <div class="row"><span class="dot on"></span><div><b>공개 범위</b> — 병원급 이상(상급종합·종합병원·병원·요양병원·정신병원·치과병원·한방병원).
       {esc('치과병원만 공개 대상' if item['code'].startswith('UB') else '의원은 공개 범위 밖')}.</div></div>
   </div>
@@ -1164,7 +1197,7 @@ def page_landing(items: list[dict]) -> str:
            else ('<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
                  else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
                        else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else ''))))}</div>
-        <div class="cd">{esc(it['code'])}</div>
+        <div class="cd">{esc(code_disp(it))}</div>
         <div class="sm">{esc(it['summary'])}</div>
       </a>""" for it in items)
 
@@ -1750,12 +1783,12 @@ def page_items(items: list[dict]) -> str:
            else ('<span class="pill red">5세대 제외</span>' if it['excluded5'] and it['payment'] == '비급여'
                  else ('<span class="pill blue">관리급여 95%</span>' if it['payment'] == '관리급여'
                        else ('<span class="pill violet">3세대 특약</span>' if it['special3'] else '<span class="pill">기본</span>'))))}</div>
-        <div class="cd">{esc(it['code'])}</div>
+        <div class="cd">{esc(code_disp(it))}</div>
         <div class="sm">{esc(it['summary'])}</div>
       </a>""" for it in items)
     rows = "".join(
         f"<tr><th scope=\"row\"><a href=\"/ko/items/{esc(it['slug'])}/\">{esc(it['name'])}</a></th>"
-        f"<td data-label=\"코드\"><code>{esc(it['code'])}</code></td>"
+        f"<td data-label=\"코드\">{'<code>' + esc(it['code']) + '</code>' if not not_listed(it) else '심평원 공개 코드 없음'}</td>"
         f"<td data-label=\"심평원 분류\">{esc(it['official_mid'])} &gt; {esc(it['official_sub'])}</td>"
         f"<td data-label=\"보장\">{coverage_label(it)}</td></tr>"
         for it in items)
@@ -1795,7 +1828,7 @@ def page_items(items: list[dict]) -> str:
 def page_item(it: dict, items: list[dict]) -> str:
     sib = [x for x in items if x["code"] != it["code"]][:4]
     sib_html = "".join(f'<a class="item-card" href="/ko/items/{esc(x["slug"])}/"><div class="top">'
-                       f'<span class="nm">{esc(x["name"])}</span></div><div class="cd">{esc(x["code"])}</div>'
+                       f'<span class="nm">{esc(x["name"])}</span></div><div class="cd">{esc(code_disp(x))}</div>'
                        f'<div class="sm">{esc(x["summary"])}</div></a>' for x in sib)
     excl_gens = it.get("excluded_gens") or []
     if 5 in excl_gens:
@@ -1842,6 +1875,27 @@ def page_item(it: dict, items: list[dict]) -> str:
             '<br><b>아래 병원급 공개가는 2026년 비급여 공개자료 기준</b>이라 7월 전환 이후 실제 청구액과 다릅니다. '
             '지금은 비급여 특약이 아니라 <b>급여 수가 43,850원</b>으로 계산하세요.</div>')
     calc_amt = default_amount(it)
+    if not_listed(it):
+        code_pill = '<span class="pill line">심평원 공개 코드 없음</span>'
+        calc_link = f"/ko/calc/?item={esc(it['code'])}"
+        calc_note = ('심평원 공개 가격이 없는 항목이라 금액이 자동으로 채워지지 않습니다. '
+                     '실제 청구 금액을 직접 입력하세요.')
+    else:
+        code_pill = (f'<span class="pill line"><code>{esc(it["code"])}</code>'
+                     f'{" 외 " + str(len(it["codes"]) - 1) + "개 코드" if it.get("codes") else ""}</span>')
+        calc_link = f"/ko/calc/?item={esc(it['code'])}&amount={calc_amt}"
+        calc_note = f'링크를 누르면 금액이 <b>{won(calc_amt)}</b>으로 채워집니다. 실제 청구 금액으로 바꿔 계산하세요.'
+    if it.get("codes"):
+        code_cell = codes_inline(it)
+    elif not_listed(it):
+        code_cell = f'없음 (심평원 공개 목록 미수록) · 카탈로그 코드 <code>{esc(it["code"])}</code>'
+    else:
+        code_cell = f'<code>{esc(it["code"])}</code>'
+    linked_row = ""
+    if it.get("linked_items"):
+        linked_row = ('<tr><th scope="row">기존 항목으로 분리된 코드</th><td>' + " · ".join(
+            f'<a href="/ko/items/{esc(li["slug"])}/">{esc(li["label"])} (<code>{esc(li["code"])}</code>)</a>'
+            for li in it["linked_items"]) + '</td></tr>')
 
     body = f"""
 <section class="section" style="padding-top:10px">
@@ -1850,7 +1904,7 @@ def page_item(it: dict, items: list[dict]) -> str:
       <h1>{esc(it['name'])}</h1>
       <p class="section-lead">{esc(it['summary'])}</p>
       <div class="meta">
-        <span class="pill line"><code>{esc(it['code'])}</code></span>
+        {code_pill}
         {pay_pill}
         {'<span class="pill violet">3세대 특약</span>' if it['special3'] and it['payment'] != '관리급여' else ''}
       </div>
@@ -1868,9 +1922,8 @@ def page_item(it: dict, items: list[dict]) -> str:
           <h3>5세대 처리</h3>
           <p style="font-size:13.5px">{gen5_cell}</p>
           {gen_cover_note}
-          <a class="btn sm" href="/ko/calc/?item={esc(it['code'])}&amount={calc_amt}">이 항목으로 계산하기</a>
-          <p class="calc-foot">링크를 누르면 금액이 <b>{won(calc_amt)}</b>으로 채워집니다.
-            실제 청구 금액으로 바꿔 계산하세요.</p>
+          <a class="btn sm" href="{calc_link}">이 항목으로 계산하기</a>
+          <p class="calc-foot">{calc_note}</p>
         </div>
         <div class="card prose">
           <h2 style="font-size:17px">자주 묻는 질문</h2>
@@ -1888,7 +1941,8 @@ def page_item(it: dict, items: list[dict]) -> str:
               <tr><th scope="row">중분류</th><td>{esc(it['official_mid'])}</td></tr>
               <tr><th scope="row">소분류</th><td>{esc(it['official_sub'])}</td></tr>
               <tr><th scope="row">상세분류</th><td>{esc(it['official_dtl'] or '—')}</td></tr>
-              <tr><th scope="row">항목 코드</th><td><code>{esc(it['code'])}</code></td></tr>
+              <tr><th scope="row">항목 코드</th><td>{code_cell}</td></tr>
+              {linked_row}
             </tbody>
           </table>
           <p class="calc-foot">치료재료 포함 여부·판독료 조건은 대부분 오픈API 상세설명(<code>cmmtTxt</code>)이 비어 있어
@@ -1903,16 +1957,19 @@ def page_item(it: dict, items: list[dict]) -> str:
   </div>
 </section>
 """
+    proc_ld = {"@context": "https://schema.org", "@type": "MedicalProcedure",
+               "name": it["name"], "description": it["summary"]}
+    if not not_listed(it):
+        proc_ld["code"] = {"@type": "MedicalCode", "code": it["code"],
+                           "codingSystem": "건강보험심사평가원 비급여 항목코드"}
     jsonld = [
         breadcrumb_jsonld([("/ko/", "홈"), ("/ko/items/", "비급여 항목"), (f"/ko/items/{it['slug']}/", it["name"])]),
         faq_jsonld([(q, a) for q, a in it["faq"]]),
-        {"@context": "https://schema.org", "@type": "MedicalProcedure",
-         "name": it["name"], "code": {"@type": "MedicalCode", "code": it["code"],
-                                      "codingSystem": "건강보험심사평가원 비급여 항목코드"},
-         "description": it["summary"]},
+        proc_ld,
     ]
     return layout(f"/ko/items/{it['slug']}/",
-                  f"{it['name']} ({it['code']}) 비급여 가격·실손 보장 · {SITE_NAME}",
+                  (f"{it['name']} 비급여 가격·실손 보장 · {SITE_NAME}" if not_listed(it)
+                   else f"{it['name']} ({it['code']}) 비급여 가격·실손 보장 · {SITE_NAME}"),
                   f"{it['name']}의 심평원 공식 분류와 코드, 병원급 공개가·전국 의원급 통계, 실손 세대별 처리({coverage_label(it)})를 정리했습니다.",
                   body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목"), (f"/ko/items/{it['slug']}/", it["name"])],
                   jsonld, current="/ko/items/")
@@ -2159,7 +2216,7 @@ def page_guide() -> str:
                 <td data-label="수집 결과">비급여 항목 코드 <b>943/943건</b></td></tr>
               <tr><th scope="row"><code>getNonPaymentItemHospList2</code></th>
                 <td data-label="응답"><span class="pill teal">전수</span></td>
-                <td data-label="수집 결과">핵심 {ITEM_COUNT}개 항목 <b>{HOSP_ROWS:,}곳</b> 전수 수집(항목별 100% 응답)</td></tr>
+                <td data-label="수집 결과">핵심 {ITEM_COUNT}개 항목 중 {COLLECTED_ITEMS}개 수집 완료 · <b>{HOSP_ROWS:,}곳</b>(항목별 100% 응답) · 나머지 {ITEM_COUNT - COLLECTED_ITEMS}개 항목은 코드 확정 후 수집 예정</td></tr>
               <tr><th scope="row"><code>getNonPaymentItemClcdList</code></th>
                 <td data-label="응답"><span class="pill amber">지연 504</span></td>
                 <td data-label="수집 결과">응답 35~44초·재호출 504로 실패 → 같은 날 수집한 714건 스냅샷 사용</td></tr>
@@ -2563,7 +2620,7 @@ def apply_cache_busting(dist: Path) -> dict[str, str]:
 
 
 def build(out: Path, base: str, live: bool) -> dict:
-    global DIST, SITE_BASE, PREVIEW, DATASET, ITEM_COUNT, HOSP_ROWS
+    global DIST, SITE_BASE, PREVIEW, DATASET, ITEM_COUNT, HOSP_ROWS, COLLECTED_ITEMS
     DIST = out
     SITE_BASE = base.rstrip("/")
     PREVIEW = not live
@@ -2579,6 +2636,7 @@ def build(out: Path, base: str, live: bool) -> dict:
     hs_path = DATA / "hospitals.json"
     globals()["HOSPITALS"] = json.loads(hs_path.read_text(encoding="utf-8")) if hs_path.exists() else None
     HOSP_ROWS = sum((i.get("stats") or {}).get("n", 0) for i in (DATASET or {}).get("items", []))
+    COLLECTED_ITEMS = sum(1 for i in (DATASET or {}).get("items", []) if (i.get("stats") or {}).get("n", 0) > 0)
 
     pages = {
         "ko/index.html": page_landing(items),
