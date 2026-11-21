@@ -265,6 +265,8 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css">
 <link rel="stylesheet" href="/assets/style.css">
 {GA4_SNIPPET}
 {ld}
@@ -2616,6 +2618,18 @@ def apply_cache_busting(dist: Path) -> dict[str, str]:
         new = pat.sub(repl, text)
         if new != text:
             p.write_text(new, encoding="utf-8")
+
+    # 폰트 서브셋 CSS 도 같은 방식으로 ?v=<hash8> 부착 (주차장 폰트 표준화와 동일 규율)
+    fonts_css = dist / "assets" / "fonts" / "pretendardvariable-dynamic-subset.css"
+    if fonts_css.exists():
+        fv = hashlib.sha256(fonts_css.read_bytes()).hexdigest()[:8]
+        fpat = re.compile(r'(href=")/assets/fonts/pretendardvariable-dynamic-subset\.css(?:\?v=[0-9a-f]+)?(")')
+        for p in dist.rglob("*.html"):
+            text = p.read_text(encoding="utf-8")
+            new = fpat.sub(rf"\g<1>/assets/fonts/pretendardvariable-dynamic-subset.css?v={fv}\g<2>", text)
+            if new != text:
+                p.write_text(new, encoding="utf-8")
+        versions["pretendardvariable-dynamic-subset.css"] = fv
     return versions
 
 
@@ -2664,6 +2678,10 @@ def build(out: Path, base: str, live: bool) -> dict:
     (DIST / "assets").mkdir(parents=True, exist_ok=True)
     for name in ("style.css", "calc.js", "app.js", "switch-gen5.js", "favicon.svg", "favicon.ico"):
         shutil.copyfile(ASSETS / name, DIST / "assets" / name)
+    # 폰트 표준화(2026-11-21): Pretendard 자체 호스팅 — assets/fonts/ 를 dist 로 통째로 복사.
+    fonts_src = ASSETS / "fonts"
+    if fonts_src.exists():
+        shutil.copytree(fonts_src, DIST / "assets" / "fonts")
     og_png = ASSETS / "og-switch-gen5.png"
     if og_png.exists():
         shutil.copyfile(og_png, DIST / "assets" / "og-switch-gen5.png")
@@ -2708,6 +2726,8 @@ def build(out: Path, base: str, live: bool) -> dict:
 
     write("404.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>페이지를 찾을 수 없습니다 · {esc(SITE_NAME)}</title>
+<link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css">
 <link rel="stylesheet" href="/assets/style.css"><meta name="robots" content="noindex"></head>
 <body><main class="section"><div class="wrap"><h1>404 — 페이지를 찾을 수 없습니다</h1>
 <p class="section-lead">주소가 바뀌었거나 아직 준비되지 않은 페이지입니다.</p>
