@@ -44,7 +44,7 @@ ASSETS = BASE_DIR / "assets"
 DIST = BASE_DIR / "dist"
 
 SITE_NAME = "메디컬 비급여 시세 파인더"
-SITE_BASE = "https://medical-finder.pages.dev"   # --base 로 교체
+SITE_BASE = "https://medical-finder-kr.pages.dev"   # --base 로 교체
 OWNER = "내 손안에 복지 (9welfare)"
 
 # ── 브랜딩 (2026-11-17 K-MediCheck 클린 메디컬 톤 통일)
