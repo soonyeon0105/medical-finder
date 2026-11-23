@@ -304,6 +304,11 @@
     function chartSvg(res) {
       var pts = res.chart.points || [];
       if (!pts.length) { return ''; }
+      // 다크모드에서는 어두운 카드 위에서도 읽히는 팔레트로 그린다(공유 이미지 카드는 라이트 고정).
+      var DARK = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var C = DARK
+        ? { bg: 'none', grid: '#26302a', label: '#8d9991', zero: '#5f6f66', axis: '#b6c0ba', curve: '#14b8a6', be: '#f2b04e', cur: '#8db1ff' }
+        : { bg: '#fff', grid: '#eef2f7', label: '#98a2b3', zero: '#94a3b8', axis: '#344054', curve: '#0f766e', be: '#b45309', cur: '#1d4ed8' };
       var W = Math.max(280, Math.min(900, (out.clientWidth || 340) - 2));
       var big = W >= 560;
       var H = big ? 260 : 215;
@@ -327,48 +332,48 @@
       var parts = [];
       parts.push('<svg class="sim-chart-svg" viewBox="0 0 ' + W + ' ' + H +
         '" role="img" aria-label="비중증 비급여 연간 이용액에 따른 전환 손익 곡선">');
-      parts.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#fff"/>');
+      parts.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="' + C.bg + '"/>');
       // 가로 그리드 + y축 금액 라벨
       [0, 0.5, 1].forEach(function (t) {
         var gy = T + (H - T - B) * t;
         var gv = maxY - (maxY - minY) * t;
         parts.push('<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + gy.toFixed(1) +
-          '" stroke="#eef2f7"/>');
+          '" stroke="' + C.grid + '"/>');
         parts.push('<text x="' + (L - 6) + '" y="' + (gy + 3.5).toFixed(1) + '" text-anchor="end" font-size="' + FS +
-          '" fill="#98a2b3">' + (Math.abs(gv) >= 10000 ? manwon(gv) : Math.round(gv) + '원') + '</text>');
+          '" fill="' + C.label + '">' + (Math.abs(gv) >= 10000 ? manwon(gv) : Math.round(gv) + '원') + '</text>');
       });
       // 0선
       var zy = sy(0);
       parts.push('<line x1="' + L + '" y1="' + zy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + zy.toFixed(1) +
-        '" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 4"/>');
+        '" stroke="' + C.zero + '" stroke-width="1.3" stroke-dasharray="5 4"/>');
       // 곡선
-      parts.push('<path d="' + path + '" fill="none" stroke="#0f766e" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>');
+      parts.push('<path d="' + path + '" fill="none" stroke="' + C.curve + '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>');
       // 손익분기 세로선
       if (res.break_even !== null && res.break_even > 0 && res.break_even < maxX) {
         var bx = sx(res.break_even);
         parts.push('<line x1="' + bx.toFixed(1) + '" y1="' + T + '" x2="' + bx.toFixed(1) + '" y2="' + (H - B) +
-          '" stroke="#b45309" stroke-width="1.3"/>');
+          '" stroke="' + C.be + '" stroke-width="1.3"/>');
         parts.push('<text x="' + bx.toFixed(1) + '" y="' + (H - B + 13) + '" text-anchor="middle" font-size="' + FS +
-          '" fill="#b45309" font-weight="700">손익분기</text>');
+          '" fill="' + C.be + '" font-weight="700">손익분기</text>');
       }
       // 현재 입력 위치
       if (cur <= maxX) {
         var cx = sx(cur);
         parts.push('<line x1="' + cx.toFixed(1) + '" y1="' + T + '" x2="' + cx.toFixed(1) + '" y2="' + (H - B) +
-          '" stroke="#1d4ed8" stroke-width="1.1" stroke-dasharray="4 3"/>');
-        parts.push('<circle cx="' + cx.toFixed(1) + '" cy="' + sy(curY).toFixed(1) + '" r="4.4" fill="#1d4ed8"/>');
+          '" stroke="' + C.cur + '" stroke-width="1.1" stroke-dasharray="4 3"/>');
+        parts.push('<circle cx="' + cx.toFixed(1) + '" cy="' + sy(curY).toFixed(1) + '" r="4.4" fill="' + C.cur + '"/>');
         parts.push('<text x="' + (cx > W * 0.72 ? cx - 6 : cx + 6).toFixed(1) + '" y="' + (T - 8) +
-          '" text-anchor="' + (cx > W * 0.72 ? 'end' : 'start') + '" font-size="' + FS + '" fill="#1d4ed8" font-weight="700">내 입력</text>');
+          '" text-anchor="' + (cx > W * 0.72 ? 'end' : 'start') + '" font-size="' + FS + '" fill="' + C.cur + '" font-weight="700">내 입력</text>');
       }
       // x축 라벨
       [0, 0.5, 1].forEach(function (t) {
         var x = L + (W - L - R) * t;
         parts.push('<text x="' + x.toFixed(1) + '" y="' + (H - B + 13) + '" text-anchor="' +
-          (t === 0 ? 'start' : t === 1 ? 'end' : 'middle') + '" font-size="' + FS + '" fill="#98a2b3">' + manwon(maxX * t) + '</text>');
+          (t === 0 ? 'start' : t === 1 ? 'end' : 'middle') + '" font-size="' + FS + '" fill="' + C.label + '">' + manwon(maxX * t) + '</text>');
       });
       // 축 이름
       parts.push('<text x="' + (L + (W - L - R) / 2).toFixed(1) + '" y="' + (H - 5) +
-        '" text-anchor="middle" font-size="' + FS + '" fill="#344054">연간 비중증 비급여 이용액</text>');
+        '" text-anchor="middle" font-size="' + FS + '" fill="' + C.axis + '">연간 비중증 비급여 이용액</text>');
       parts.push('</svg>');
       return parts.join('');
     }
@@ -735,6 +740,12 @@
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(render, 180);
     });
+
+    // 기기 테마가 페이지 열린 채로 바뀌면 차트 팔레트도 따라 다시 그린다.
+    if (window.matchMedia) {
+      var schemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+      if (schemeMq.addEventListener) { schemeMq.addEventListener('change', render); }
+    }
 
     setSeg('p5_mode', 'auto');
     $('[data-k="p5_mode"]', form).value = 'auto';

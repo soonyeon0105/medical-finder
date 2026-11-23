@@ -261,7 +261,9 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}">
-{og_extra}<meta name="theme-color" content="#0f766e">
+{og_extra}<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101613">
 <meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
@@ -437,7 +439,7 @@ def calc_block(items: list[dict], default_code: str, heading: str = "1~5세대 �
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="5" style="color:#667085">계산 결과를 불러오는 중…</td></tr>
+          <tr><td colspan="5" style="color:var(--muted)">계산 결과를 불러오는 중…</td></tr>
         </tbody>
       </table>
     </div>
@@ -466,7 +468,7 @@ def calc_block(items: list[dict], default_code: str, heading: str = "1~5세대 �
 
 def gen_table_html() -> str:
     rows = "".join(
-        f"<tr><th scope=\"row\">{esc(n)}<br><span style=\"font-weight:500;color:#667085\">{esc(p)}</span></th>"
+        f"<tr><th scope=\"row\">{esc(n)}<br><span style=\"font-weight:500;color:var(--muted)\">{esc(p)}</span></th>"
         f"<td data-label=\"급여 자기부담\">{esc(g)}</td>"
         f"<td data-label=\"비급여 자기부담\">{esc(b)}</td>"
         f"<td data-label=\"통원 공제 · 한도\">{esc(l)}</td></tr>"
@@ -850,7 +852,7 @@ def page_region(slug: str, items: list[dict]) -> str:
             up = pct >= 0
             higher += 1 if up else 0
             lower += 0 if up else 1
-            diff_cell = (f'<span style="color:{"#b91c1c" if up else "#0f766e"};font-weight:700">'
+            diff_cell = (f'<span class="{"pct-up" if up else "pct-dn"}">'
                          f'{"+" if up else "−"}{abs(pct):.1f}%</span>')
         rows.append(
             f'<tr><th scope="row"><a href="/ko/items/{esc(it["slug"])}/">{esc(it["name"])}</a>'
@@ -1103,7 +1105,7 @@ def price_block(item: dict) -> str:
     fix = ""
     if ds and ds.get("raw_stats_preview"):
         n = ds["raw_stats_preview"].get("n", 0)
-        fix = (f'<br><span style="color:#b45309"><b>파이프라인 검증용 픽스처</b>: {n}개 기관 행이 정상 정제되었으나 '
+        fix = (f'<br><span style="color:var(--amber)"><b>파이프라인 검증용 픽스처</b>: {n}개 기관 행이 정상 정제되었으나 '
                '실제 공개가가 아니므로 화면에는 표시하지 않습니다.</span>')
     if not_listed(item):
         price_row = ('<b>심평원 공개 가격</b> — 심평원 비급여 진료비 공개 목록(15001700)에 수록되지 않은 항목이라 '
@@ -1450,7 +1452,7 @@ def page_switch_gen5() -> str:
          "50% · 연 1,000만 원 · 통원 Max[50%, 5만 원] · 일당 20만 원 · 병·의원 입원 회당 300만 원"),
     ]
     rate_html = "".join(
-        f"<tr><th scope=\"row\">{esc(g)}<br><span style=\"font-weight:500;color:#667085\">{esc(p)}</span></th>"
+        f"<tr><th scope=\"row\">{esc(g)}<br><span style=\"font-weight:500;color:var(--muted)\">{esc(p)}</span></th>"
         f"<td data-label=\"급여 입원\">{esc(i)}</td><td data-label=\"급여 통원\">{esc(o)}</td>"
         f"<td data-label=\"비급여 중증\">{esc(s)}</td><td data-label=\"비급여 비중증\">{esc(m)}</td></tr>"
         for g, p, i, o, s, m in rate_rows)
@@ -1697,7 +1699,7 @@ def page_switch_gen5() -> str:
           <li>5세대 중증 입원 연간 자기부담 상한 500만 원 — 입원 여부·기관에 따라 달라 넣지 않았습니다.</li>
         </ul>
         <h3>고정 고지</h3>
-        <ul style="font-size:13px;color:#475467">
+        <ul style="font-size:13px;color:var(--ink-2)">
           <li>비급여 이용량에 따라 차기 갱신 시 할증될 수 있습니다(할증률은 보험사·상품별로 다릅니다).
             5세대 특약2 차등제의 첫 적용은 2028년 5월 이후 갱신분부터입니다. 할증 반영 계산은 준비 중입니다.</li>
           <li>4·5세대는 5년마다 재가입하며, 재가입 시점의 약관이 적용됩니다.</li>
@@ -1719,7 +1721,7 @@ def page_switch_gen5() -> str:
           <h2 style="font-size:17px">공유 카드</h2>
           <p style="font-size:13.5px">결과를 카드 이미지(PNG)로 저장하거나 카카오톡·링크로 공유할 수 있습니다.
             카드에는 연간 절약·손해 금액과 판단 근거 1줄, 사이트 주소만 담기고 이름·보험료·이용 내역은 담기지 않습니다.</p>
-          <p style="font-size:13px;color:#667085">공유 링크에는 utm_source(카카오톡·이미지 공유·링크 복사),
+          <p style="font-size:13px;color:var(--muted)">공유 링크에는 utm_source(카카오톡·이미지 공유·링크 복사),
             utm_medium, utm_campaign과 결과 구분(절약·손해·보류)만 붙습니다. 입력값은 담지 않습니다.</p>
         </div>
       </div>
@@ -1985,7 +1987,7 @@ def page_insurance() -> str:
          "연 1천만원 · 통원 일당 20만원 · 이용량 할인·할증"),
     ]
     five_rows = "".join(
-        f"<tr><th scope=\"row\">{esc(a)}<br><span style=\"font-weight:500;color:#667085\">{esc(b)}</span></th>"
+        f"<tr><th scope=\"row\">{esc(a)}<br><span style=\"font-weight:500;color:var(--muted)\">{esc(b)}</span></th>"
         f"<td data-label=\"입원\">{esc(c)}</td><td data-label=\"통원\">{esc(d)}</td>"
         f"<td data-label=\"한도\">{esc(e)}</td></tr>" for a, b, c, d, e in five)
     faqs = [
@@ -2724,6 +2726,9 @@ def build(out: Path, base: str, live: bool) -> dict:
 
     write("404.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>페이지를 찾을 수 없습니다 · {esc(SITE_NAME)}</title>
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8f7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101613">
 <link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css">
 <link rel="stylesheet" href="/assets/style.css"><meta name="robots" content="noindex"></head>
