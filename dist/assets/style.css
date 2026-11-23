@@ -15,6 +15,7 @@
   --line: #d9e1de;
   --line-2: #e7edea;
   --accent: #0f766e;
+  --accent-solid: #0f766e;  /* 흰 글씨가 얹히는 채움 요소 전용 — 다크에서도 밝아지지 않는다 (밀크 검수 2026-11-24) */
   --accent-ink: #0b5d56;
   --accent-soft: #e6f4f1;
   --brand-line: #c3e2db;
@@ -104,12 +105,18 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
   background: #ffb020; margin-right: 6px; vertical-align: 1px; }
 
 /* ---------------------------------------------------------------- 헤더 */
+/* ---------------------------------------------------------------- 헤더
+   좁은 화면에서 로고 이름 + 메뉴 6개가 한 줄에 안 들어가는 문제(밀크 검수 2026-11-24):
+   400px 미만은 로고 마크만, 375~519px은 축약 이름(메디컬파인더), 520px부터 전체 이름.
+   720~767px은 헤더 여백을 16px로 줄이고 메뉴 패딩을 좁혀 '가이드'까지 보이게 한다.
+   그래도 넘치면(폰트 차이 등) JS가 .is-scrollable 클래스를 달아 오른쪽 페이드 단서를 보여준다. */
 .site-header { background: var(--header-bg); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
 .site-header .wrap { display: flex; align-items: center; gap: 14px; height: 56px; }
 .logo { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 15.5px;
   color: var(--ink); white-space: nowrap; flex: none; }
-.logo .txt { display: inline; font-size: 13.5px; }
+.logo .txt { display: none; }
+.logo .txt-short { display: none; font-size: 12px; }
 .nav a .abbr { display: inline; }
 .nav a .full { display: none; }
 .logo:hover { text-decoration: none; }
@@ -117,26 +124,44 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
   background: var(--accent); color: #fff; font-size: 14px; }
 .nav { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
-.nav a { padding: 6px 8px; border-radius: 8px; color: var(--ink-2); font-size: 13px;
+.nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 6px 6px;
+  border-radius: 8px; color: var(--ink-2); font-size: 12px;
   font-weight: 600; white-space: nowrap; }
 .nav a:hover { background: var(--bg-soft); text-decoration: none; }
 .nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-ink); }
+/* 넘김 단서: 메뉴가 넘칠 때만 오른쪽(스크롤 시 왼쪽도) 페이드 */
+.nav.is-scrollable { -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 26px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 26px), transparent 100%); }
+.nav.is-scrollable.is-scrolled { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%); }
 
-@media (min-width: 480px) {
-  .logo .txt { display: inline; font-size: 14.5px; }
+@media (min-width: 375px) {
+  .logo .txt-short { display: inline; }
+}
+@media (min-width: 520px) {
+  .logo .txt-short { display: none; }
+  .logo .txt { display: inline; font-size: 13.5px; }
   .nav a { font-size: 13px; padding: 6px 8px; }
 }
 @media (min-width: 720px) {
+  .site-header .wrap { padding: 0 16px; }
   .logo .txt { font-size: 15.5px; }
-  .nav a { font-size: 13.5px; padding: 7px 10px; }
+  .nav a { font-size: 13.5px; padding: 7px 8px; }
   .nav a .abbr { display: none; }
   .nav a .full { display: inline; }
+}
+@media (min-width: 768px) {
+  .site-header .wrap { padding: 0 24px; }
+  .nav a { padding: 7px 10px; }
 }
 
 /* ---------------------------------------------------------------- 공통 조각 */
 .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
   border-radius: 999px; font-size: 11.5px; font-weight: 700; line-height: 1.5;
   background: var(--bg-soft); color: var(--ink-2); white-space: nowrap; }
+/* 링크 pill(지역 바로가기 등)은 탭 타겟이라 최소 32px 높이로 키운다 (밀크 검수 2026-11-24).
+   44px까지 키우면 칩 줄 레이아웃이 깨져 32px로 타협한다 (WCAG 24px 이상 충족). */
+a.pill { min-height: 32px; padding: 6px 12px; }
 .pill.teal { background: var(--accent-soft); color: var(--accent-ink); }
 .pill.blue { background: var(--blue-soft); color: var(--blue); }
 .pill.violet { background: var(--violet-soft); color: var(--violet); }
@@ -176,7 +201,7 @@ section.calc { scroll-margin-top: 66px; }
   border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 11px 18px; border-radius: var(--radius); font-weight: 700; font-size: 14.5px;
-  background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; }
+  background: var(--accent-solid); color: #fff; border: 1px solid var(--accent-solid); cursor: pointer; }
 .btn:hover { background: var(--accent-ink); text-decoration: none; }
 .btn.ghost { background: var(--card); color: var(--accent-ink); border-color: var(--brand-line); }
 .btn.ghost:hover { background: var(--accent-soft); }
@@ -224,7 +249,7 @@ input.is-invalid { border-color: var(--red); box-shadow: 0 0 0 3px rgba(180, 35,
   border: 1px solid var(--line); background: var(--card); color: var(--ink-2); font-size: 13.5px;
   font-weight: 700; font-family: inherit; cursor: pointer; }
 .seg button:hover { background: var(--bg-soft); }
-.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent);
+.seg button[aria-pressed="true"] { background: var(--accent-solid); border-color: var(--accent-solid);
   color: #fff; box-shadow: 0 2px 8px -2px rgba(15, 118, 110, .5); }
 .seg.two { display: grid; grid-template-columns: 1fr 1fr; }
 .two-col { display: grid; grid-template-columns: 1fr; gap: 0 14px; }
@@ -526,7 +551,7 @@ input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 2px s
 .sim-verdict.is-hold { background: var(--amber-soft); border-color: var(--amber-line); }
 .sim-badge { display: inline-block; font-size: 11.5px; font-weight: 800; letter-spacing: .02em;
   padding: 3px 9px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--ink-2); }
-.is-save .sim-badge { background: var(--accent); border-color: var(--accent); color: #fff; }
+.is-save .sim-badge { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; }
 .is-loss .sim-badge { background: var(--red); border-color: var(--red); color: #fff; }
 .is-hold .sim-badge { background: var(--amber); border-color: var(--amber); color: #fff; }
 .sim-big { font-size: 27px; font-weight: 800; letter-spacing: -0.035em; color: var(--ink);
@@ -592,6 +617,7 @@ input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 2px s
     --line: #2b342f;
     --line-2: #232b26;
     --accent: #0d9488;
+    --accent-solid: #0f766e;  /* 채움 버튼·선택 칩은 다크에서도 #0f766e 유지 → 흰 글씨 대비 5.47:1 */
     --accent-ink: #2dd4bf;
     --accent-soft: #11302b;
     --brand-line: #205048;

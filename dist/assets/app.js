@@ -398,9 +398,28 @@
   }
 
   function boot() {
+    initNavOverflow();
     Array.prototype.slice.call(document.querySelectorAll('[data-calc]')).forEach(init);
     initItemViewTracking();
     initHospTables();
+  }
+
+  // ---------------------------------------------------- 헤더 메뉴 넘김 단서 (밀크 검수 2026-11-24)
+  // 좁은 화면에서 메뉴가 넘치면 .is-scrollable 클래스를 달아 CSS 페이드로 알린다.
+  function initNavOverflow() {
+    var nav = document.querySelector('.nav');
+    if (!nav) { return; }
+    function update() {
+      var over = nav.scrollWidth > nav.clientWidth + 1;
+      nav.classList.toggle('is-scrollable', over);
+      nav.classList.toggle('is-scrolled', over && nav.scrollLeft > 4);
+    }
+    nav.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(update);
+    }
+    update();
   }
 
   // ---------------------------------------------------- 병원급 기관 목록 필터

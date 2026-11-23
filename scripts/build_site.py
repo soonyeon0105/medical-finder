@@ -44,6 +44,7 @@ ASSETS = BASE_DIR / "assets"
 DIST = BASE_DIR / "dist"
 
 SITE_NAME = "메디컬 비급여 시세 파인더"
+SITE_NAME_SHORT = "메디컬파인더"  # 좁은 화면 헤더용 축약 라벨 (밀크 검수 2026-11-24)
 SITE_BASE = "https://kr.kmedicheck.com"   # --base 로 교체
 OWNER = "내 손안에 복지 (9welfare)"
 
@@ -277,7 +278,7 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 {banner}
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="/ko/">{logo_svg(28)}<span class="txt">{esc(SITE_NAME)}</span></a>
+    <a class="logo" href="/ko/">{logo_svg(28)}<span class="txt">{esc(SITE_NAME)}</span><span class="txt-short">{esc(SITE_NAME_SHORT)}</span></a>
     <nav class="nav" aria-label="주요 메뉴">{nav_html}</nav>
   </div>
 </header>
