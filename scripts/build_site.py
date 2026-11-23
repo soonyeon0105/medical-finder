@@ -742,27 +742,29 @@ def region_hosp_card(slug: str, items: list[dict]) -> str:
 
 
 def page_regions(items: list[dict]) -> str:
-    """17개 시·도 허브 — 지역별 기관 수와 대표 항목 시세를 한 표로."""
-    rows = []
+    """17개 시·도 허브 — 지역별 기관 수와 대표 항목 시세를 카드 그리드로."""
+    cards = []
     total_hosp = 0
     total_rows = 0
     for slug, name, full, _labels in REGIONS:
         d = region_data(slug)
         total_hosp += d["hospitals"]
         total_rows += d["rows"]
-        cells = []
+        prices = []
         for code in REP_CODES:
             st = d["per_item"].get(code)
-            label = next((i["name"] for i in items if i["code"] == code), code)
-            cells.append(f'<td class="num" data-label="{esc(label)}">{won(st["median"])}<br>'
-                         f'<span class="muted">{st["n"]}곳</span></td>' if st
-                         else f'<td class="num" data-label="{esc(label)}">—</td>')
-        rows.append(
-            f'<tr><th scope="row"><a href="/ko/regions/{slug}/">{esc(name)}</a>'
-            f'<br><span class="muted" style="font-weight:500">{esc(full)}</span></th>'
-            f'<td class="num" data-label="공개 기관">{d["hospitals"]:,}곳</td>'
-            f'<td class="num" data-label="항목 응답">{d["rows"]:,}건</td>'
-            + "".join(cells) + "</tr>")
+            if st:
+                label = next((i["name"] for i in items if i["code"] == code), code)
+                prices.append(f"{esc(label)} 중간값 {won(st['median'])}")
+        price_line = (f'<span class="rc-price">{" · ".join(prices)}</span>'
+                      if prices else "")
+        cards.append(
+            f'<a class="region-card" href="/ko/regions/{slug}/">'
+            f'<span class="rc-head"><span class="rc-name">{esc(name)}</span>'
+            f'<span class="rc-full">{esc(full)}</span>'
+            f'<span class="rc-arrow" aria-hidden="true">›</span></span>'
+            f'<span class="rc-meta">공개 기관 {d["hospitals"]:,}곳 · 항목 응답 {d["rows"]:,}건</span>'
+            f'{price_line}</a>')
     faqs = [
         ("지역별로 비급여 가격이 다른가요?",
          "같은 항목이라도 지역·기관 규모·장비에 따라 신고 가격이 다릅니다. 이 사이트는 심평원이 공개한 "
@@ -792,12 +794,8 @@ def page_regions(items: list[dict]) -> str:
         <span class="pill line">항목·기관 응답 {total_rows:,}건</span>
       </div>
     </div>
-    <div class="table-wrap">
-      <table class="plain stack" style="font-size:12.5px">
-        <thead><tr><th scope="col">시·도</th><th scope="col">공개 기관</th><th scope="col">항목 응답</th>
-          <th scope="col">뇌 MRI 중간값</th><th scope="col">복부 초음파 중간값</th><th scope="col">도수치료 중간값</th></tr></thead>
-        <tbody>{''.join(rows)}</tbody>
-      </table>
+    <div class="region-grid">
+      {''.join(cards)}
     </div>
     <p class="calc-foot">기관 수는 같은 병원이 여러 항목에 응답한 경우 1곳으로 셉니다. 금액은 병원급 이상 공개가(기관별 최저·최고의 중간값)의 지역 중간값이며,
       도수치료는 2026-07-01 관리급여 전환 전 공개자료 기준입니다. {esc(DATA_PERIOD)}</p>
