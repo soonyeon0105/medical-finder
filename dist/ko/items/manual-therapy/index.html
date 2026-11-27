@@ -137,12 +137,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <label for="gen2-select">2세대 가입 시기·유형</label>
         <select id="gen2-select">
           <option value="unknown" selected>모르겠어요</option>
-          <option value="early">선택형Ⅰ · 2013년 3월까지 가입 (자기부담 10%)</option>
+          <option value="early">전기 · 2013년 3월까지 가입 (자기부담 10%)</option>
           <option value="late10">선택형(10%형) · 2013년 4월~2015년 8월 가입</option>
           <option value="late20">표준형(20%형) · 2013년 1월~2017년 3월 가입</option>
           <option value="sel2">선택형Ⅱ · 2015년 9월~2017년 3월 가입 (급여 10% · 비급여 20%)</option>
         </select>
-        <div class="row-note">보험증권 첫 장의 가입일·상품명에서 확인하세요. 가입일이 겹치는 기간(2013년 4월~2015년 8월)에는 증권의 상품명에 '표준형'이나 '선택형'이 적혀 있습니다. 결과 표에서 2세대는 전기·후기 두 행으로 나눠 보여 주고, '모르겠어요'를 고르면 후기 행에 10%형~20%형 범위가 표시됩니다.</div>
+        <div class="row-note">보험증권 첫 장의 가입일·상품명에서 확인하세요. 가입일이 겹치는 기간(2013년 4월~2015년 8월)에는 증권의 상품명에 '표준형'이나 '선택형'이 적혀 있습니다. 결과 표에서 2세대는 전기·후기 두 행으로 나눠 보여 주고, '모르겠어요'를 고르면 후기 행에 10%형~20%형 범위가 표시됩니다. 2013년 1월~3월에 가입했다면 증권에서 상품명을 확인하세요(표준형으로 가입한 경우 15년마다 재가입합니다).</div>
       </div>
     </div>
     
@@ -162,7 +162,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <span class="label" id="pilot-gen2-label">2세대 가입 시기·유형 <span class="hint">(2013년 3월 경계)</span></span>
       <div class="seg pilot-gen pilot-gen2-sub" id="pilot-gen2-group" role="group" aria-labelledby="pilot-gen2-label">
         <button type="button" data-mygen2="unknown" aria-pressed="true">모르겠어요</button>
-        <button type="button" data-mygen2="early" aria-pressed="false">선택형Ⅰ · 2013년 3월 이전 (10%)</button>
+        <button type="button" data-mygen2="early" aria-pressed="false">전기 · 2013년 3월 이전 (10%)</button>
         <button type="button" data-mygen2="late10" aria-pressed="false">선택형 · 2013.4~2015.8 (10%)</button>
         <button type="button" data-mygen2="late20" aria-pressed="false">표준형 · 20%형</button>
         <button type="button" data-mygen2="sel2" aria-pressed="false">선택형Ⅱ · 2015.9~ (급여 10% · 비급여 20%)</button>
@@ -236,12 +236,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <summary>계산 기준 자세히 보기</summary>
       <ul class="limits" style="font-size:12.5px">
         <li>1세대: 입원 100%, 통원 5,000원 공제 후 100% (표준형 기준 · 약관 차이 있음)</li>
-        <li>2세대 전기(2013.3 이전 가입 · 선택형Ⅰ): 비급여 본인부담 10% · 통원 정액 공제만(의원 1만·종합병원·병원 1.5만·상급종합 2만) —
+        <li>2세대 전기(2013.3 이전 가입): 비급여 본인부담 10% · 통원 정액 공제만(의원 1만·종합병원·병원 1.5만·상급종합 2만) —
           재가입 절차가 없는 유형입니다(약관 기준). 단, 2013년 1월~3월에 표준형으로 가입한 경우 15년마다 재가입합니다.</li>
         <li>2세대 후기: 10%형(선택형 · 2013.4~2015.8 판매)은 비급여 본인부담 10% · 통원 정액 공제만,
           표준형(20%형 · 2013.1~2017.3)은 급여·비급여 본인부담 20% · 통원 Max(20%, 외래공제),
           선택형Ⅱ(2015.9~2017.3)는 급여 10% · 비급여 20% · 통원 Max(형별 %, 외래공제) — 15년마다 재가입.
-          관리급여는 전기·후기 10%형·선택형Ⅱ 10% 적용, 표준형 20% 적용. 통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 연간 180회, 입원 보상한도: 연간 5,000만원 (표준약관 기준).</li>
+          관리급여는 전기·후기 10%형·선택형Ⅱ 10% 적용, 표준형 20% 적용. 통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 외래·처방조제 각각 연간 180회, 입원 보상한도: 상해·질병당 5,000만원 (표준약관 기준).</li>
         <li>3세대: 기본 비급여 20% · 특약(도수·체외충격파·증식·비급여 주사·MRI)은 통원 Max(30%, 2만원)</li>
         <li>4세대: 비급여 입원 30% · 통원 Max(30%, 3만원), 통원 회당 보장 20만원 한도</li>
         <li>5세대: 특약1(중증) 입원 30%·통원 Max(30%, 3만원) / 특약2(비중증) 입원 50%·통원 Max(50%, 5만원),
@@ -383,7 +383,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         건강보험심사평가원 비급여진료비정보조회서비스<br>
         공공데이터포털 15001700 · 공공누리 제1유형<br>
         통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
-        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-28 03:06 KST</span>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-28 03:45 KST</span>
       </div>
     </div>
     <div class="legal">
@@ -395,13 +395,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
       <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
       K-MediCheck 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
-      내 손안에 복지 (9welfare) · 2026-11-28 03:06 KST 빌드.
+      내 손안에 복지 (9welfare) · 2026-11-28 03:45 KST 빌드.
     </div>
   </div>
 </footer>
-<script src="/assets/calc.js?v=bebd9b7b" defer></script>
+<script src="/assets/calc.js?v=63b273c1" defer></script>
 <script src="/assets/med-data.js" defer></script>
-<script src="/assets/app.js?v=56dffca0" defer></script>
+<script src="/assets/app.js?v=91c3855a" defer></script>
 
 
 <script>

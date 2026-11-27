@@ -20,7 +20,7 @@ scripts/crosscheck_calc.py 가 수천 건 조합으로 전수 검증한다.
 근거: 금융위 2012-12-21 보도자료(표준형 20% 단독상품 2013.1.1 출시 · 90% 보장형 병존 ·
 특약상품 2013.4.1 제도 변경 · 외래 25만원/처방조제 5만원 한도), 시기별 상세표
 (2009.10~2012.12 / 2013.1~2015.8 / 2015.9~2017.3 — 2차 확인, 1차 약관 원문 미확보).
-  · early  선택형Ⅰ (2009.10~2013.3 가입): 급여·비급여 10% · 통원 정액만 · 재가입 없음
+  · early  전기 (2009.10~2013.3 가입): 급여·비급여 10% · 통원 정액만 · 재가입 없음
           (단, 2013.1~3 표준형 가입자는 15년마다 재가입 — 예외 한 줄 별도 표기)
   · late10 선택형(10%형, 2013.4~2015.8 판매): 급여·비급여 10% · 통원 정액만 · 15년마다 재가입
   · late20 표준형 (2013.1~2017.3): 급여·비급여 20% · 통원 Max(20%, 정액) · 관리급여 20% · 15년마다 재가입
@@ -205,7 +205,7 @@ def _normalize(req: dict, items: list[dict]) -> dict:
         "visit": visit,
         "institution": inst,
         "severe": bool(req.get("severe", False)),
-        # 2세대 유형: early(선택형Ⅰ) · late10(후기 10%형) · late20(표준형) · sel2(선택형Ⅱ) ·
+        # 2세대 유형: early(전기) · late10(후기 10%형) · late20(표준형) · sel2(선택형Ⅱ) ·
         # unknown(모르겠어요). 레거시 standard는 표준형(late20), select2는 선택형Ⅱ(sel2)로 읽는다.
         "gen2_type": _gen2_legacy(req.get("gen2_type")),
         "severe_cum": max(0, int(req.get("severe_cum", 0) or 0)),
@@ -220,12 +220,12 @@ def _limits_for(gen: int, ctx: dict, item: dict, sub: str | None = None) -> list
     if gen == 1:
         notes.append("세대 표준형 기준 · 상품별 약관(한도·자기부담) 차이 있음")
     elif gen == 2:
-        notes.append("통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 연간 180회 (표준약관 기준)")
-        notes.append("입원 보상한도: 연간 5,000만원 (표준약관 기준)")
+        notes.append("통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 외래·처방조제 각각 연간 180회 (표준약관 기준)")
+        notes.append("입원 보상한도: 상해·질병당 5,000만원 (표준약관 기준)")
         if managed:
             notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(표준형은 80%)")
         if sub == "early":
-            notes.append("2013년 3월 이전 가입(전기·선택형Ⅰ) — 재가입 절차가 없는 유형입니다(약관 기준)")
+            notes.append("2013년 3월 이전 가입(전기) — 재가입 절차가 없는 유형입니다(약관 기준)")
             notes.append("단, 2013년 1월~3월에 표준형으로 가입한 경우 15년마다 재가입합니다 — 증권에서 확인하세요")
         elif ctx["gen2_type"] == "unknown":
             notes.append("2013년 4월 이후 가입(후기) · 자기부담 10%형/20%형 — 유형을 모르면 세 유형의 범위로 표시합니다")
@@ -354,6 +354,8 @@ def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
             unit["covered"] = base - unit["copay"]
             unit["covered_lo"] = (base - unit["copay_hi"]) if unit["copay_hi"] is not None else None
         unit["base"] = base
+        # 부이 #1296 — 이 분기는 rounds=1로 재귀 호출하므로 per_visit을 여기서 직접 정한다.
+        unit["per_visit"] = gen == 2
         return unit
 
     # 약관상 보장 제외 항목(시력교정술·예방접종·치과 비급여 보철 등)
@@ -547,6 +549,8 @@ def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
         "limits": limits,
         "cap_applied": cap_applied,
         "cap_outpatient": cap_outpatient,
+        # 부이 #1296 — 관리급여 통원 2회 이상: 공제가 방문 1회마다 따로 적용됨을 표에 한 줄로 푼다.
+        "per_visit": gen == 2 and managed and visit == "out" and ctx["rounds"] > 1,
     }
 
 

@@ -55,7 +55,7 @@ GEN_FIELD = """
       <span class="label" id="pilot-gen2-label">2세대 가입 시기·유형 <span class="hint">(2013년 3월 경계)</span></span>
       <div class="seg pilot-gen pilot-gen2-sub" id="pilot-gen2-group" role="group" aria-labelledby="pilot-gen2-label">
         <button type="button" data-mygen2="unknown" aria-pressed="true">모르겠어요</button>
-        <button type="button" data-mygen2="early" aria-pressed="false">선택형Ⅰ · 2013년 3월 이전 (10%)</button>
+        <button type="button" data-mygen2="early" aria-pressed="false">전기 · 2013년 3월 이전 (10%)</button>
         <button type="button" data-mygen2="late10" aria-pressed="false">선택형 · 2013.4~2015.8 (10%)</button>
         <button type="button" data-mygen2="late20" aria-pressed="false">표준형 · 20%형</button>
         <button type="button" data-mygen2="sel2" aria-pressed="false">선택형Ⅱ · 2015.9~ (급여 10% · 비급여 20%)</button>

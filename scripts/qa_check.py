@@ -346,6 +346,10 @@ def main() -> int:
         ("도수치료 10회 입원·상급 2세대 표준형(관리급여 20%)", dict(item_code="MX1220000", amount=None, rounds=10,
                                                      visit="in", institution="tertiary", gen2_type="late20"),
          (2, "late"), 333260, 83315, "covered"),
+        # 인스팅트 #1283 권고 ① — 선택형Ⅱ 도수치료 입원 행 추가(급여 10% 적용 시 전기와 같은 41,658원)
+        ("도수치료 10회 입원·상급 2세대 선택형Ⅱ(관리급여 10%)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="in", institution="tertiary", gen2_type="sel2"),
+         (2, "late"), 374917, 41658, "covered"),
         ("뇌MRI 1,000,000 입원 상급 5세대 중증·연 500만 상한 초과분", dict(
             item_code="HE1010001", amount=1000000, visit="in", institution="tertiary",
             severe=True, severe_cum=4900000), 5, 900000, 100000, "covered"),

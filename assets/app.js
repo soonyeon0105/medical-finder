@@ -302,6 +302,10 @@
         if (r.cap_outpatient) {
           tdNote.appendChild(el('div', 'cap-note', '외래 하루 보장 한도 25만원을 넘는 금액은 본인 부담입니다'));
         }
+        // 부이 #1296 — 관리급여 통원 2회 이상: 공제가 방문 1회마다 따로 적용됨을 금액 바로 아래 한 줄로 푼다.
+        if (r.per_visit) {
+          tdNote.appendChild(el('div', 'cap-note', '병원 방문 1회마다 공제가 따로 적용돼요(하루 1회 방문 기준)'));
+        }
         // 부이 #1278 ② — 범위일 때 배수 안내 + 선택하기 링크를 숫자 옆 메모 셀에 붙인다.
         var rn = rangeNote(r);
         if (rn) { tdNote.appendChild(rn); }

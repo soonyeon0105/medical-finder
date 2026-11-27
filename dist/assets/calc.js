@@ -148,11 +148,11 @@
     if (gen === 1) {
       notes.push('세대 표준형 기준 · 상품별 약관(한도·자기부담) 차이 있음');
     } else if (gen === 2) {
-      notes.push('통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 연간 180회 (표준약관 기준)');
-      notes.push('입원 보상한도: 연간 5,000만원 (표준약관 기준)');
+      notes.push('통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 외래·처방조제 각각 연간 180회 (표준약관 기준)');
+      notes.push('입원 보상한도: 상해·질병당 5,000만원 (표준약관 기준)');
       if (managed) { notes.push('관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(표준형은 80%)'); }
       if (sub === 'early') {
-        notes.push('2013년 3월 이전 가입(전기·선택형Ⅰ) — 재가입 절차가 없는 유형입니다(약관 기준)');
+        notes.push('2013년 3월 이전 가입(전기) — 재가입 절차가 없는 유형입니다(약관 기준)');
         notes.push('단, 2013년 1월~3월에 표준형으로 가입한 경우 15년마다 재가입합니다 — 증권에서 확인하세요');
       } else if (ctx.gen2_type === 'unknown') {
         notes.push('2013년 4월 이후 가입(후기) · 자기부담 10%형/20%형 — 유형을 모르면 세 유형의 범위로 표시합니다');
@@ -278,6 +278,8 @@
         unit.covered_lo = (unit.copay_hi !== null && unit.copay_hi !== undefined) ? base - unit.copay_hi : null;
       }
       unit.base = base;
+      // 부이 #1296 — 이 분기는 rounds:1 로 재귀 호출하므로 per_visit을 여기서 직접 정한다.
+      unit.per_visit = gen === 2;
       return unit;
     }
     var excludedGens = item.excluded_gens || [];
@@ -465,7 +467,9 @@
       badges: badges,
       limits: limits,
       cap_applied: capApplied,
-      cap_outpatient: capOutpatient
+      cap_outpatient: capOutpatient,
+      // 부이 #1296 — 관리급여 통원 2회 이상: 공제가 방문 1회마다 따로 적용됨을 표에 한 줄로 푼다.
+      per_visit: gen === 2 && managed && ctx.visit === 'out' && ctx.rounds > 1
     };
   }
 

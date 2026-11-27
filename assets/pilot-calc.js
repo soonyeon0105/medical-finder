@@ -227,9 +227,12 @@
       if (it && it.payment === '관리급여') {
         var burden95 = row.covered + row.copay;
         var insurer = res.input.amount - burden95;
+        // 부이 #1296 — 2세대·통원·2회 이상: 공제가 방문 1회마다 따로 적용됨을 금액 바로 아래 한 줄로 푼다.
+        var perVisitNote = (myGen === 2 && st.visit === 'out' && st.rounds > 1)
+          ? ' 병원 방문 1회마다 공제가 따로 적용돼요(하루 1회 방문 기준).' : '';
         sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
           ' · ' + st.rounds + '회 진료비 ' + won(res.input.amount) + ' 중 건강보험 본인부담 ' + won(burden95) +
-          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.' + rangeNote(row) + rejoinNote;
+          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.' + perVisitNote + rangeNote(row) + rejoinNote;
       } else {
         sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
           ' · 진료비 ' + won(res.input.amount) + ' 중 내가 내는 금액입니다.' + rangeNote(row) + rejoinNote;
