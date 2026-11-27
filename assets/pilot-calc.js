@@ -228,11 +228,30 @@
         var burden95 = row.covered + row.copay;
         var insurer = res.input.amount - burden95;
         // 부이 #1296 — 2세대·통원·2회 이상: 공제가 방문 1회마다 따로 적용됨을 금액 바로 아래 한 줄로 푼다.
-        var perVisitNote = (myGen === 2 && st.visit === 'out' && st.rounds > 1)
+        // 부이 #1310 ② — 3·4세대도 회당 공제 × 횟수라 같은 한 줄을 붙인다.
+        var perVisitNote = ((myGen === 2 || myGen === 3 || myGen === 4) && st.visit === 'out' && st.rounds > 1)
           ? ' 병원 방문 1회마다 공제가 따로 적용돼요(하루 1회 방문 기준).' : '';
+        // 부이 #1310 ① — 1회 통원: 외래공제가 지배해 2세대 세부 유형 5개가 모두 같은 금액이면
+        // 버튼을 눌러도 숫자가 안 바뀐다는 것을 한 줄로 밝힌다. 금액을 바꿔 유형별 금액이
+        // 달라지는 경우에는 거짓 안내가 되므로, '모르겠어요' 범위로 실제 동일함을 확인한 때만 붙인다.
+        var oneRoundNote = '';
+        if (myGen === 2 && st.visit === 'out' && st.rounds === 1) {
+          try {
+            var resU = window.MedCalc.compute(Object.assign({}, st, { gen2_type: 'unknown' }), items);
+            var eRow = null, lRow = null;
+            resU.generations.forEach(function (r) {
+              if (r.gen === 2 && r.sub === 'early') { eRow = r; }
+              if (r.gen === 2 && r.sub === 'late') { lRow = r; }
+            });
+            if (eRow && lRow && (lRow.copay_hi === null || lRow.copay_hi === undefined) &&
+                eRow.copay === lRow.copay) {
+              oneRoundNote = ' 1회는 유형과 관계없이 같아요.';
+            }
+          } catch (e) { /* 무시 — 확인이 안 되면 붙이지 않는다 */ }
+        }
         sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
           ' · ' + st.rounds + '회 진료비 ' + won(res.input.amount) + ' 중 건강보험 본인부담 ' + won(burden95) +
-          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.' + perVisitNote + rangeNote(row) + rejoinNote;
+          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.' + perVisitNote + oneRoundNote + rangeNote(row) + rejoinNote;
       } else {
         sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
           ' · 진료비 ' + won(res.input.amount) + ' 중 내가 내는 금액입니다.' + rangeNote(row) + rejoinNote;

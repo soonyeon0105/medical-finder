@@ -279,7 +279,8 @@
       }
       unit.base = base;
       // 부이 #1296 — 이 분기는 rounds:1 로 재귀 호출하므로 per_visit을 여기서 직접 정한다.
-      unit.per_visit = gen === 2;
+      // 부이 #1310 ② — 3·4세대 행에도 같은 한 줄을 붙인다(회당 공제 × 횟수라 값은 규칙대로).
+      unit.per_visit = gen === 2 || gen === 3 || gen === 4;
       return unit;
     }
     var excludedGens = item.excluded_gens || [];
@@ -469,7 +470,8 @@
       cap_applied: capApplied,
       cap_outpatient: capOutpatient,
       // 부이 #1296 — 관리급여 통원 2회 이상: 공제가 방문 1회마다 따로 적용됨을 표에 한 줄로 푼다.
-      per_visit: gen === 2 && managed && ctx.visit === 'out' && ctx.rounds > 1
+      // 부이 #1310 ② — 3·4세대 행에도 같은 한 줄을 붙인다.
+      per_visit: (gen === 2 || gen === 3 || gen === 4) && managed && ctx.visit === 'out' && ctx.rounds > 1
     };
   }
 
