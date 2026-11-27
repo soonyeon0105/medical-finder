@@ -21,7 +21,7 @@
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css?v=26419866">
-<link rel="stylesheet" href="/assets/style.css?v=c3fb8c7b">
+<link rel="stylesheet" href="/assets/style.css?v=cc4c3396">
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -130,7 +130,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <option value="late20">표준형(20%형) · 2013년 1월~2017년 3월 가입</option>
           <option value="sel2">선택형Ⅱ · 2015년 9월~2017년 3월 가입 (급여 10% · 비급여 20%)</option>
         </select>
-        <div class="row-note">보험증권 첫 장의 가입일·상품명에서 확인하세요. 결과 표에서 2세대는 전기·후기 두 행으로 나눠 보여 주고, '모르겠어요'를 고르면 후기 행에 10%형~20%형 범위가 표시됩니다.</div>
+        <div class="row-note">보험증권 첫 장의 가입일·상품명에서 확인하세요. 가입일이 겹치는 기간(2013년 4월~2015년 8월)에는 증권의 상품명에 '표준형'이나 '선택형'이 적혀 있습니다. 결과 표에서 2세대는 전기·후기 두 행으로 나눠 보여 주고, '모르겠어요'를 고르면 후기 행에 10%형~20%형 범위가 표시됩니다.</div>
       </div>
     </div>
     <div class="field" id="rounds-row" style="display:none">
@@ -180,7 +180,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <summary>계산 기준 자세히 보기</summary>
       <ul class="limits" style="font-size:12.5px">
         <li>1세대: 입원 100%, 통원 5,000원 공제 후 100% (표준형 기준 · 약관 차이 있음)</li>
-        <li>2세대 전기(2013.3 이전 가입 · 선택형Ⅰ): 비급여 본인부담 10% · 통원 정액 공제만(의원 1만·병원 1.5만·종합/상급 2만) —
+        <li>2세대 전기(2013.3 이전 가입 · 선택형Ⅰ): 비급여 본인부담 10% · 통원 정액 공제만(의원 1만·종합병원·병원 1.5만·상급종합 2만) —
           재가입 절차가 없는 유형입니다(약관 기준). 단, 2013년 1월~3월에 표준형으로 가입한 경우 15년마다 재가입합니다.</li>
         <li>2세대 후기: 10%형(선택형 · 2013.4~2015.8 판매)은 비급여 본인부담 10% · 통원 정액 공제만,
           표준형(20%형 · 2013.1~2017.3)은 급여·비급여 본인부담 20% · 통원 Max(20%, 외래공제),
@@ -478,7 +478,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="table-wrap">
   <table class="plain stack">
     <thead><tr><th scope="col">세대</th><th scope="col">급여 자기부담</th><th scope="col">비급여 자기부담</th><th scope="col">통원 공제 · 한도</th></tr></thead>
-    <tbody><tr><th scope="row">1세대<br><span style="font-weight:500;color:var(--muted)">~2009.9</span></th><td data-label="급여 자기부담">입원 0%(전액 보장) · 통원 5,000원 공제</td><td data-label="비급여 자기부담">입원 0%(전액 보장) · 통원 5,000원 공제</td><td data-label="통원 공제 · 한도">상품·시기별 약관 차이가 가장 큼</td></tr><tr><th scope="row">2세대 전기<br><span style="font-weight:500;color:var(--muted)">2009.10~2013.3</span></th><td data-label="급여 자기부담">10%</td><td data-label="비급여 자기부담">10%</td><td data-label="통원 공제 · 한도">선택형Ⅰ · 자기부담 10% 단일 · 재가입 조건 없음 · 통원 정액 공제만(의원 1만·병원 1.5만·종합/상급 2만)</td></tr><tr><th scope="row">2세대 후기 10%형<br><span style="font-weight:500;color:var(--muted)">2013.4~2015.8</span></th><td data-label="급여 자기부담">10%</td><td data-label="비급여 자기부담">10%</td><td data-label="통원 공제 · 한도">선택형 · 자기부담 10% · 15년마다 재가입 · 통원 정액 공제만(의원 1만·병원 1.5만·종합/상급 2만)</td></tr><tr><th scope="row">2세대 후기 표준형<br><span style="font-weight:500;color:var(--muted)">2013.1~2017.3</span></th><td data-label="급여 자기부담">20%</td><td data-label="비급여 자기부담">20%</td><td data-label="통원 공제 · 한도">표준형 · 급여·비급여 자기부담 20% · 15년마다 재가입 · 통원 Max(20%, 의원 1만·병원 1.5만·종합/상급 2만)</td></tr><tr><th scope="row">2세대 후기 선택형Ⅱ<br><span style="font-weight:500;color:var(--muted)">2015.9~2017.3</span></th><td data-label="급여 자기부담">10%</td><td data-label="비급여 자기부담">20%</td><td data-label="통원 공제 · 한도">선택형Ⅱ · 급여 10% · 비급여 20% · 15년마다 재가입 · 통원 Max(형별 %, 의원 1만·병원 1.5만·종합/상급 2만)</td></tr><tr><th scope="row">3세대(착한실손)<br><span style="font-weight:500;color:var(--muted)">2017.4~2021.6</span></th><td data-label="급여 자기부담">20%</td><td data-label="비급여 자기부담">기본 20% · 특약 30%</td><td data-label="통원 공제 · 한도">특약(도수·체외충격파·증식·비급여 주사·MRI) 통원 Max(30%, 2만원) · 갱신 15년</td></tr><tr><th scope="row">4세대<br><span style="font-weight:500;color:var(--muted)">2021.7~2026.4</span></th><td data-label="급여 자기부담">입원 20% · 통원 Max(20%, 1·2만원)</td><td data-label="비급여 자기부담">입원 30% · 통원 Max(30%, 3만원)</td><td data-label="통원 공제 · 한도">통원 회당 보장 20만원 · 연 5천만원 · 비급여 차등할증</td></tr><tr><th scope="row">5세대<br><span style="font-weight:500;color:var(--muted)">2026.5.6 출시~</span></th><td data-label="급여 자기부담">입원 20% · 통원 Max(건보 본인부담률, 20%, 1·2만원)</td><td data-label="비급여 자기부담">특약1(중증) 입원 30% · 통원 Max(30%, 3만원) / 특약2(비중증) 입원 50% · 통원 Max(50%, 5만원)</td><td data-label="통원 공제 · 한도">특약1 연 5천만·통원 회당 20만 / 특약2 연 1천만·통원 일당 20만·입원 회당 300만</td></tr></tbody>
+    <tbody><tr><th scope="row">1세대<br><span style="font-weight:500;color:var(--muted)">~2009.9</span></th><td data-label="급여 자기부담">입원 0%(전액 보장) · 통원 5,000원 공제</td><td data-label="비급여 자기부담">입원 0%(전액 보장) · 통원 5,000원 공제</td><td data-label="통원 공제 · 한도">상품·시기별 약관 차이가 가장 큼</td></tr><tr><th scope="row">2세대 전기<br><span style="font-weight:500;color:var(--muted)">2009.10~2013.3</span></th><td data-label="급여 자기부담">10%</td><td data-label="비급여 자기부담">10%</td><td data-label="통원 공제 · 한도">선택형Ⅰ · 자기부담 10% 단일 · 재가입 조건 없음 · 통원 정액 공제만(의원 1만·종합병원·병원 1.5만·상급종합 2만)</td></tr><tr><th scope="row">2세대 후기 10%형<br><span style="font-weight:500;color:var(--muted)">2013.4~2015.8</span></th><td data-label="급여 자기부담">10%</td><td data-label="비급여 자기부담">10%</td><td data-label="통원 공제 · 한도">선택형 · 자기부담 10% · 15년마다 재가입 · 통원 정액 공제만(의원 1만·종합병원·병원 1.5만·상급종합 2만)</td></tr><tr><th scope="row">2세대 후기 표준형<br><span style="font-weight:500;color:var(--muted)">2013.1~2017.3</span></th><td data-label="급여 자기부담">20%</td><td data-label="비급여 자기부담">20%</td><td data-label="통원 공제 · 한도">표준형 · 급여·비급여 자기부담 20% · 15년마다 재가입 · 통원 Max(20%, 의원 1만·종합병원·병원 1.5만·상급종합 2만)</td></tr><tr><th scope="row">2세대 후기 선택형Ⅱ<br><span style="font-weight:500;color:var(--muted)">2015.9~2017.3</span></th><td data-label="급여 자기부담">10%</td><td data-label="비급여 자기부담">20%</td><td data-label="통원 공제 · 한도">선택형Ⅱ · 급여 10% · 비급여 20% · 15년마다 재가입 · 통원 Max(형별 %, 의원 1만·종합병원·병원 1.5만·상급종합 2만)</td></tr><tr><th scope="row">3세대(착한실손)<br><span style="font-weight:500;color:var(--muted)">2017.4~2021.6</span></th><td data-label="급여 자기부담">20%</td><td data-label="비급여 자기부담">기본 20% · 특약 30%</td><td data-label="통원 공제 · 한도">특약(도수·체외충격파·증식·비급여 주사·MRI) 통원 Max(30%, 2만원) · 갱신 15년</td></tr><tr><th scope="row">4세대<br><span style="font-weight:500;color:var(--muted)">2021.7~2026.4</span></th><td data-label="급여 자기부담">입원 20% · 통원 Max(20%, 1·2만원)</td><td data-label="비급여 자기부담">입원 30% · 통원 Max(30%, 3만원)</td><td data-label="통원 공제 · 한도">통원 회당 보장 20만원 · 연 5천만원 · 비급여 차등할증</td></tr><tr><th scope="row">5세대<br><span style="font-weight:500;color:var(--muted)">2026.5.6 출시~</span></th><td data-label="급여 자기부담">입원 20% · 통원 Max(건보 본인부담률, 20%, 1·2만원)</td><td data-label="비급여 자기부담">특약1(중증) 입원 30% · 통원 Max(30%, 3만원) / 특약2(비중증) 입원 50% · 통원 Max(50%, 5만원)</td><td data-label="통원 공제 · 한도">특약1 연 5천만·통원 회당 20만 / 특약2 연 1천만·통원 일당 20만·입원 회당 300만</td></tr></tbody>
   </table>
 </div>
 <p class="calc-foot">표의 %는 모두 <b>자기부담률</b>(환자가 부담하는 비중)입니다.
@@ -551,7 +551,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         건강보험심사평가원 비급여진료비정보조회서비스<br>
         공공데이터포털 15001700 · 공공누리 제1유형<br>
         통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
-        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-28 01:46 KST</span>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-28 03:06 KST</span>
       </div>
     </div>
     <div class="legal">
@@ -563,13 +563,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
       <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
       K-MediCheck 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
-      내 손안에 복지 (9welfare) · 2026-11-28 01:46 KST 빌드.
+      내 손안에 복지 (9welfare) · 2026-11-28 03:06 KST 빌드.
     </div>
   </div>
 </footer>
-<script src="/assets/calc.js?v=29af2e48" defer></script>
+<script src="/assets/calc.js?v=bebd9b7b" defer></script>
 <script src="/assets/med-data.js" defer></script>
-<script src="/assets/app.js?v=4732e3f1" defer></script>
+<script src="/assets/app.js?v=56dffca0" defer></script>
 
 </body>
 </html>

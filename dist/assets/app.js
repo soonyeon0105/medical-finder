@@ -25,6 +25,27 @@
     if (text !== undefined && text !== null) { n.textContent = text; }
     return n;
   }
+
+  // 부이 #1278 ② — '모르겠어요' 범위 안내(배수 + 증권 확인 + 선택하기 링크).
+  // 표의 보장액·부담액 셀은 교차검증이 텍스트 그대로 비교하므로, 안내 문구는 메모 셀에 둔다.
+  function rangeNote(r) {
+    if (r.copay_hi === null || r.copay_hi === undefined || !r.copay) { return null; }
+    var ratio = Math.round(r.copay_hi / r.copay);
+    var note = el('div', 'range-note');
+    note.appendChild(document.createTextNode(
+      ratio >= 2
+        ? '가입 상품에 따라 최대 ' + ratio + '배 차이 — 증권에서 상품명을 확인하면 정확히 나와요 '
+        : '가입 상품에 따라 달라요 — 증권에서 상품명을 확인하면 정확히 나와요 '));
+    var a = el('a', null, '선택하기');
+    a.href = '#gen2-select';
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var sel = document.querySelector('#gen2-select');
+      if (sel) { sel.scrollIntoView({ behavior: 'smooth', block: 'center' }); sel.focus({ preventScroll: true }); }
+    });
+    note.appendChild(a);
+    return note;
+  }
   function itemByCode(code) {
     for (var i = 0; i < CAT.length; i++) { if (CAT[i].code === code) { return CAT[i]; } }
     return null;
@@ -277,6 +298,13 @@
           }
         }
         tdNote.appendChild(bd);
+        // 부이 #1279 ③ — 외래 하루 25만원 한도가 걸린 행은 그 줄에 한 줄로 푼다.
+        if (r.cap_outpatient) {
+          tdNote.appendChild(el('div', 'cap-note', '외래 하루 보장 한도 25만원을 넘는 금액은 본인 부담입니다'));
+        }
+        // 부이 #1278 ② — 범위일 때 배수 안내 + 선택하기 링크를 숫자 옆 메모 셀에 붙인다.
+        var rn = rangeNote(r);
+        if (rn) { tdNote.appendChild(rn); }
         if (r.status === 'excluded') {
           tdNote.appendChild(el('div', 'zero-note', '보장 제외 → 전액 본인부담'));
         }
@@ -306,6 +334,8 @@
         right.appendChild(el('div', 'lbl', '환자 최종 부담'));
         right.appendChild(el('div', 'big', (best.copay_hi !== null && best.copay_hi !== undefined)
           ? fmt(best.copay) + ' ~ ' + fmt(best.copay_hi) : fmt(best.copay)));
+        var rn3 = rangeNote(best);
+        if (rn3) { right.appendChild(rn3); }
         box.appendChild(right);
         summary.appendChild(box);
       }

@@ -27,6 +27,28 @@
     return ' 유형에 따라 보장액 ' + won(row.covered_lo) + '~' + won(row.covered) +
       ' · 최종 부담 ' + won(row.copay) + '~' + won(row.copay_hi) + ' 범위입니다.';
   }
+
+  // 부이 #1278 ② — 히어로 범위 안내(배수 + 증권 확인 + 선택하기 링크). #pilot-hero-range에 둔다.
+  function setHeroRange(row) {
+    var rangeEl = document.querySelector('#pilot-hero-range');
+    if (!rangeEl) { return; }
+    rangeEl.innerHTML = '';
+    if (!row || row.copay_hi === null || row.copay_hi === undefined || !row.copay) { return; }
+    var ratio = Math.round(row.copay_hi / row.copay);
+    rangeEl.appendChild(document.createTextNode(
+      ratio >= 2
+        ? '가입 상품에 따라 최대 ' + ratio + '배 차이 — 증권에서 상품명을 확인하면 정확히 나와요 '
+        : '가입 상품에 따라 달라요 — 증권에서 상품명을 확인하면 정확히 나와요 '));
+    var a = document.createElement('a');
+    a.href = '#pilot-gen2-group';
+    a.textContent = '선택하기';
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var g = document.querySelector('#pilot-gen2-group');
+      if (g) { g.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    });
+    rangeEl.appendChild(a);
+  }
   function isMine(r) {
     if (r.gen !== myGen) { return false; }
     if (myGen !== 2) { return true; }
@@ -139,6 +161,7 @@
       lbl.textContent = '내 최종 부담';
       num.textContent = '세대를 고르면 크게 표시됩니다';
       num.classList.add('pilot-hero-num--guide');
+      setHeroRange(null);
       sub.textContent = '내 실손 세대를 모르면 아래 비교표에서 세대별로 확인하세요.';
       // 모름 상태에서는 전체 비교표가 보이고 '다른 세대와 비교' 접기는 숨긴다.
       if (st.amount > 0) {
@@ -152,6 +175,7 @@
       lbl.textContent = '내 최종 부담';
       num.textContent = '금액을 입력해 주세요';
       num.classList.add('pilot-hero-num--guide');
+      setHeroRange(null);
       sub.textContent = '';
       return;
     }
@@ -166,9 +190,22 @@
 
     lbl.textContent = '내 최종 부담 · ' + row.name + ' 기준';
     num.classList.remove('pilot-hero-num--guide');
-    // '모르겠어요' 후기 행은 범위로 표시한다(부이 #1245 ①).
-    num.textContent = row.copay_hi !== null && row.copay_hi !== undefined
-      ? won(row.copay) + ' ~ ' + won(row.copay_hi) : won(row.copay);
+    // 부이 #1245 ①·#1279 ④ — '모르겠어요' 후기 행은 범위로 표시한다. 375/360px에서
+    // 한 줄에 안 들어가므로(32px) 글자를 줄이지 않고 하한/상한 두 줄로 나눈다.
+    if (row.copay_hi !== null && row.copay_hi !== undefined) {
+      num.innerHTML = '';
+      var lo = document.createElement('div');
+      lo.className = 'pilot-hero-range-line';
+      lo.textContent = '하한 ' + won(row.copay);
+      var hi = document.createElement('div');
+      hi.className = 'pilot-hero-range-line';
+      hi.textContent = '상한 ' + won(row.copay_hi);
+      num.appendChild(lo);
+      num.appendChild(hi);
+    } else {
+      num.textContent = won(row.copay);
+    }
+    setHeroRange(row);
     var rejoinNote = '';
     if (row.sub === 'early') {
       rejoinNote = ' 전기(2013년 3월 이전 가입)는 재가입 조건이 없어 보장이 그대로 유지됩니다' +

@@ -60,7 +60,7 @@ GEN_FIELD = """
         <button type="button" data-mygen2="late20" aria-pressed="false">표준형 · 20%형</button>
         <button type="button" data-mygen2="sel2" aria-pressed="false">선택형Ⅱ · 2015.9~ (급여 10% · 비급여 20%)</button>
       </div>
-      <div class="row-note">전기는 재가입 조건이 없고(단, 2013년 1월~3월 표준형 가입자는 15년마다 재가입), 후기는 15년마다 재가입하는 유형입니다. 보험증권 첫 장의 가입일·상품명에서 확인하세요.</div>
+      <div class="row-note">전기는 재가입 조건이 없고(단, 2013년 1월~3월 표준형 가입자는 15년마다 재가입), 후기는 15년마다 재가입하는 유형입니다. 가입일이 겹치는 기간(2013년 4월~2015년 8월)에는 증권의 상품명에 '표준형'이나 '선택형'이 적혀 있습니다. 보험증권 첫 장의 가입일·상품명에서 확인하세요.</div>
     </div>
 """
 
@@ -68,6 +68,7 @@ HERO = """
     <div class="pilot-hero" id="pilot-hero">
       <div class="pilot-hero-lbl" id="pilot-hero-lbl">내 최종 부담</div>
       <div class="pilot-hero-num pilot-hero-num--guide" id="pilot-hero-num">세대를 고르면 크게 표시됩니다</div>
+      <div class="pilot-hero-range" id="pilot-hero-range"></div>
       <div class="pilot-hero-sub" id="pilot-hero-sub">내 실손 세대를 모르면 아래 비교표에서 세대별로 확인하세요.</div>
       <p class="pilot-hero-market" id="pilot-hero-market"></p>
     </div>

@@ -8,7 +8,7 @@
 (function (root) {
   'use strict';
 
-  var DEDUCT_GEN23 = { tertiary: 20000, general: 20000, hospital: 15000, clinic: 10000 };
+  var DEDUCT_GEN23 = { tertiary: 20000, general: 15000, hospital: 15000, clinic: 10000 };
   var DEDUCT_GEN45 = { tertiary: 20000, general: 20000, hospital: 20000, clinic: 10000 };
   var INSTITUTIONS = {
     tertiary: { label: '상급종합병원', short: '상급종합', api_scope: true },
@@ -251,8 +251,35 @@
     var copay = 0;
     var copayHi = null;  // 범위 상한(모르겠어요 후기 행) — null이면 단일값
     var capApplied = false;
+    var capOutpatient = false;  // 부이 #1279 ③ — 2세대 통원 외래 1일 25만원 한도 적용 여부
     var extraNote = [];
     var raw = 0;
+
+    // 인스팅트 #1283 ① — 관리급여 통원은 공제가 방문 1회당이므로, 횟수가 2회 이상이면
+    // 1회분으로 계산해 횟수를 곱한다. 총액에 1회만 적용하면 과소 계산됨
+    // (도수치료 10회 통원·의원: 전 유형 100,000원). 금액이 1회 수가 × 횟수와 다르면
+    // (직접 입력 등) 기존 총액 계산을 유지한다.
+    var _n = ctx.rounds || 1;
+    if (managed && visit === 'out' && _n > 1 && total === MANAGED_UNIT_PRICE * _n) {
+      var unit = genRow(gen, Object.assign({}, ctx, { amount: MANAGED_UNIT_PRICE, rounds: 1 }), sub);
+      if (unit.status === 'excluded') {
+        unit.copay = base;
+        unit.copay_hi = null;
+        unit.covered = 0;
+        unit.covered_lo = null;
+      } else {
+        unit.copay = unit.copay * _n;
+        if (unit.copay_hi !== null && unit.copay_hi !== undefined) {
+          unit.copay_hi = unit.copay_hi * _n;
+          if (unit.copay_hi <= unit.copay) { unit.copay_hi = null; }
+        }
+        if (unit.copay > base) { unit.copay = base; unit.copay_hi = null; }
+        unit.covered = base - unit.copay;
+        unit.covered_lo = (unit.copay_hi !== null && unit.copay_hi !== undefined) ? base - unit.copay_hi : null;
+      }
+      unit.base = base;
+      return unit;
+    }
     var excludedGens = item.excluded_gens || [];
     var genExcluded = excludedGens.indexOf(gen) >= 0;
 
@@ -274,8 +301,8 @@
       if (visit === 'out' && !managed) {
         var floor2 = base - OUTPATIENT_CAP_GEN2;
         if (floor2 > 0) {
-          if (copay < floor2) { copay = floor2; capApplied = true; }
-          if (copayHi !== null && copayHi < floor2) { copayHi = floor2; capApplied = true; }
+          if (copay < floor2) { copay = floor2; capApplied = true; capOutpatient = true; }
+          if (copayHi !== null && copayHi < floor2) { copayHi = floor2; capApplied = true; capOutpatient = true; }
           if (copayHi !== null && copayHi <= copay) { copayHi = null; }
         }
       }
@@ -371,7 +398,7 @@
     else if (gen === 2) {
       var t2 = sub === 'early' ? 'early' : ctx.gen2_type;
       if (sub !== 'early' && t2 === 'early') { t2 = 'late20'; }  // 전기를 고른 경우 후기 행은 표준형으로 표시한다
-      var dedTxt = '외래공제(의원 1만·병원 1.5만·종합/상급 2만)';
+      var dedTxt = '외래공제(의원 1만·종합병원·병원 1.5만·상급종합 2만)';
       if (t2 === 'unknown') {
         if (managed) {
           rule = '관리급여(급여) 항목: 통원은 정액 공제만 또는 형별 %와 ' + dedTxt + ' 중 큰 금액 — 유형별 범위 적용';
@@ -437,7 +464,8 @@
       rule: rule,
       badges: badges,
       limits: limits,
-      cap_applied: capApplied
+      cap_applied: capApplied,
+      cap_outpatient: capOutpatient
     };
   }
 

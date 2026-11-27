@@ -42,9 +42,9 @@ BASE = Path(__file__).resolve().parent.parent
 CATALOG_FILE = BASE / "data" / "catalog_items.json"
 
 # ------------------------------------------------------------------ 상수
-DEDUCT_GEN23 = {          # 2·3세대 통원 외래 공제액(원) — 의원 1만 / 병원 1.5만 / 종합·상급 2만
+DEDUCT_GEN23 = {          # 2·3세대 통원 외래 공제액(원) — 의원 1만 / 병원·종합병원 1.5만 / 상급종합 2만
     "tertiary": 20000,
-    "general": 20000,
+    "general": 15000,
     "hospital": 15000,
     "clinic": 10000,
 }
@@ -327,7 +327,34 @@ def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
     copay = 0
     copay_hi: int | None = None  # 범위 상한(모르겠어요 후기 행) — None이면 단일값
     cap_applied = False
+    cap_outpatient = False  # 부이 #1279 ③ — 2세대 통원 외래 1일 25만원 한도 적용 여부
     extra_note: list[str] = []
+
+    # 인스팅트 #1283 ① — 관리급여 통원은 공제가 방문 1회당이므로, 횟수가 2회 이상이면
+    # 1회분으로 계산해 횟수를 곱한다. 총액에 1회만 적용하면 과소 계산됨
+    # (도수치료 10회 통원·의원: 전 유형 100,000원). 금액이 1회 수가 × 횟수와 다르면
+    # (직접 입력 등) 기존 총액 계산을 유지한다.
+    _n = ctx.get("rounds", 1)
+    if managed and visit == "out" and _n > 1 and total == MANAGED_UNIT_PRICE * _n:
+        unit = _gen_row(gen, dict(ctx, amount=MANAGED_UNIT_PRICE, rounds=1), sub)
+        if unit["status"] == "excluded":
+            unit["copay"] = base
+            unit["copay_hi"] = None
+            unit["covered"] = 0
+            unit["covered_lo"] = None
+        else:
+            unit["copay"] = unit["copay"] * _n
+            if unit["copay_hi"] is not None:
+                unit["copay_hi"] = unit["copay_hi"] * _n
+                if unit["copay_hi"] <= unit["copay"]:
+                    unit["copay_hi"] = None
+            if unit["copay"] > base:
+                unit["copay"] = base
+                unit["copay_hi"] = None
+            unit["covered"] = base - unit["copay"]
+            unit["covered_lo"] = (base - unit["copay_hi"]) if unit["copay_hi"] is not None else None
+        unit["base"] = base
+        return unit
 
     # 약관상 보장 제외 항목(시력교정술·예방접종·치과 비급여 보철 등)
     # 카탈로그의 excluded_gens 에 든 세대는 계산 없이 0원(전액 본인부담)으로 둔다.
@@ -353,9 +380,11 @@ def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
                 if copay < _floor:
                     copay = _floor
                     cap_applied = True
+                    cap_outpatient = True
                 if copay_hi is not None and copay_hi < _floor:
                     copay_hi = _floor
                     cap_applied = True
+                    cap_outpatient = True
                 if copay_hi is not None and copay_hi <= copay:
                     copay_hi = None
     elif gen == 3:
@@ -450,7 +479,7 @@ def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
         _t = "early" if sub == "early" else ctx["gen2_type"]
         if sub != "early" and _t == "early":
             _t = "late20"  # 전기를 고른 경우 후기 행은 표준형(기존 기본값)으로 표시한다
-        _ded_txt = "외래공제(의원 1만·병원 1.5만·종합/상급 2만)"
+        _ded_txt = "외래공제(의원 1만·종합병원·병원 1.5만·상급종합 2만)"
         if _t == "unknown":
             if managed:
                 rule2 = (f"관리급여(급여) 항목: 통원은 정액 공제만 또는 형별 %와 {_ded_txt} "
@@ -517,6 +546,7 @@ def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
         "badges": badges,
         "limits": limits,
         "cap_applied": cap_applied,
+        "cap_outpatient": cap_outpatient,
     }
 
 

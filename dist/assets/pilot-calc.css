@@ -43,6 +43,12 @@
   font-size: 12.5px; color: var(--muted); line-height: 1.6;
 }
 
+/* 부이 #1278 ② — 히어로 범위 안내(배수 + 선택하기 링크). #pilot-hero-range */
+.pilot-hero-range { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin-top: 6px; }
+.pilot-hero-range a { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+/* 부이 #1279 ④ — 히어로 범위 하한/상한 두 줄(32px 유지, 한 줄씩 표시) */
+.pilot-hero-range-line { display: block; }
+
 /* 세대를 고른 뒤에는 기존 '가장 많이 돌려받는 세대' 요약 박스를 숨겨
    큰 숫자가 하나만 남게 한다(파일럿 P0-3: 결과의 중심은 내 최종 부담). */
 [data-pilot-calc].pilot-has-gen #result-summary { display: none; }
