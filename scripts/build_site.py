@@ -564,6 +564,14 @@ def kosis_card(it: dict) -> str:
 """
 
 
+def mask_hosp_name(name: str) -> str:
+    """병원명 표시용 2자 마스킹: 앞 2자만 보이고 나머지는 ** (가드레일: 병원 실명 금지).
+    내부 데이터(검색용 원본 이름)는 그대로 둔다."""
+    n = (name or "").strip()
+    n = re.sub(r"^\([^)]*\)\s*", "", n)  # "(의) ..." 같은 법인 구분 접두사는 빼고 마스킹
+    return n if len(n) <= 2 else n[:2] + "**"
+
+
 def hospital_table(it: dict) -> str:
     """병원급 기관별 공개가 — 시도/종별 필터 + 검색(데이터는 /assets/hospitals.json)."""
     ds = ds_item(it["code"])
@@ -575,7 +583,7 @@ def hospital_table(it: dict) -> str:
     sido_opts = "".join(f'<option value="{esc(s)}">{esc(s)}</option>' for s in sidos)
     cl_opts = "".join(f'<option value="{esc(c)}">{esc(c)}</option>' for c in cls)
     rows = "".join(
-        f"<tr><td data-label=\"기관\">{esc(h['name'])}</td><td data-label=\"종별\">{esc(h['clCdNm'])}</td>"
+        f"<tr><td data-label=\"기관\">{esc(mask_hosp_name(h['name']))}</td><td data-label=\"종별\">{esc(h['clCdNm'])}</td>"
         f"<td data-label=\"지역\">{esc(h['sido'])} {esc(h['sggu'])}</td><td class=\"num\" data-label=\"최저\">{won(h['min'])}</td>"
         f"<td class=\"num\" data-label=\"최고\">{won(h['max'])}</td></tr>" for h in (st.get("hospitals") or [])[:12])
     return f"""
@@ -597,7 +605,7 @@ def hospital_table(it: dict) -> str:
   </div>
   <p class="hosp-count" data-hosp-count>낮은 금액 순 상위 12곳을 먼저 보여 줍니다. 필터를 선택하면 전체 {st['n']:,}곳에서 다시 찾습니다.</p>
   <button type="button" class="btn ghost sm" data-hosp-more>더 보기 (50곳씩)</button>
-  <p class="calc-foot">기관명·종별·지역·금액은 심평원 공개 원본 그대로이며 <b>추천·순위 매김·예약 알선이 아닙니다</b>(의료법 제27조).
+  <p class="calc-foot">기관명은 일부 마스킹했으며, 종별·지역·금액은 심평원 공개 원본 그대로이고 <b>추천·순위 매김·예약 알선이 아닙니다</b>(의료법 제27조).
     표시 금액은 기관이 신고한 비급여 최저·최고가로, 실제 청구액·할인·보험 적용은 방문 전 확인이 필요합니다.</p>
 </div>
 """

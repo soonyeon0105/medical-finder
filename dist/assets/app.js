@@ -433,6 +433,12 @@
   //  ① 항목 페이지: data-hosp data-code=항목코드 + 시도/종별/검색 필터
   //  ② 지역 페이지: data-hosp data-region=시도 + 항목/시군구/검색 필터
   var HOSP_CACHE = null;
+  // 병원명 표시용 2자 마스킹: 앞 2자만 보이고 나머지는 ** (가드레일: 병원 실명 금지).
+  // 검색은 원본 이름(r[0]) 기준으로 계속 동작한다.
+  function maskHospName(n) {
+    var s = String(n || '').replace(/^\([^)]*\)\s*/, '');
+    return s.length > 2 ? s.slice(0, 2) + '**' : s;
+  }
   function initHospTables() {
     var cards = Array.prototype.slice.call(document.querySelectorAll('[data-hosp]'));
     if (!cards.length || !window.fetch) { return; }
@@ -531,7 +537,7 @@
           var tr = document.createElement('tr');
           var loc = region ? String(r[3] || '') : (r[2] || '') + ' ' + (r[3] || '');
           var hospLabels = ['기관', '종별', '지역', '최저', '최고'];
-          [r[0], r[1], loc, fmt(r[4]), fmt(r[5])]
+          [maskHospName(r[0]), r[1], loc, fmt(r[4]), fmt(r[5])]
             .forEach(function (v, i) {
               var td = document.createElement('td');
               td.textContent = v === null || v === undefined || v === '' ? '—' : v;

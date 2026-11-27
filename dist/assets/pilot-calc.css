@@ -10,6 +10,10 @@
 /* 내 세대 선택 버튼 묶음 — 좁은 화면에서 3개씩 두 줄로 접는다 */
 .pilot-gen button { flex: 1 1 30%; }
 
+/* '모름' 안내 문구 — 본문 최소 13px 기준 (부이 #1192 ②: 11.5px → 13px).
+   공용 style.css의 .field .hint(11.5px)보다 세게 잡는다. */
+#pilot-gen-label .hint { font-size: 13px; }
+
 /* 항목이 프리셋이므로 항목 선택 드롭다운은 숨기고 한 줄 요약만 보인다
    (밀크 #1164 ① 권고). select 자체는 DOM에 남아 app.js가 그대로 쓴다. */
 #pilot-item-field { display: none; }

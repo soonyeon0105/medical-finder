@@ -176,12 +176,14 @@ def _rate_label(gen: int, ctx: dict, item: dict) -> str:
     if gen == 1:
         return "입원 100%" if visit == "in" else "5천원 공제 후 100%"
     if gen == 2:
-        if managed and ctx["gen2_type"] == "select2":
+        if managed:
             return "급여 90%" if visit == "in" else "Max(10%, 외래공제)"
         return "80%" if visit == "in" else "Max(20%, 외래공제)"
     if gen == 3:
         if item["special3"] and not managed:
             return "20%" if visit == "in" else "Max(30%, 2만원)"
+        if managed:
+            return "급여 90%" if visit == "in" else "Max(10%, 외래공제)"
         return "20%" if visit == "in" else "Max(20%, 외래공제)"
     if gen == 4:
         if managed:
@@ -228,7 +230,11 @@ def _gen_row(gen: int, ctx: dict) -> dict:
     elif gen == 1:
         copay = min(5000, base) if visit == "out" else 0
     elif gen == 2:
-        cut = 10 if (managed and ctx["gen2_type"] == "select2") else 20
+        # 관리급여(급여) 항목은 급여 90% 보장 — 비급여 80%(20% 공제)가 아니다.
+        # (인스팅트 #1193 ①: 2세대 관리급여 10회 438,500원 → 본인부담 83,315원이 아니라
+        #  416,575원(95%)의 10%인 41,658원이 맞다. 1회 43,850원은 외래공제 하한 2만원이
+        #  더 커서 두 계산이 같은 20,000원이 된다.)
+        cut = 10 if managed else 20
         raw = pct(base, cut)
         if visit == "out":
             raw = max(raw, min(ded23, base))
@@ -241,7 +247,9 @@ def _gen_row(gen: int, ctx: dict) -> dict:
             else:
                 raw = max(pct(base, 30), min(20000, base))
         else:
-            raw = pct(base, 20)
+            # 관리급여도 2세대와 같은 이유로 급여 90%(10% 공제) — 비급여 20%가 아니다.
+            cut3 = 10 if managed else 20
+            raw = pct(base, cut3)
             if visit == "out":
                 raw = max(raw, min(ded23, base))
         copay = min(raw, base)
@@ -320,10 +328,14 @@ def _gen_row(gen: int, ctx: dict) -> dict:
 
     rule = {
         1: "입원 100% 보장 / 통원 5,000원 공제 후 100% (표준형 기준)",
-        2: "비급여 80% 보장 · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제",
-        3: ("3세대 비급여 특약(도수·체외충격파·증식·비급여 주사·MRI): 통원 Max(30%, 2만원) 공제"
-            if (item["special3"] and not managed) else
-            "기본 비급여 20% 공제 · 통원은 20%와 외래공제 중 큰 금액 공제"),
+        2: ("관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"
+            if managed else
+            "비급여 80% 보장 · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"),
+        3: ("관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제 중 큰 금액 공제"
+            if managed else
+            ("3세대 비급여 특약(도수·체외충격파·증식·비급여 주사·MRI): 통원 Max(30%, 2만원) 공제"
+             if (item["special3"] and not managed) else
+             "기본 비급여 20% 공제 · 통원은 20%와 외래공제 중 큰 금액 공제")),
         4: ("4세대 비급여 특약: 입원 30% · 통원 Max(30%, 3만원), 통원 회당 20만원 한도"
             if not managed else "급여 항목: 입원 20% · 통원 Max(20%, 1·2만원)"),
         5: ("5세대 특약1(중증 비급여): 입원 30% · 통원 Max(30%, 3만원), 상급·종합 입원 연 자기부담 상한 500만원"

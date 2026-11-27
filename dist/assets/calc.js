@@ -121,11 +121,12 @@
     var managed = item.payment === '관리급여';
     if (gen === 1) { return visit === 'in' ? '입원 100%' : '5천원 공제 후 100%'; }
     if (gen === 2) {
-      if (managed && ctx.gen2_type === 'select2') { return visit === 'in' ? '급여 90%' : 'Max(10%, 외래공제)'; }
+      if (managed) { return visit === 'in' ? '급여 90%' : 'Max(10%, 외래공제)'; }
       return visit === 'in' ? '80%' : 'Max(20%, 외래공제)';
     }
     if (gen === 3) {
       if (item.special3 && !managed) { return visit === 'in' ? '20%' : 'Max(30%, 2만원)'; }
+      if (managed) { return visit === 'in' ? '급여 90%' : 'Max(10%, 외래공제)'; }
       return visit === 'in' ? '20%' : 'Max(20%, 외래공제)';
     }
     if (gen === 4) {
@@ -169,7 +170,8 @@
     } else if (gen === 1) {
       copay = visit === 'out' ? Math.min(5000, base) : 0;
     } else if (gen === 2) {
-      var cut = (managed && ctx.gen2_type === 'select2') ? 10 : 20;
+      // 관리급여(급여) 항목은 급여 90% 보장 — 비급여 80%(20% 공제)가 아니다 (인스팅트 #1193 ①).
+      var cut = managed ? 10 : 20;
       raw = pct(base, cut);
       if (visit === 'out') { raw = Math.max(raw, Math.min(ded23, base)); }
       copay = Math.min(raw, base);
@@ -179,7 +181,9 @@
         if (visit === 'in') { raw = pct(base, 20); }
         else { raw = Math.max(pct(base, 30), Math.min(20000, base)); }
       } else {
-        raw = pct(base, 20);
+        // 관리급여도 2세대와 같은 이유로 급여 90%(10% 공제).
+        var cut3 = managed ? 10 : 20;
+        raw = pct(base, cut3);
         if (visit === 'out') { raw = Math.max(raw, Math.min(ded23, base)); }
       }
       copay = Math.min(raw, base);
@@ -259,11 +263,17 @@
 
     var rule;
     if (gen === 1) { rule = '입원 100% 보장 / 통원 5,000원 공제 후 100% (표준형 기준)'; }
-    else if (gen === 2) { rule = '비급여 80% 보장 · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제'; }
+    else if (gen === 2) {
+      rule = managed
+        ? '관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제'
+        : '비급여 80% 보장 · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제';
+    }
     else if (gen === 3) {
-      rule = (item.special3 && !managed)
-        ? '3세대 비급여 특약(도수·체외충격파·증식·비급여 주사·MRI): 통원 Max(30%, 2만원) 공제'
-        : '기본 비급여 20% 공제 · 통원은 20%와 외래공제 중 큰 금액 공제';
+      rule = managed
+        ? '관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제 중 큰 금액 공제'
+        : (item.special3 && !managed)
+          ? '3세대 비급여 특약(도수·체외충격파·증식·비급여 주사·MRI): 통원 Max(30%, 2만원) 공제'
+          : '기본 비급여 20% 공제 · 통원은 20%와 외래공제 중 큰 금액 공제';
     } else if (gen === 4) {
       rule = !managed
         ? '4세대 비급여 특약: 입원 30% · 통원 Max(30%, 3만원), 통원 회당 20만원 한도'

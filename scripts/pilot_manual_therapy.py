@@ -159,15 +159,16 @@ def main() -> None:
     else:
         print("주의: 기존 계산 링크 버튼 문구를 찾지 못해 버튼 교체는 건너뜁니다", file=sys.stderr)
 
-    # 3) 계산 블록을 가격 헤드라인 바로 아래·첫 표 위(시세 카드 안)에 주입
-    #    (밀크 #1164 ① — v2 확정 위치. 기관별 표 앞(기존 위치)은 첫 입력이
-    #    4,500px 밖이라 모바일에서 묻힌다.)
+    # 3) 계산 블록을 가격 헤드라인 바로 아래(시세 카드 안)에 주입 — 부이 #1192 ①.
+    #    헤드라인과 첫 표 사이에는 수집 범위 안내(.data-coverage, ~71px)와
+    #    시세 KPI 요약(.kpi-row, ~160px)이 있어 291px이 벌어졌었다.
+    #    계산 블록을 헤드라인 직후로 당기면 간격이 사라지고, KPI 요약은
+    #    계산 블록 아래·첫 표 위에 그대로 남는다.
     h3 = '<h3>심평원 병원급 공개가 시세</h3>'
     h3_idx = page.find(h3)
     assert h3_idx >= 0, "시세 헤드라인을 찾지 못했습니다"
-    table_idx = page.find('<div class="table-wrap">', h3_idx)
-    assert table_idx > h3_idx, "시세 첫 표를 찾지 못했습니다"
-    page = page[:table_idx] + block + "\n  " + page[table_idx:]
+    h3_end = h3_idx + len(h3)
+    page = page[:h3_end] + "\n  " + block + page[h3_end:]
 
     # 4) 프리셋 + 시세 통계 + 파일럿 JS 를 </body> 앞에
     preset = f"""
