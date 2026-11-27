@@ -1,0 +1,82 @@
+/*!
+ * pilot-calc.css — P0 파일럿(도수치료 상세 내장 계산) 전용 스타일
+ *
+ * 병원비 기획안 v2 P0-2·P0-3 파일럿: 항목 상세 페이지에 계산 블록을 내장하고,
+ * 결과 맨 위에 '내 세대 최종 부담'을 큰 숫자로 표시하기 위한 추가 스타일.
+ * 기존 style.css 의 변수(--ink·--accent 등)만 사용하므로 다크모드도 기기를 따른다.
+ * 본편 편입 시 이 파일의 규칙을 style.css 로 옮긴다.
+ */
+
+/* 내 세대 선택 버튼 묶음 — 좁은 화면에서 3개씩 두 줄로 접는다 */
+.pilot-gen button { flex: 1 1 30%; }
+
+/* 항목이 프리셋이므로 항목 선택 드롭다운은 숨기고 한 줄 요약만 보인다
+   (밀크 #1164 ① 권고). select 자체는 DOM에 남아 app.js가 그대로 쓴다. */
+#pilot-item-field { display: none; }
+.pilot-item-line { font-size: 13.5px; color: var(--ink-2); margin: 0 0 12px; }
+.pilot-item-line b { color: var(--ink); }
+
+/* 결과 상단 히어로 — 내 최종 부담 큰 숫자 (밀크 #1164 ②: 38px → 32px).
+   6자리 금액(657,750원)도 390px 안에서 한 줄에 들어간다. */
+.pilot-hero {
+  background: var(--accent-soft);
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.pilot-hero-lbl { font-size: 13px; font-weight: 700; color: var(--teal-ink-2); }
+.pilot-hero-num {
+  font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
+  color: var(--ink); margin: 4px 0 2px; word-break: keep-all;
+}
+.pilot-hero-num--guide { font-size: 21px; color: var(--ink-2); }
+.pilot-hero-sub { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.pilot-hero-market {
+  margin: 10px 0 0; padding-top: 10px; border-top: 1px dashed var(--brand-line);
+  font-size: 12.5px; color: var(--muted); line-height: 1.6;
+}
+
+/* 세대를 고른 뒤에는 기존 '가장 많이 돌려받는 세대' 요약 박스를 숨겨
+   큰 숫자가 하나만 남게 한다(파일럿 P0-3: 결과의 중심은 내 최종 부담). */
+[data-pilot-calc].pilot-has-gen #result-summary { display: none; }
+
+/* 돌려받는 금액·내가 내는 금액은 같은 줄 (부이 #1150·밀크 #1164 ②).
+   .best .big은 22px이라 6자리 금액 두 개도 330px 안에 나란히 들어간다.
+   wrap을 막아 두 숫자가 두 줄로 갈라지지 않게 한다.
+   align-items: flex-start — 왼쪽 박스에 '○○세대 기준' 줄이 하나 더 있어
+   center 정렬이면 두 .big의 y가 10px 어긋난다. 위쪽 정렬이면 두 박스 모두
+   한 줄짜리 .lbl 뒤에 .big이 와서 두 숫자의 기준선이 일치한다. */
+[data-pilot-calc] #result-summary .best { flex-wrap: nowrap; align-items: flex-start; }
+
+/* '다른 세대와 비교' 접기 표 (밀크 #1164 ⑤): 세대·보장액·최종부담 3열 5줄.
+   세대를 고른 뒤에만 보이고, 그때는 전체 비교표(.cmp-wrap)를 숨겨
+   모바일 결과 영역이 1,500px급으로 커지지 않게 한다. */
+.pilot-compare { display: none; margin: 0 0 14px; }
+[data-pilot-calc].pilot-has-gen .pilot-compare { display: block; }
+[data-pilot-calc].pilot-has-gen .cmp-wrap { display: none; }
+.pilot-compare summary {
+  cursor: pointer; font-size: 14px; font-weight: 700; color: var(--ink);
+  padding: 6px 0;
+}
+.pilot-compare-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.pilot-compare-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.pilot-compare-table th, .pilot-compare-table td {
+  padding: 8px 10px; border-bottom: 1px solid var(--brand-line); text-align: left;
+}
+.pilot-compare-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pilot-compare-table tr.pilot-selected td { background: var(--accent-soft); font-weight: 700; }
+
+/* 청구 서류·기한 안내 (부이 #1150 배포 전 확인) */
+.pilot-claim { margin-top: 16px; padding: 14px; border: 1px solid var(--brand-line);
+  border-radius: var(--radius); background: var(--bg-soft); }
+.pilot-claim h3 { margin: 0 0 8px; font-size: 14.5px; }
+.pilot-claim ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.65; color: var(--ink-2); }
+
+/* 비교표에서 내 세대 행 강조 */
+table.cmp tr.pilot-selected td { background: var(--accent-soft); }
+table.cmp tr.pilot-selected td.gen-cell .g { color: var(--accent-ink); }
+
+@media (max-width: 480px) {
+  .pilot-hero { padding: 14px; }
+}
