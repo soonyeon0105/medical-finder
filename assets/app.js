@@ -44,7 +44,7 @@
       visit: 'out',
       inst: 'tertiary',
       severe: 0,
-      gen2: 'standard',
+      gen2: 'unknown',
       rounds: 1,
       severeCum: 0
     };
@@ -56,7 +56,9 @@
       if (qs.get('visit') === 'in') { state.visit = 'in'; }
       if (qs.get('inst') && MedCalc.INSTITUTIONS[qs.get('inst')]) { state.inst = qs.get('inst'); }
       if (qs.get('severe') === '1') { state.severe = 1; }
-      if (qs.get('gen2') === 'select2') { state.gen2 = 'select2'; }
+      // 2세대 유형: early(전기) · late10/late20/sel2(후기 형별) · unknown(모름, 기본값).
+      // 구 링크의 standard 는 late20, select2 는 sel2 로 읽는다.
+      if (['early', 'late10', 'late20', 'sel2', 'unknown'].indexOf(qs.get('gen2')) >= 0) { state.gen2 = qs.get('gen2'); }
       if (qs.get('rounds')) { state.rounds = Math.max(1, parseInt(qs.get('rounds'), 10) || 1); }
       if (qs.get('amount') !== null && qs.get('amount') !== '') {
         // M-03: -1000 을 1000 으로 바꾸지 않고 그대로 읽어 검증 단계에서 막는다.
@@ -131,7 +133,7 @@
         managedBox.innerHTML = '<b>도수치료는 2026.7.1부터 관리급여(선별급여)</b>입니다. ' +
           '1회 ' + fmt(MedCalc.MANAGED_UNIT_PRICE) + ' (종별 동일·종별가산 없음), 건강보험 본인부담률 95% — ' +
           '1회 건강보험 본인부담 <b>' + fmt(Math.floor((MedCalc.MANAGED_UNIT_PRICE * 95 + 50) / 100)) + '</b>. ' +
-          '실손(2·3세대)은 그 본인부담금의 90%를 보장합니다. ' +
+          '실손은 그 본인부담금의 80~90%를 보장합니다(세대·유형별 상이 — 아래 표 참조). ' +
           '비급여 특약이 아니라 <b>급여</b>로 계산합니다.';
       } else {
         roundsRow.style.display = 'none';
@@ -149,15 +151,6 @@
         if (it && resetAmount) { state.amount = defAmount(it); }
         else if (!it && resetAmount) { state.amount = 300000; }
         amountInput.value = isFinite(state.amount) ? state.amount : '';
-      }
-      // 2세대 가입유형 라벨: 관리급여 항목은 표준형도 급여 90%라 '급여 80%' 표기는 틀린다
-      // (인스팅트 #1206 ③). 항목이 바뀌면 라벨을 다시 맞춘다. 값은 그대로 'standard'.
-      var g2sel = $(root, '#gen2-select');
-      if (g2sel) {
-        var stdOpt = g2sel.querySelector('option[value="standard"]');
-        if (stdOpt) {
-          stdOpt.textContent = (it && it.payment === '관리급여') ? '표준형 (급여 90%)' : '표준형 (급여 80%)';
-        }
       }
       if (hint) {
         if (it) {
@@ -220,8 +213,9 @@
       res.generations.forEach(function (r) {
         var tr = el('tr');
         tr.setAttribute('data-gen', String(r.gen));
+        if (r.sub) { tr.setAttribute('data-sub', r.sub); }
         if (r.status === 'excluded') { tr.classList.add('is-excluded'); }
-        if (res.summary.best_gen === r.gen) { tr.classList.add('is-best'); }
+        if (res.summary.best_key === r.key) { tr.classList.add('is-best'); }
 
         var tdGen = el('td', 'gen-cell');
         tdGen.setAttribute('data-label', '세대');
@@ -237,7 +231,9 @@
         var tdCov = el('td', 'num covered-cell');
         tdCov.setAttribute('data-label', '예상 보장액');
         tdCov.classList.add('covered');
-        tdCov.textContent = fmt(r.covered);
+        // '모르겠어요' 후기 행은 보장액도 범위로 표시한다(부이 #1245 ①).
+        tdCov.textContent = (r.covered_lo !== null && r.covered_lo !== undefined)
+          ? fmt(r.covered_lo) + ' ~ ' + fmt(r.covered) : fmt(r.covered);
         if (r.status === 'excluded') {
           tr.appendChild(tdCov);
           tdCov.textContent = '0원';
@@ -248,7 +244,8 @@
         var tdCop = el('td', 'num copay-cell');
         tdCop.setAttribute('data-label', '환자 최종 부담');
         tdCop.classList.add('copay');
-        tdCop.textContent = fmt(r.copay);
+        tdCop.textContent = (r.copay_hi !== null && r.copay_hi !== undefined)
+          ? fmt(r.copay) + ' ~ ' + fmt(r.copay_hi) : fmt(r.copay);
         tr.appendChild(tdCop);
 
         var tdNote = el('td');
@@ -266,6 +263,19 @@
           });
         }
         if (r.cap_applied) { bd.appendChild(el('span', 'badge cap', '회당 한도 적용')); }
+        // 부이 #1245 ⑤ — 고른 2세대 유형 행을 강조한다.
+        if (r.gen === 2 && r.sub) {
+          var isSel = (state.gen2 === 'early' && r.sub === 'early') ||
+            (state.gen2 !== 'early' && state.gen2 !== 'unknown' && r.sub === 'late');
+          if (isSel) {
+            tr.classList.add('is-selected');
+            bd.appendChild(el('span', 'badge selected', '선택한 유형'));
+          }
+          if (r.sub === 'late' && r.same_amount &&
+              (state.gen2 === 'late10' || state.gen2 === 'unknown')) {
+            bd.appendChild(el('span', 'badge same', '전기·후기 10%형과 같은 금액'));
+          }
+        }
         tdNote.appendChild(bd);
         if (r.status === 'excluded') {
           tdNote.appendChild(el('div', 'zero-note', '보장 제외 → 전액 본인부담'));
@@ -281,19 +291,21 @@
 
       // 요약 — 보장액과 환자 최종 부담을 나란히 큰 숫자로 (밀크·부이 검수 2026-11-25)
       summary.innerHTML = '';
-      var best = res.generations.filter(function (r) { return r.gen === res.summary.best_gen; })[0];
+      var best = res.generations.filter(function (r) { return r.key === res.summary.best_key; })[0];
       if (best) {
         var box = el('div', 'best');
         var left = el('div');
         left.appendChild(el('div', 'lbl', '가장 많이 돌려받는 세대'));
-        left.appendChild(el('div', 'big', fmt(best.covered)));
+        left.appendChild(el('div', 'big', (best.covered_lo !== null && best.covered_lo !== undefined)
+          ? fmt(best.covered_lo) + ' ~ ' + fmt(best.covered) : fmt(best.covered)));
         var who = el('div', 'who');
         who.innerHTML = '<b>' + best.name + '</b> 기준';
         left.appendChild(who);
         box.appendChild(left);
         var right = el('div', 'copay-box');
         right.appendChild(el('div', 'lbl', '환자 최종 부담'));
-        right.appendChild(el('div', 'big', fmt(best.copay)));
+        right.appendChild(el('div', 'big', (best.copay_hi !== null && best.copay_hi !== undefined)
+          ? fmt(best.copay) + ' ~ ' + fmt(best.copay_hi) : fmt(best.copay)));
         box.appendChild(right);
         summary.appendChild(box);
       }
@@ -330,7 +342,7 @@
         if (state.visit !== 'out') { q.set('visit', state.visit); }
         if (state.inst !== 'tertiary') { q.set('inst', state.inst); }
         if (state.severe) { q.set('severe', '1'); }
-        if (state.gen2 !== 'standard') { q.set('gen2', 'select2'); }
+        if (state.gen2 !== 'unknown') { q.set('gen2', state.gen2); }
         if (state.rounds > 1) { q.set('rounds', String(state.rounds)); }
         history.replaceState(null, '', location.pathname + '?' + q.toString() + location.hash);
       } catch (e) { /* 무시 */ }

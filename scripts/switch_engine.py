@@ -87,7 +87,13 @@ def rates(gen: int, gen1_rate: float | None = None, gen2_type: str = "standard",
             return None
         return {"cov_in": r, "cov_out": r, "severe": r, "mild": r}
     if gen == 2:
-        if gen2_type == "select1":
+        # 2세대 전기·후기 (2026-11-28 분리): 전기(2013.3 이전)는 자기부담 10% 단일,
+        # 후기 10%형(2013.4~2015.8)은 10%, 표준형(20%형)은 20%, 선택형Ⅱ(2015.9~2017.3)는
+        # 급여 10%·비급여 20%. 레거시 select1은 선택형Ⅱ와 같은 값의 호환값으로 유지한다
+        # (신규 UI에서는 제공하지 않음). 레거시 standard는 late20 과 같다.
+        if gen2_type in ("early", "late10"):
+            return {"cov_in": 10, "cov_out": 10, "severe": 10, "mild": 10}
+        if gen2_type in ("sel2", "select1"):
             return {"cov_in": 10, "cov_out": 10, "severe": 20, "mild": 20}
         return {"cov_in": 20, "cov_out": 20, "severe": 20, "mild": 20}
     if gen == 3:
@@ -225,7 +231,7 @@ def compute(req: dict) -> dict:
     if pcur <= 0:
         base["hold"] = "premium_unknown"
         return base
-    r_cur = rates(gen, req.get("gen1_rate"), req.get("gen2_type") or "standard",
+    r_cur = rates(gen, req.get("gen1_rate"), req.get("gen2_type") or "late20",
                   req.get("gen3_type") or "standard")
     if r_cur is None:
         base["hold"] = "gen1_rate"

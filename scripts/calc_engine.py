@@ -15,6 +15,22 @@ scripts/crosscheck_calc.py 가 수천 건 조합으로 전수 검증한다.
 
 표준형·선택형 등 상품별 약관 차이는 계산에 반영하지 않고 '안내'로만 표시한다.
 (예: 2세대 통원 회당 한도, 3세대 비급여 연간 한도, 5세대 연간 보장한도)
+
+2세대는 가입 시기·상품으로 유형을 나눠 계산한다(결과 표는 전기·후기 두 행).
+근거: 금융위 2012-12-21 보도자료(표준형 20% 단독상품 2013.1.1 출시 · 90% 보장형 병존 ·
+특약상품 2013.4.1 제도 변경 · 외래 25만원/처방조제 5만원 한도), 시기별 상세표
+(2009.10~2012.12 / 2013.1~2015.8 / 2015.9~2017.3 — 2차 확인, 1차 약관 원문 미확보).
+  · early  선택형Ⅰ (2009.10~2013.3 가입): 급여·비급여 10% · 통원 정액만 · 재가입 없음
+          (단, 2013.1~3 표준형 가입자는 15년마다 재가입 — 예외 한 줄 별도 표기)
+  · late10 선택형(10%형, 2013.4~2015.8 판매): 급여·비급여 10% · 통원 정액만 · 15년마다 재가입
+  · late20 표준형 (2013.1~2017.3): 급여·비급여 20% · 통원 Max(20%, 정액) · 관리급여 20% · 15년마다 재가입
+  · sel2   선택형Ⅱ (2015.9~2017.3): 급여 10% · 비급여 20% · 통원 Max(형별 %, 정액) · 15년마다 재가입
+  · unknown 모르겠어요(기본값): 후기 3유형의 범위로 표시
+입력 gen2_type 은 early/late10/late20/sel2/unknown 중 하나이다.
+레거시 값 standard는 표준형(late20), select2는 선택형Ⅱ(sel2)로 읽는다.
+통원 보상한도(외래 1일 25만원)는 비급여 통원에만 적용한다 — 관리급여는 회수 합산액이라
+1회 한도와 직접 비교할 수 없다. 한도는 안내가 아니라 보장액에 직접 반영한다
+(4·5세대 회당 한도와 같은 방식).
 """
 from __future__ import annotations
 
@@ -53,6 +69,63 @@ GENERATIONS = [
     {"gen": 4, "name": "4세대", "period": "2021.7~2026.4", "short": "4세대"},
     {"gen": 5, "name": "5세대", "period": "2026.5.6 출시", "short": "5세대"},
 ]
+
+# 2세대 전기·후기 — 결과 표에서 두 행으로 분리해 보여 준다.
+GEN2_META = {
+    "early": {"name": "2세대 전기", "period": "2009.10~2013.3", "short": "2세대 전기"},
+    "late": {"name": "2세대 후기", "period": "2013.4~2017.3", "short": "2세대 후기"},
+}
+# 2세대 유형별 규칙 (인스팅트 #1247 반영 — 근거: 금융위 2012-12-21 보도자료 + 시기별 상세표, 2차 확인)
+GEN2_SPEC = {
+    # noncovered: 비급여 자기부담률(%) · managed: 관리급여(급여) 자기부담률(%) ·
+    # out: 통원 공제 방식 — flat(정액만) / max(율과 정액 중 큰 금액)
+    "early":  {"noncovered": 10, "managed": 10, "out": "flat"},
+    "late10": {"noncovered": 10, "managed": 10, "out": "flat"},
+    "late20": {"noncovered": 20, "managed": 20, "out": "max"},
+    "sel2":   {"noncovered": 20, "managed": 10, "out": "max"},
+}
+GEN2_TYPES = ("early", "late10", "late20", "sel2", "unknown")
+GEN2_LATE_LABEL = {"late10": "10%형", "late20": "표준형 20%", "sel2": "선택형Ⅱ",
+                   "unknown": "10%형~20%형"}
+OUTPATIENT_CAP_GEN2 = 250000  # 2세대 통원 외래 1일 보상한도 (표준약관 기준)
+
+
+def _gen2_legacy(v) -> str:
+    """2세대 유형 값 정규화 — 레거시 standard→표준형(late20), select2→선택형Ⅱ(sel2)."""
+    if v in GEN2_TYPES:
+        return v
+    if v == "standard":
+        return "late20"
+    if v == "select2":
+        return "sel2"
+    return "unknown"
+
+
+def _gen2_cut_copay(base: int, cut: int, mode: str, visit: str, ded23: int) -> int:
+    """2세대 본인부담 1건 — flat은 통원 정액만, max는 율과 정액 중 큰 금액."""
+    raw = pct(base, cut)
+    if visit == "out":
+        raw = min(ded23, base) if mode == "flat" else max(raw, min(ded23, base))
+    return min(raw, base)
+
+
+def gen2_copay(ctx: dict, sub: str, item: dict, base: int, ded23: int) -> tuple[int, int | None]:
+    """2세대 행의 본인부담 (copay, copay_hi|None) — unknown은 후기 3유형의 최소~최대."""
+    managed = item["payment"] == "관리급여"
+    key = "managed" if managed else "noncovered"
+    if sub == "early":
+        spec = GEN2_SPEC["early"]
+        return _gen2_cut_copay(base, spec[key], spec["out"], ctx["visit"], ded23), None
+    t = ctx["gen2_type"]
+    if t == "early":
+        t = "late20"  # 전기를 고른 경우 후기 행은 표준형(기존 기본값)으로 표시한다
+    if t in GEN2_SPEC:
+        spec = GEN2_SPEC[t]
+        return _gen2_cut_copay(base, spec[key], spec["out"], ctx["visit"], ded23), None
+    vals = [_gen2_cut_copay(base, GEN2_SPEC[_t][key], GEN2_SPEC[_t]["out"],
+                            ctx["visit"], ded23) for _t in ("late10", "late20", "sel2")]
+    lo, hi = min(vals), max(vals)
+    return lo, (hi if hi > lo else None)
 
 # 관리급여(도수치료) 상수 — 보건복지부 2026-07-01 시행
 MANAGED_UNIT_PRICE = 43850      # 1회 수가(종별 동일, 종별가산 없음)
@@ -132,24 +205,43 @@ def _normalize(req: dict, items: list[dict]) -> dict:
         "visit": visit,
         "institution": inst,
         "severe": bool(req.get("severe", False)),
-        "gen2_type": "select2" if req.get("gen2_type") == "select2" else "standard",
+        # 2세대 유형: early(선택형Ⅰ) · late10(후기 10%형) · late20(표준형) · sel2(선택형Ⅱ) ·
+        # unknown(모르겠어요). 레거시 standard는 표준형(late20), select2는 선택형Ⅱ(sel2)로 읽는다.
+        "gen2_type": _gen2_legacy(req.get("gen2_type")),
         "severe_cum": max(0, int(req.get("severe_cum", 0) or 0)),
         "rounds": max(1, int(req.get("rounds", 1) or 1)),
     }
 
 
-def _limits_for(gen: int, ctx: dict, item: dict) -> list[str]:
+def _limits_for(gen: int, ctx: dict, item: dict, sub: str | None = None) -> list[str]:
     """계산에는 반영하지 않고 화면에 안내하는 한도 문구."""
     notes: list[str] = []
     managed = item["payment"] == "관리급여"
     if gen == 1:
         notes.append("세대 표준형 기준 · 상품별 약관(한도·자기부담) 차이 있음")
     elif gen == 2:
-        notes.append("통원 회당 보장한도·연간 한도는 상품별 약관 확인 필요")
+        notes.append("통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 연간 180회 (표준약관 기준)")
         if managed:
-            notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(통원 10% 공제)")
-        elif ctx["gen2_type"] == "select2":
-            notes.append("선택형Ⅱ: 급여 90% · 비급여 80%")
+            notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(표준형은 80%)")
+        if sub == "early":
+            notes.append("2013년 3월 이전 가입(전기·선택형Ⅰ) — 재가입 절차가 없는 유형입니다(약관 기준)")
+            notes.append("단, 2013년 1월~3월에 표준형으로 가입한 경우 15년마다 재가입합니다 — 증권에서 확인하세요")
+        elif ctx["gen2_type"] == "unknown":
+            notes.append("2013년 4월 이후 가입(후기) · 자기부담 10%형/20%형 — 유형을 모르면 세 유형의 범위로 표시합니다")
+            notes.append("15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. "
+                         "재가입 때 보험료와 조건은 보험사 안내를 확인하세요")
+        elif ctx["gen2_type"] == "late10":
+            notes.append("2013년 4월~2015년 8월 가입(후기 10%형·선택형) · 자기부담 10% · 15년마다 재가입합니다")
+            notes.append("15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. "
+                         "재가입 때 보험료와 조건은 보험사 안내를 확인하세요")
+        elif ctx["gen2_type"] == "sel2":
+            notes.append("2015년 9월~2017년 3월 가입(후기 선택형Ⅱ) · 급여 10% · 비급여 20% · 15년마다 재가입합니다")
+            notes.append("15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. "
+                         "재가입 때 보험료와 조건은 보험사 안내를 확인하세요")
+        else:  # late20 표준형
+            notes.append("표준형(20%형) · 급여·비급여 자기부담 20% · 15년마다 재가입합니다")
+            notes.append("15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. "
+                         "재가입 때 보험료와 조건은 보험사 안내를 확인하세요")
     elif gen == 3:
         notes.append("비급여 연간 한도·갱신 조건은 약관 확인 필요")
         if managed:
@@ -177,15 +269,24 @@ def _limits_for(gen: int, ctx: dict, item: dict) -> list[str]:
     return notes
 
 
-def _rate_label(gen: int, ctx: dict, item: dict) -> str:
+def _rate_label(gen: int, ctx: dict, item: dict, sub: str | None = None) -> str:
     visit = ctx["visit"]
     managed = item["payment"] == "관리급여"
     if gen == 1:
         return "입원 100%" if visit == "in" else "5천원 공제 후 100%"
     if gen == 2:
-        if managed:
-            return "급여 90%" if visit == "in" else "Max(10%, 외래공제)"
-        return "20%" if visit == "in" else "Max(20%, 외래공제)"
+        t = "early" if sub == "early" else ctx["gen2_type"]
+        if sub != "early" and t == "early":
+            t = "late20"  # 전기를 고른 경우 후기 행은 표준형(기존 기본값)으로 표시한다
+        if t == "unknown":
+            return "10%~20%" if visit == "in" else "Max(10%~20%, 외래공제)"
+        spec = GEN2_SPEC[t]
+        cut = spec["managed" if managed else "noncovered"]
+        if visit == "in":
+            return "급여 90%" if (managed and cut == 10) else f"{cut}%"
+        if spec["out"] == "flat":
+            return "정액만(외래공제)"
+        return f"Max({cut}%, 외래공제)"
     if gen == 3:
         if item["special3"] and not managed:
             return "20%" if visit == "in" else "Max(30%, 2만원)"
@@ -204,12 +305,15 @@ def _rate_label(gen: int, ctx: dict, item: dict) -> str:
     return "50%" if visit == "in" else "Max(50%, 5만원)"
 
 
-def _gen_row(gen: int, ctx: dict) -> dict:
+def _gen_row(gen: int, ctx: dict, sub: str | None = None) -> dict:
     item = ctx["item"]
     visit = ctx["visit"]
     inst = ctx["institution"]
     managed = item["payment"] == "관리급여"
-    meta = next(g for g in GENERATIONS if g["gen"] == gen)
+    if gen == 2 and sub in GEN2_META:
+        meta = GEN2_META[sub]
+    else:
+        meta = next(g for g in GENERATIONS if g["gen"] == gen)
 
     total = ctx["amount"]
     # 급여(관리급여) 항목은 '건강보험 본인부담금'이 실손 계산의 기준액이 된다.
@@ -220,6 +324,7 @@ def _gen_row(gen: int, ctx: dict) -> dict:
     badges: list[str] = []
     covered_cap: int | None = None
     copay = 0
+    copay_hi: int | None = None  # 범위 상한(모르겠어요 후기 행) — None이면 단일값
     cap_applied = False
     extra_note: list[str] = []
 
@@ -237,15 +342,21 @@ def _gen_row(gen: int, ctx: dict) -> dict:
     elif gen == 1:
         copay = min(5000, base) if visit == "out" else 0
     elif gen == 2:
-        # 관리급여(급여) 항목은 급여 90% 보장 — 비급여 80%(20% 공제)가 아니다.
-        # (인스팅트 #1193 ①: 2세대 관리급여 10회 438,500원 → 본인부담 83,315원이 아니라
-        #  416,575원(95%)의 10%인 41,658원이 맞다. 1회 43,850원은 외래공제 하한 2만원이
-        #  더 커서 두 계산이 같은 20,000원이 된다.)
-        cut = 10 if managed else 20
-        raw = pct(base, cut)
-        if visit == "out":
-            raw = max(raw, min(ded23, base))
-        copay = min(raw, base)
+        # 2세대 유형별 규칙(인스팅트 #1247): 전기·후기 10%형은 통원 정액만,
+        # 표준형·선택형Ⅱ는 통원 Max(형별 %, 정액). 관리급여도 같은 급여/비급여 구분을 따른다.
+        copay, copay_hi = gen2_copay(ctx, sub or "late", item, base, ded23)
+        # 통원 외래 1일 보상한도 25만원 — 비급여 통원에만 적용(관리급여는 회수 합산액이라 제외).
+        if visit == "out" and not managed:
+            _floor = base - OUTPATIENT_CAP_GEN2
+            if _floor > 0:
+                if copay < _floor:
+                    copay = _floor
+                    cap_applied = True
+                if copay_hi is not None and copay_hi < _floor:
+                    copay_hi = _floor
+                    cap_applied = True
+                if copay_hi is not None and copay_hi <= copay:
+                    copay_hi = None
     elif gen == 3:
         if item["special3"] and not managed:
             badges.append("3세대 비급여 특약")
@@ -307,6 +418,7 @@ def _gen_row(gen: int, ctx: dict) -> dict:
         raise ValueError(f"알 수 없는 세대: {gen}")
 
     covered = 0 if status == "excluded" else base - copay
+    covered_lo = (base - copay_hi) if (status != "excluded" and copay_hi is not None) else None
     if status != "excluded" and covered_cap is not None and covered > covered_cap:
         covered = covered_cap
         copay = base - covered
@@ -319,9 +431,9 @@ def _gen_row(gen: int, ctx: dict) -> dict:
     elif gen == 5 and not managed and item["excluded5"]:
         badges.append("5세대 보장 제외")
 
-    limits = _limits_for(gen, ctx, item)
+    limits = _limits_for(gen, ctx, item, sub)
     limits.extend(extra_note)
-    rate_label = _rate_label(gen, ctx, item)
+    rate_label = _rate_label(gen, ctx, item, sub)
     if status == "excluded" and gen_excluded:
         rate_label = "보장 제외"
         limits = [f"약관상 보장 제외(사유: {item.get('exclude_reason') or '보장 대상 아님'})",
@@ -333,11 +445,37 @@ def _gen_row(gen: int, ctx: dict) -> dict:
                   "산정특례 대상 질환 치료 등 특약1 해당 여부는 보험사 심사로 확인",
                   "4세대 이전 세대는 위 자기부담 기준으로 계산됩니다"]
 
+    if gen == 2:
+        _t = "early" if sub == "early" else ctx["gen2_type"]
+        if sub != "early" and _t == "early":
+            _t = "late20"  # 전기를 고른 경우 후기 행은 표준형(기존 기본값)으로 표시한다
+        _ded_txt = "외래공제(의원 1만·병원 1.5만·종합/상급 2만)"
+        if _t == "unknown":
+            if managed:
+                rule2 = (f"관리급여(급여) 항목: 통원은 정액 공제만 또는 형별 %와 {_ded_txt} "
+                         "중 큰 금액 — 유형별 범위 적용")
+            else:
+                rule2 = (f"비급여 본인부담 10%형~20%형 범위 · 통원은 형별 %와 {_ded_txt} "
+                         "중 큰 금액 공제")
+        else:
+            _spec = GEN2_SPEC[_t]
+            _cut = _spec["managed" if managed else "noncovered"]
+            if managed:
+                if _spec["out"] == "flat":
+                    rule2 = f"관리급여(급여) 항목: {100 - _cut}% 보장 · 통원은 정액 공제만({_ded_txt})"
+                else:
+                    rule2 = (f"관리급여(급여) 항목: {100 - _cut}% 보장 · 통원은 {_cut}%와 "
+                             f"{_ded_txt} 중 큰 금액 공제")
+            elif _spec["out"] == "flat":
+                rule2 = f"비급여 본인부담 {_cut}% · 통원은 정액 공제만({_ded_txt})"
+            else:
+                rule2 = (f"비급여 본인부담 {_cut}% · 통원은 {_cut}%와 {_ded_txt} "
+                         "중 큰 금액 공제")
+    else:
+        rule2 = ""
     rule = {
         1: "입원 100% 보장 / 통원 5,000원 공제 후 100% (표준형 기준)",
-        2: ("관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"
-            if managed else
-            "비급여 본인부담 20% · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"),
+        2: rule2,
         3: ("관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제 중 큰 금액 공제"
             if managed else
             ("3세대 비급여 특약(도수·체외충격파·증식·비급여 주사·MRI): 통원 Max(30%, 2만원) 공제"
@@ -357,14 +495,22 @@ def _gen_row(gen: int, ctx: dict) -> dict:
     elif status == "excluded":
         rule = f"5세대 비중증 비급여 보장 제외 항목({item['excluded5']}) — 특약2에서 보장하지 않습니다."
 
+    period = meta["period"]
+    if gen == 2 and sub == "late":
+        period = f"{period} · {GEN2_LATE_LABEL.get(ctx['gen2_type'], '10%형~20%형')} 기준"
     return {
         "gen": gen,
+        "sub": sub or "",
+        "key": {1: "g1", 3: "g3", 4: "g4", 5: "g5"}.get(gen) or f"g2{sub[0]}",
         "name": meta["name"],
-        "period": meta["period"],
+        "period": period,
         "status": status,
         "base": base,
         "copay": copay,
+        "copay_hi": copay_hi,
         "covered": covered,
+        "covered_lo": covered_lo,
+        "same_amount": False,
         "rate_label": rate_label,
         "rule": rule,
         "badges": badges,
@@ -377,7 +523,31 @@ def compute(req: dict, items: list[dict] | None = None) -> dict:
     """한 건의 비급여(또는 관리급여) 진료에 대한 1~5세대 비교 결과를 만든다."""
     items = items if items is not None else load_catalog()
     ctx = _normalize(req, items)
-    rows = [_gen_row(gen, ctx) for gen in (1, 2, 3, 4, 5)]
+    rows = [_gen_row(1, ctx), _gen_row(2, ctx, "early"), _gen_row(2, ctx, "late"),
+            _gen_row(3, ctx), _gen_row(4, ctx), _gen_row(5, ctx)]
+
+    # 부이 #1245 ⑤·⑧ — 후기 행 보충 안내 (전기 행과 후기 10%형 기준 대조)
+    _early, _late = rows[1], rows[2]
+    _ctx10 = dict(ctx, gen2_type="late10")
+    _late10 = _gen_row(2, _ctx10, "late")
+    _same = (_early["copay"] == _late10["copay"] and _early["covered"] == _late10["covered"]
+             and _early["status"] == _late10["status"])
+    _late["same_amount"] = _same
+    if _same and ctx["gen2_type"] in ("late10", "unknown"):
+        _late["limits"].append("전기(2013년 3월 이전 가입)와 후기 10%형은 같은 금액입니다")
+    _late_max_copay = _late["copay_hi"] if _late["copay_hi"] is not None else _late["copay"]
+    if _late_max_copay > _early["copay"]:
+        if ctx["gen2_type"] == "unknown":
+            _late["limits"].append("후기 20%형·선택형Ⅱ는 전기·후기 10%형보다 본인부담이 큽니다")
+        else:
+            _lbl = GEN2_LATE_LABEL.get(ctx["gen2_type"], "표준형 20%")
+            _late["limits"].append(
+                f"후기 {_lbl}는 전기·후기 10%형보다 본인부담이 큽니다")
+    if ctx["item"]["payment"] == "관리급여" and _late["copay_hi"] is not None:
+        # 범위인 경우는 '모르겠어요'뿐이다 — 표준형(20%형)은 83,315원 단일값으로 확정됨(#1247 (b))
+        _late["limits"].append(
+            f"후기 관리급여는 유형·약관에 따라 {won(_late['copay'])}~{won(_late['copay_hi'])}입니다 "
+            "— 금액 옆 범위를 확인하세요")
 
     covered_rows = [r for r in rows if r["status"] != "excluded"]
     best = max(covered_rows, key=lambda r: (r["covered"], -r["gen"])) if covered_rows else None
@@ -424,6 +594,7 @@ def compute(req: dict, items: list[dict] | None = None) -> dict:
         "generations": rows,
         "summary": {
             "best_gen": best["gen"] if best else None,
+            "best_key": best["key"] if best else None,
             "best_covered": best["covered"] if best else 0,
             "excluded_gens": [r["gen"] for r in rows if r["status"] == "excluded"],
         },
@@ -441,7 +612,8 @@ if __name__ == "__main__":  # 간단한 CLI 확인용
     ap.add_argument("--inst", default="tertiary",
                     choices=list(INSTITUTIONS))
     ap.add_argument("--severe", action="store_true")
-    ap.add_argument("--gen2", default="standard", choices=["standard", "select2"])
+    ap.add_argument("--gen2", default="unknown",
+                    choices=["early", "late10", "late20", "sel2", "unknown"])
     args = ap.parse_args()
     res = compute({"item_code": args.item, "amount": args.amount, "visit": args.visit,
                    "institution": args.inst, "severe": args.severe, "gen2_type": args.gen2})

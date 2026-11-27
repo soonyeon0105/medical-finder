@@ -53,7 +53,7 @@ def build_combos(n: int) -> list[dict]:
         c = {
             "gen": gen,
             "gen1_rate": rnd.choice([None, 0, 5, 20, 30, 50, 100, 120]),
-            "gen2_type": rnd.choice(["standard", "select1"]),
+            "gen2_type": rnd.choice(["early", "late10", "late20", "sel2", "select1"]),
             "gen3_type": rnd.choice(["standard", "select2"]),
             "pcur": rnd.choice(PREMIUMS),
             "p5_mode": mode,
@@ -117,6 +117,8 @@ def main() -> int:
 
     mismatches: list[str] = []
     ui_checked = 0
+    gen2_totals = {"early": 0, "late10": 0, "late20": 0, "sel2": 0, "select1": 0}
+    gen2_bad = {"early": 0, "late10": 0, "late20": 0, "sel2": 0, "select1": 0}
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -131,6 +133,10 @@ def main() -> int:
             got = page.evaluate("(args) => args.map(c => window.Gen5Sim.compute(c))", part)
             for c, g in zip(part, got):
                 errs = compare(c, g, E.compute(dict(c)))
+                if c.get("gen") == 2 and c.get("gen2_type") in gen2_totals:
+                    gen2_totals[c["gen2_type"]] += 1
+                    if errs:
+                        gen2_bad[c["gen2_type"]] += 1
                 if errs:
                     mismatches.append(f"{c} → " + " | ".join(errs[:3]))
             if not args.quiet:
@@ -149,14 +155,23 @@ def main() -> int:
                 for mild in (0, 1200000):
                     for in_cov in (0, 800000):
                         ui_cases.append({"gen": gen, "pcur": pcur, "mild": mild, "in_cov": in_cov,
-                                         "gen1_rate": 20, "gen2_type": "standard",
+                                         "gen1_rate": 20, "gen2_type": "late20",
                                          "gen3_type": "standard", "p5_mode": "auto",
                                          "discount": None, "out_cov": 300000, "out_visits": 6,
                                          "severe": 0, "mild_visits": 0, "inst": "clinic"})
+        # 2세대 UI 케이스는 전기/후기 10%형/후기 20%형을 번갈아 배정(전기/후기 분리 검증)
+        g2_cycle = ["early", "late10", "late20", "sel2"]
+        gi = 0
+        for c in ui_cases:
+            if c["gen"] == 2:
+                c["gen2_type"] = g2_cycle[gi % len(g2_cycle)]
+                gi += 1
         for c in ui_cases[:60]:
             pg.click(f'[data-seg="gen"][data-v="{c["gen"]}"]')
             if c["gen"] == 1:
                 pg.fill('[data-k="gen1_rate"]', str(c["gen1_rate"]))
+            if c["gen"] == 2:
+                pg.select_option("#gen2-type", c["gen2_type"])
             pg.fill('[data-k="pcur"]', str(c["pcur"]))
             for k in ("mild", "in_cov", "out_cov", "out_visits"):
                 pg.fill(f'[data-k="{k}"]', str(c[k]))
@@ -183,6 +198,9 @@ def main() -> int:
     httpd.shutdown()
 
     print(f"\n화면(UI) 표본 검증 {ui_checked}건")
+    print("2세대 유형 그룹별 엔진 대조 (전기/후기 분리):")
+    for g in ("early", "late10", "late20", "sel2", "select1"):
+        print(f"  - {g}: {gen2_totals[g]:,}건 · 불일치 {gen2_bad[g]}건")
     if mismatches:
         print(f"불일치 {len(mismatches)}건")
         for m in mismatches[:15]:
@@ -190,7 +208,9 @@ def main() -> int:
         return 1
     print(f"불일치 0건 · 엔진 비교 {len(combos):,}건 × 225개 값 = {len(combos) * 225:,}개 일치")
     out = {"combos": len(combos), "values_compared": len(combos) * 225,
-           "ui_cases": ui_checked, "mismatches": 0}
+           "ui_cases": ui_checked, "mismatches": 0,
+           "gen2_groups": {g: {"combos": gen2_totals[g], "mismatches": gen2_bad[g]}
+                           for g in gen2_totals}}
     (BASE / "scripts" / "crosscheck_switch_result.json").write_text(
         json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     return 0

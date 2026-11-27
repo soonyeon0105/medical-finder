@@ -2,5 +2,27 @@
  "combos": 4000,
  "values_compared": 900000,
  "ui_cases": 60,
- "mismatches": 0
+ "mismatches": 0,
+ "gen2_groups": {
+  "early": {
+   "combos": 85,
+   "mismatches": 0
+  },
+  "late10": {
+   "combos": 101,
+   "mismatches": 0
+  },
+  "late20": {
+   "combos": 93,
+   "mismatches": 0
+  },
+  "sel2": {
+   "combos": 88,
+   "mismatches": 0
+  },
+  "select1": {
+   "combos": 100,
+   "mismatches": 0
+  }
+ }
 }

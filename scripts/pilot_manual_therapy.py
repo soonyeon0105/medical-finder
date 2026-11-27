@@ -51,6 +51,17 @@ GEN_FIELD = """
       </div>
       <div class="row-note">세대를 고르면 결과 맨 위에 내 최종 부담이 크게 표시됩니다.</div>
     </div>
+    <div class="field" id="pilot-gen2-sub" style="display:none">
+      <span class="label" id="pilot-gen2-label">2세대 가입 시기·유형 <span class="hint">(2013년 3월 경계)</span></span>
+      <div class="seg pilot-gen pilot-gen2-sub" id="pilot-gen2-group" role="group" aria-labelledby="pilot-gen2-label">
+        <button type="button" data-mygen2="unknown" aria-pressed="true">모르겠어요</button>
+        <button type="button" data-mygen2="early" aria-pressed="false">선택형Ⅰ · 2013년 3월 이전 (10%)</button>
+        <button type="button" data-mygen2="late10" aria-pressed="false">선택형 · 2013.4~2015.8 (10%)</button>
+        <button type="button" data-mygen2="late20" aria-pressed="false">표준형 · 20%형</button>
+        <button type="button" data-mygen2="sel2" aria-pressed="false">선택형Ⅱ · 2015.9~ (급여 10% · 비급여 20%)</button>
+      </div>
+      <div class="row-note">전기는 재가입 조건이 없고(단, 2013년 1월~3월 표준형 가입자는 15년마다 재가입), 후기는 15년마다 재가입하는 유형입니다. 보험증권 첫 장의 가입일·상품명에서 확인하세요.</div>
+    </div>
 """
 
 HERO = """

@@ -17,6 +17,21 @@
 
   var STATS = window.PILOT_STATS || null;   // {code, n, avg, median, min, max, mode}
   var myGen = 0;                            // 0 = 모름
+  var myGen2 = 'unknown';                   // 2세대 세부: 'unknown'(모름) | 'early' | 'late10' | 'late20' | 'sel2'
+
+  function mySub() { return myGen2 === 'early' ? 'early' : 'late'; }
+
+  // '모르겠어요' 후기 행은 보장액도 범위로 표시한다.
+  function rangeNote(row) {
+    if (row.copay_hi === null || row.copay_hi === undefined) { return ''; }
+    return ' 유형에 따라 보장액 ' + won(row.covered_lo) + '~' + won(row.covered) +
+      ' · 최종 부담 ' + won(row.copay) + '~' + won(row.copay_hi) + ' 범위입니다.';
+  }
+  function isMine(r) {
+    if (r.gen !== myGen) { return false; }
+    if (myGen !== 2) { return true; }
+    return !myGen2 || r.sub === mySub();
+  }
 
   function $(sel) { return root.querySelector(sel); }
   function won(n) { return window.MedCalc.won(n); }
@@ -39,7 +54,7 @@
       visit: visitBtn ? visitBtn.getAttribute('data-visit') : 'out',
       institution: instBtn ? instBtn.getAttribute('data-inst') : 'tertiary',
       severe: sevBtn ? sevBtn.getAttribute('data-severe') === '1' : false,
-      gen2_type: g2 ? g2.value : 'standard',
+      gen2_type: g2 ? g2.value : 'unknown',
       severe_cum: isNaN(cum) ? 0 : cum,
       rounds: roundsInput ? Math.max(1, parseInt(roundsInput.value, 10) || 1) : 1
     };
@@ -65,13 +80,14 @@
   }
 
   function renderCompare(res) {
-    // '다른 세대와 비교' 접기 표 (밀크 #1164 ⑤): 세대·보장액·최종부담 3열 5줄.
+    // '다른 세대와 비교' 접기 표 (밀크 #1164 ⑤): 세대·보장액·최종부담 3열.
+    // 2세대는 전기·후기 두 행으로 나뉘어 총 6줄이 된다 (2026-11-28 분리).
     var body = $('#pilot-compare-body');
     if (!body || !res) { return; }
     body.innerHTML = '';
     res.generations.forEach(function (r) {
       var tr = document.createElement('tr');
-      if (r.gen === myGen) { tr.className = 'pilot-selected'; }
+      if (isMine(r)) { tr.className = 'pilot-selected'; }
       [[r.name, ''], [won(r.covered), 'num'], [won(r.copay), 'num']].forEach(function (cell) {
         var td = document.createElement('td');
         td.textContent = cell[0];
@@ -89,9 +105,28 @@
     var mkt = $('#pilot-hero-market');
     if (!num || !sub || !mkt) { return; }
 
+    // 메인 계산기의 #gen2-select 가 바뀌면 2세대 세부 선택도 따라간다.
+    if (myGen === 2) {
+      var g2selNow = $('#gen2-select');
+      if (g2selNow && ['early', 'late10', 'late20', 'sel2', 'unknown'].indexOf(g2selNow.value) >= 0) {
+        myGen2 = g2selNow.value;
+        var g2grp = $('#pilot-gen2-group');
+        if (g2grp) {
+          g2grp.querySelectorAll('button').forEach(function (x) {
+            x.setAttribute('aria-pressed', x.getAttribute('data-mygen2') === myGen2 ? 'true' : 'false');
+          });
+        }
+      }
+    }
+
     root.querySelectorAll('#result-table tbody tr').forEach(function (tr) {
-      tr.classList.toggle('pilot-selected',
-        !!myGen && tr.getAttribute('data-gen') === String(myGen));
+      var mine = false;
+      if (myGen) {
+        if (Number(tr.getAttribute('data-gen')) === myGen) {
+          mine = myGen !== 2 || !myGen2 || tr.getAttribute('data-sub') === mySub();
+        }
+      }
+      tr.classList.toggle('pilot-selected', mine);
     });
     root.classList.toggle('pilot-has-gen', !!myGen);
 
@@ -126,14 +161,24 @@
     } catch (e) { return; }
     renderCompare(res);
     var row = null;
-    res.generations.forEach(function (r) { if (r.gen === myGen) { row = r; } });
+    res.generations.forEach(function (r) { if (isMine(r)) { row = r; } });
     if (!row) { return; }
 
     lbl.textContent = '내 최종 부담 · ' + row.name + ' 기준';
     num.classList.remove('pilot-hero-num--guide');
-    num.textContent = won(row.copay);
+    // '모르겠어요' 후기 행은 범위로 표시한다(부이 #1245 ①).
+    num.textContent = row.copay_hi !== null && row.copay_hi !== undefined
+      ? won(row.copay) + ' ~ ' + won(row.copay_hi) : won(row.copay);
+    var rejoinNote = '';
+    if (row.sub === 'early') {
+      rejoinNote = ' 전기(2013년 3월 이전 가입)는 재가입 조건이 없어 보장이 그대로 유지됩니다' +
+        '(단, 2013년 1월~3월 표준형 가입자는 15년마다 재가입합니다).';
+    } else if (row.sub === 'late') {
+      rejoinNote = ' 후기(2013년 4월 이후 가입)는 15년마다 재가입하는 유형으로, 가입 시점에 따라 ' +
+        '2028년부터 재가입 시점이 도래합니다.';
+    }
     if (row.status === 'excluded') {
-      sub.textContent = '이 항목은 ' + row.name + '에서 보장 제외라 전액 본인부담입니다(예상 보장액 0원).';
+      sub.textContent = '이 항목은 ' + row.name + '에서 보장 제외라 전액 본인부담입니다(예상 보장액 0원).' + rejoinNote;
     } else {
       // 관리급여 항목은 보장액+부담의 합이 진료비의 95%(건강보험 본인부담)라,
       // '진료비 중 내가 내는 금액'만 쓰면 합계가 안 맞는 것처럼 보인다 (인스팅트 #1215 ②).
@@ -147,16 +192,17 @@
         var insurer = res.input.amount - burden95;
         sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
           ' · ' + st.rounds + '회 진료비 ' + won(res.input.amount) + ' 중 건강보험 본인부담 ' + won(burden95) +
-          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.';
+          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.' + rangeNote(row) + rejoinNote;
       } else {
         sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
-          ' · 진료비 ' + won(res.input.amount) + ' 중 내가 내는 금액입니다.';
+          ' · 진료비 ' + won(res.input.amount) + ' 중 내가 내는 금액입니다.' + rangeNote(row) + rejoinNote;
       }
     }
   }
 
   /* 내 세대 선택 */
   var genGroup = $('#pilot-gen-group');
+  var gen2Sub = $('#pilot-gen2-sub');
   if (genGroup) {
     genGroup.querySelectorAll('button').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -164,6 +210,26 @@
         genGroup.querySelectorAll('button').forEach(function (x) {
           x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
         });
+        if (gen2Sub) { gen2Sub.style.display = myGen === 2 ? '' : 'none'; }
+        render();
+      });
+    });
+  }
+
+  /* 2세대 세부(전기/후기) 선택 — 메인 계산기의 #gen2-select 와 값을 맞춘다 */
+  var gen2Group = $('#pilot-gen2-group');
+  if (gen2Group) {
+    gen2Group.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        myGen2 = b.getAttribute('data-mygen2') || '';
+        gen2Group.querySelectorAll('button').forEach(function (x) {
+          x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+        });
+        var g2sel = $('#gen2-select');
+        if (g2sel && myGen2) {
+          g2sel.value = myGen2;
+          g2sel.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         render();
       });
     });

@@ -47,7 +47,11 @@
       return { cov_in: r, cov_out: r, severe: r, mild: r };
     }
     if (gen === 2) {
-      if (gen2Type === 'select1') { return { cov_in: 10, cov_out: 10, severe: 20, mild: 20 }; }
+      // 2세대 전기·후기: 전기(2013.3 이전) 10% 단일, 후기 10%형 10%, 표준형 20%,
+      // 선택형Ⅱ(2015.9~2017.3) 급여 10%·비급여 20%.
+      // 레거시 select1 은 선택형Ⅱ와 같은 값의 호환값, standard 는 late20 과 같다.
+      if (gen2Type === 'early' || gen2Type === 'late10') { return { cov_in: 10, cov_out: 10, severe: 10, mild: 10 }; }
+      if (gen2Type === 'sel2' || gen2Type === 'select1') { return { cov_in: 10, cov_out: 10, severe: 20, mild: 20 }; }
       return { cov_in: 20, cov_out: 20, severe: 20, mild: 20 };
     }
     if (gen === 3) {
@@ -165,7 +169,7 @@
     if (gen !== 1 && gen !== 2 && gen !== 3 && gen !== 4) { out.hold = 'gen_missing'; return out; }
     if (pcur <= 0) { out.hold = 'premium_unknown'; return out; }
     var rCur = rates(gen, req.gen1_rate === '' ? null : req.gen1_rate,
-      req.gen2_type || 'standard', req.gen3_type || 'standard');
+      req.gen2_type || 'late20', req.gen3_type || 'standard');
     if (!rCur) { out.hold = 'gen1_rate'; return out; }
     var r5 = rates(5);
     var prem = premium5(pcur, req.p5_mode === 'manual' ? 'manual' : 'auto', req.p5, req.discount, gen);
@@ -252,7 +256,7 @@
       var req = {
         gen: g,
         gen1_rate: val('gen1_rate'),
-        gen2_type: val('gen2_type') || 'standard',
+        gen2_type: val('gen2_type') || 'late20',
         gen3_type: val('gen3_type') || 'standard',
         pcur: pcurUnknown ? 0 : Math.trunc(num(val('pcur'))),
         p5_mode: val('p5_mode') || 'auto',

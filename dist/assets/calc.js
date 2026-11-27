@@ -24,6 +24,62 @@
     { gen: 4, name: '4세대', period: '2021.7~2026.4', short: '4세대' },
     { gen: 5, name: '5세대', period: '2026.5.6 출시', short: '5세대' }
   ];
+  // 2세대 전기·후기 — 결과 표에서 두 행으로 분리 (calc_engine.py GEN2_META 와 동일)
+  var GEN2_META = {
+    early: { name: '2세대 전기', period: '2009.10~2013.3', short: '2세대 전기' },
+    late: { name: '2세대 후기', period: '2013.4~2017.3', short: '2세대 후기' }
+  };
+  // 2세대 유형별 규칙 (인스팅트 #1247 반영 — 근거: 금융위 2012-12-21 보도자료 + 시기별 상세표, 2차 확인)
+  var GEN2_SPEC = {
+    // noncovered: 비급여 자기부담률(%) · managed: 관리급여(급여) 자기부담률(%) ·
+    // out: 통원 공제 방식 — flat(정액만) / max(율과 정액 중 큰 금액)
+    early: { noncovered: 10, managed: 10, out: 'flat' },
+    late10: { noncovered: 10, managed: 10, out: 'flat' },
+    late20: { noncovered: 20, managed: 20, out: 'max' },
+    sel2: { noncovered: 20, managed: 10, out: 'max' }
+  };
+  var GEN2_TYPES = ['early', 'late10', 'late20', 'sel2', 'unknown'];
+  var GEN2_LATE_LABEL = { late10: '10%형', late20: '표준형 20%', sel2: '선택형Ⅱ', unknown: '10%형~20%형' };
+  var OUTPATIENT_CAP_GEN2 = 250000;  // 2세대 통원 외래 1일 보상한도 (표준약관 기준)
+
+  function gen2Legacy(v) {
+    // 2세대 유형 값 정규화 — 레거시 standard→표준형(late20), select2→선택형Ⅱ(sel2)
+    if (GEN2_TYPES.indexOf(v) >= 0) { return v; }
+    if (v === 'standard') { return 'late20'; }
+    if (v === 'select2') { return 'sel2'; }
+    return 'unknown';
+  }
+
+  function gen2CutCopay(base, cut, mode, visit, ded23) {
+    // 2세대 본인부담 1건 — flat은 통원 정액만, max는 율과 정액 중 큰 금액
+    var r = pct(base, cut);
+    if (visit === 'out') {
+      r = mode === 'flat' ? Math.min(ded23, base) : Math.max(r, Math.min(ded23, base));
+    }
+    return Math.min(r, base);
+  }
+
+  // 2세대 행의 본인부담 [copay, copayHi|null] — unknown은 후기 3유형의 최소~최대
+  function gen2Copay(ctx, sub, item, base, ded23) {
+    var managed = item.payment === '관리급여';
+    var key = managed ? 'managed' : 'noncovered';
+    if (sub === 'early') {
+      var specE = GEN2_SPEC.early;
+      return [gen2CutCopay(base, specE[key], specE.out, ctx.visit, ded23), null];
+    }
+    var t = ctx.gen2_type;
+    if (t === 'early') { t = 'late20'; }  // 전기를 고른 경우 후기 행은 표준형(기존 기본값)으로 표시한다
+    if (GEN2_SPEC[t]) {
+      var spec = GEN2_SPEC[t];
+      return [gen2CutCopay(base, spec[key], spec.out, ctx.visit, ded23), null];
+    }
+    var vals = ['late10', 'late20', 'sel2'].map(function (_t) {
+      var s = GEN2_SPEC[_t];
+      return gen2CutCopay(base, s[key], s.out, ctx.visit, ded23);
+    });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    return [lo, hi > lo ? hi : null];
+  }
 
   var MANAGED_UNIT_PRICE = 43850;
   var MANAGED_COPAY_RATE = 0.95;
@@ -79,21 +135,41 @@
       visit: visit,
       institution: inst,
       severe: !!req.severe,
-      gen2_type: req.gen2_type === 'select2' ? 'select2' : 'standard',
+      // 레거시 standard→표준형(late20), select2→선택형Ⅱ(sel2)
+      gen2_type: gen2Legacy(req.gen2_type),
       severe_cum: Math.max(0, Math.trunc(Number(req.severe_cum) || 0)),
       rounds: Math.max(1, Math.trunc(Number(req.rounds) || 1))
     };
   }
 
-  function limitsFor(gen, ctx, item) {
+  function limitsFor(gen, ctx, item, sub) {
     var notes = [];
     var managed = item.payment === '관리급여';
     if (gen === 1) {
       notes.push('세대 표준형 기준 · 상품별 약관(한도·자기부담) 차이 있음');
     } else if (gen === 2) {
-      notes.push('통원 회당 보장한도·연간 한도는 상품별 약관 확인 필요');
-      if (managed) { notes.push('관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(통원 10% 공제)'); }
-      else if (ctx.gen2_type === 'select2') { notes.push('선택형Ⅱ: 급여 90% · 비급여 80%'); }
+      notes.push('통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 연간 180회 (표준약관 기준)');
+      if (managed) { notes.push('관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(표준형은 80%)'); }
+      if (sub === 'early') {
+        notes.push('2013년 3월 이전 가입(전기·선택형Ⅰ) — 재가입 절차가 없는 유형입니다(약관 기준)');
+        notes.push('단, 2013년 1월~3월에 표준형으로 가입한 경우 15년마다 재가입합니다 — 증권에서 확인하세요');
+      } else if (ctx.gen2_type === 'unknown') {
+        notes.push('2013년 4월 이후 가입(후기) · 자기부담 10%형/20%형 — 유형을 모르면 세 유형의 범위로 표시합니다');
+        notes.push('15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. ' +
+          '재가입 때 보험료와 조건은 보험사 안내를 확인하세요');
+      } else if (ctx.gen2_type === 'late10') {
+        notes.push('2013년 4월~2015년 8월 가입(후기 10%형·선택형) · 자기부담 10% · 15년마다 재가입합니다');
+        notes.push('15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. ' +
+          '재가입 때 보험료와 조건은 보험사 안내를 확인하세요');
+      } else if (ctx.gen2_type === 'sel2') {
+        notes.push('2015년 9월~2017년 3월 가입(후기 선택형Ⅱ) · 급여 10% · 비급여 20% · 15년마다 재가입합니다');
+        notes.push('15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. ' +
+          '재가입 때 보험료와 조건은 보험사 안내를 확인하세요');
+      } else {  // late20 표준형
+        notes.push('표준형(20%형) · 급여·비급여 자기부담 20% · 15년마다 재가입합니다');
+        notes.push('15년마다 재가입하는 유형 — 가입 시점에 따라 2028년부터 재가입 시점이 도래합니다. ' +
+          '재가입 때 보험료와 조건은 보험사 안내를 확인하세요');
+      }
     } else if (gen === 3) {
       notes.push('비급여 연간 한도·갱신 조건은 약관 확인 필요');
       if (managed) { notes.push('관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(통원 10% 공제)'); }
@@ -120,13 +196,23 @@
     return notes;
   }
 
-  function rateLabel(gen, ctx, item) {
+  function rateLabel(gen, ctx, item, sub) {
     var visit = ctx.visit;
     var managed = item.payment === '관리급여';
     if (gen === 1) { return visit === 'in' ? '입원 100%' : '5천원 공제 후 100%'; }
     if (gen === 2) {
-      if (managed) { return visit === 'in' ? '급여 90%' : 'Max(10%, 외래공제)'; }
-      return visit === 'in' ? '20%' : 'Max(20%, 외래공제)';
+      var t2 = sub === 'early' ? 'early' : ctx.gen2_type;
+      if (sub !== 'early' && t2 === 'early') { t2 = 'late20'; }  // 전기를 고른 경우 후기 행은 표준형으로 표시한다
+      if (t2 === 'unknown') {
+        return visit === 'in' ? '10%~20%' : 'Max(10%~20%, 외래공제)';
+      }
+      var spec2 = GEN2_SPEC[t2];
+      var cut2 = spec2[managed ? 'managed' : 'noncovered'];
+      if (visit === 'in') {
+        return (managed && cut2 === 10) ? '급여 90%' : cut2 + '%';
+      }
+      if (spec2.out === 'flat') { return '정액만(외래공제)'; }
+      return 'Max(' + cut2 + '%, 외래공제)';
     }
     if (gen === 3) {
       if (item.special3 && !managed) { return visit === 'in' ? '20%' : 'Max(30%, 2만원)'; }
@@ -142,13 +228,16 @@
     return visit === 'in' ? '50%' : 'Max(50%, 5만원)';
   }
 
-  function genRow(gen, ctx) {
+  function genRow(gen, ctx, sub) {
     var item = ctx.item;
     var visit = ctx.visit;
     var inst = ctx.institution;
     var managed = item.payment === '관리급여';
     var meta = null;
-    for (var i = 0; i < GENERATIONS.length; i++) { if (GENERATIONS[i].gen === gen) { meta = GENERATIONS[i]; } }
+    if (gen === 2 && sub && GEN2_META[sub]) { meta = GEN2_META[sub]; }
+    else {
+      for (var i = 0; i < GENERATIONS.length; i++) { if (GENERATIONS[i].gen === gen) { meta = GENERATIONS[i]; } }
+    }
 
     var total = ctx.amount;
     var base = managed ? pct(total, 95) : total;
@@ -159,6 +248,7 @@
     var badges = [];
     var coveredCap = null;
     var copay = 0;
+    var copayHi = null;  // 범위 상한(모르겠어요 후기 행) — null이면 단일값
     var capApplied = false;
     var extraNote = [];
     var raw = 0;
@@ -174,11 +264,20 @@
     } else if (gen === 1) {
       copay = visit === 'out' ? Math.min(5000, base) : 0;
     } else if (gen === 2) {
-      // 관리급여(급여) 항목은 급여 90% 보장 — 비급여 80%(20% 공제)가 아니다 (인스팅트 #1193 ①).
-      var cut = managed ? 10 : 20;
-      raw = pct(base, cut);
-      if (visit === 'out') { raw = Math.max(raw, Math.min(ded23, base)); }
-      copay = Math.min(raw, base);
+      // 2세대 유형별 규칙(인스팅트 #1247): 전기·후기 10%형은 통원 정액만,
+      // 표준형·선택형Ⅱ는 통원 Max(형별 %, 정액). 관리급여도 같은 급여/비급여 구분을 따른다.
+      var g2pair = gen2Copay(ctx, sub || 'late', item, base, ded23);
+      copay = g2pair[0];
+      copayHi = g2pair[1];
+      // 통원 외래 1일 보상한도 25만원 — 비급여 통원에만 적용(관리급여는 회수 합산액이라 제외).
+      if (visit === 'out' && !managed) {
+        var floor2 = base - OUTPATIENT_CAP_GEN2;
+        if (floor2 > 0) {
+          if (copay < floor2) { copay = floor2; capApplied = true; }
+          if (copayHi !== null && copayHi < floor2) { copayHi = floor2; capApplied = true; }
+          if (copayHi !== null && copayHi <= copay) { copayHi = null; }
+        }
+      }
     } else if (gen === 3) {
       if (item.special3 && !managed) {
         badges.push('3세대 비급여 특약');
@@ -240,6 +339,7 @@
     }
 
     var covered = status === 'excluded' ? 0 : base - copay;
+    var coveredLo = (status !== 'excluded' && copayHi !== null) ? base - copayHi : null;
     if (status !== 'excluded' && coveredCap !== null && covered > coveredCap) {
       covered = coveredCap;
       copay = base - covered;
@@ -250,9 +350,9 @@
     if (genExcluded) { badges.push('약관상 보장 제외'); }
     else if (gen === 5 && !managed && item.excluded5) { badges.push('5세대 보장 제외'); }
 
-    var limits = limitsFor(gen, ctx, item);
+    var limits = limitsFor(gen, ctx, item, sub);
     for (var k = 0; k < extraNote.length; k++) { limits.push(extraNote[k]); }
-    var rate = rateLabel(gen, ctx, item);
+    var rate = rateLabel(gen, ctx, item, sub);
     if (status === 'excluded' && genExcluded) {
       rate = '보장 제외';
       limits = ['약관상 보장 제외(사유: ' + (item.exclude_reason || '보장 대상 아님') + ')',
@@ -268,9 +368,30 @@
     var rule;
     if (gen === 1) { rule = '입원 100% 보장 / 통원 5,000원 공제 후 100% (표준형 기준)'; }
     else if (gen === 2) {
-      rule = managed
-        ? '관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제'
-        : '비급여 본인부담 20% · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제';
+      var t2 = sub === 'early' ? 'early' : ctx.gen2_type;
+      if (sub !== 'early' && t2 === 'early') { t2 = 'late20'; }  // 전기를 고른 경우 후기 행은 표준형으로 표시한다
+      var dedTxt = '외래공제(의원 1만·병원 1.5만·종합/상급 2만)';
+      if (t2 === 'unknown') {
+        if (managed) {
+          rule = '관리급여(급여) 항목: 통원은 정액 공제만 또는 형별 %와 ' + dedTxt + ' 중 큰 금액 — 유형별 범위 적용';
+        } else {
+          rule = '비급여 본인부담 10%형~20%형 범위 · 통원은 형별 %와 ' + dedTxt + ' 중 큰 금액 공제';
+        }
+      } else {
+        var specR = GEN2_SPEC[t2];
+        var cutR = specR[managed ? 'managed' : 'noncovered'];
+        if (managed) {
+          if (specR.out === 'flat') {
+            rule = '관리급여(급여) 항목: ' + (100 - cutR) + '% 보장 · 통원은 정액 공제만(' + dedTxt + ')';
+          } else {
+            rule = '관리급여(급여) 항목: ' + (100 - cutR) + '% 보장 · 통원은 ' + cutR + '%와 ' + dedTxt + ' 중 큰 금액 공제';
+          }
+        } else if (specR.out === 'flat') {
+          rule = '비급여 본인부담 ' + cutR + '% · 통원은 정액 공제만(' + dedTxt + ')';
+        } else {
+          rule = '비급여 본인부담 ' + cutR + '% · 통원은 ' + cutR + '%와 ' + dedTxt + ' 중 큰 금액 공제';
+        }
+      }
     }
     else if (gen === 3) {
       rule = managed
@@ -293,14 +414,24 @@
       rule = '5세대 비중증 비급여 보장 제외 항목(' + item.excluded5 + ') — 특약2에서 보장하지 않습니다.';
     }
 
+    var period = meta.period;
+    if (gen === 2 && sub === 'late') {
+      period = period + ' · ' + (GEN2_LATE_LABEL[ctx.gen2_type] || '10%형~20%형') + ' 기준';
+    }
+    var key = gen === 2 ? 'g2' + (sub || 'late').charAt(0) : 'g' + gen;
     return {
       gen: gen,
+      sub: sub || '',
+      key: key,
       name: meta.name,
-      period: meta.period,
+      period: period,
       status: status,
       base: base,
       copay: copay,
+      copay_hi: copayHi,
       covered: covered,
+      covered_lo: coveredLo,
+      same_amount: false,
       rate_label: rate,
       rule: rule,
       badges: badges,
@@ -312,7 +443,32 @@
   function compute(req, items) {
     items = items || (root.MED_CATALOG && root.MED_CATALOG.items) || [];
     var ctx = normalize(req, items);
-    var rows = [1, 2, 3, 4, 5].map(function (g) { return genRow(g, ctx); });
+    var rows = [genRow(1, ctx), genRow(2, ctx, 'early'), genRow(2, ctx, 'late'),
+      genRow(3, ctx), genRow(4, ctx), genRow(5, ctx)];
+
+    // 부이 #1245 ⑤·⑧ — 후기 행 보충 안내 (전기 행과 후기 10%형 기준 대조)
+    var earlyRow = rows[1], lateRow = rows[2];
+    var ctx10 = Object.assign({}, ctx, { gen2_type: 'late10' });
+    var late10Row = genRow(2, ctx10, 'late');
+    var sameAmt = earlyRow.copay === late10Row.copay && earlyRow.covered === late10Row.covered &&
+      earlyRow.status === late10Row.status;
+    lateRow.same_amount = sameAmt;
+    if (sameAmt && (ctx.gen2_type === 'late10' || ctx.gen2_type === 'unknown')) {
+      lateRow.limits.push('전기(2013년 3월 이전 가입)와 후기 10%형은 같은 금액입니다');
+    }
+    var lateMaxCopay = lateRow.copay_hi !== null && lateRow.copay_hi !== undefined ? lateRow.copay_hi : lateRow.copay;
+    if (lateMaxCopay > earlyRow.copay) {
+      if (ctx.gen2_type === 'unknown') {
+        lateRow.limits.push('후기 20%형·선택형Ⅱ는 전기·후기 10%형보다 본인부담이 큽니다');
+      } else {
+        lateRow.limits.push('후기 ' + (GEN2_LATE_LABEL[ctx.gen2_type] || '표준형 20%') + '는 전기·후기 10%형보다 본인부담이 큽니다');
+      }
+    }
+    if (ctx.item.payment === '관리급여' && lateRow.copay_hi !== null && lateRow.copay_hi !== undefined) {
+      // 범위인 경우는 '모르겠어요'뿐이다 — 표준형(20%형)은 83,315원 단일값으로 확정됨(#1247 (b))
+      lateRow.limits.push('후기 관리급여는 유형·약관에 따라 ' + won(lateRow.copay) + '~' + won(lateRow.copay_hi) +
+        '입니다 — 금액 옆 범위를 확인하세요');
+    }
 
     var coveredRows = rows.filter(function (r) { return r.status !== 'excluded'; });
     var best = null;
@@ -356,6 +512,7 @@
       generations: rows,
       summary: {
         best_gen: best ? best.gen : null,
+        best_key: best ? best.key : null,
         best_covered: best ? best.covered : 0,
         excluded_gens: rows.filter(function (r) { return r.status === 'excluded'; }).map(function (r) { return r.gen; })
       },

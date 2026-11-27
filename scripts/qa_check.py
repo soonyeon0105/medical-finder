@@ -261,14 +261,50 @@ def main() -> int:
     items = catalog
 
     def g(req, gen):
-        return E.compute(req, items)["generations"][gen - 1]
+        # gen 은 세대 번호 또는 (세대, 세부) 튜플 — 2세대는 전기/후기를 행으로 구분한다.
+        gen_no, sub = gen if isinstance(gen, tuple) else (gen, None)
+        for r in E.compute(req, items)["generations"]:
+            if r["gen"] == gen_no and (sub is None or r["sub"] == sub):
+                return r
+        raise AssertionError(f"행 없음: gen={gen}")
 
     cases = [
         # (설명, 요청, 세대, 기대 covered, 기대 copay, 기대 status)
         ("뇌MRI 600,000 통원·상급종합(비중증) 1세대", dict(item_code="HE1010001", amount=600000,
                                                      visit="out", institution="tertiary"), 1, 595000, 5000, "covered"),
-        ("뇌MRI 600,000 통원·상급 2세대", dict(item_code="HE1010001", amount=600000,
-                                          visit="out", institution="tertiary"), 2, 480000, 120000, "covered"),
+        # 2세대 통원 600,000원: 외래 1일 한도 25만원이 걸려 모든 유형이 보장 25만·부담 35만원
+        ("뇌MRI 600,000 통원·상급 2세대 전기(정액만 + 외래 25만 한도)", dict(item_code="HE1010001", amount=600000,
+                                          visit="out", institution="tertiary"), (2, "early"), 250000, 350000, "covered"),
+        ("뇌MRI 600,000 통원·상급 2세대 후기 10%형(정액만 + 외래 25만 한도)", dict(item_code="HE1010001", amount=600000,
+                                          visit="out", institution="tertiary", gen2_type="late10"),
+         (2, "late"), 250000, 350000, "covered"),
+        ("뇌MRI 600,000 통원·상급 2세대 표준형(외래 25만 한도)", dict(item_code="HE1010001", amount=600000,
+                                          visit="out", institution="tertiary", gen2_type="late20"),
+         (2, "late"), 250000, 350000, "covered"),
+        # 2세대 통원 250,000원(한도 안): 유형별 공제 공식이 갈린다
+        ("뇌MRI 250,000 통원·상급 2세대 전기(정액만)", dict(item_code="HE1010001", amount=250000,
+                                          visit="out", institution="tertiary"), (2, "early"), 230000, 20000, "covered"),
+        ("뇌MRI 250,000 통원·상급 2세대 후기 10%형(정액만)", dict(item_code="HE1010001", amount=250000,
+                                          visit="out", institution="tertiary", gen2_type="late10"),
+         (2, "late"), 230000, 20000, "covered"),
+        ("뇌MRI 250,000 통원·상급 2세대 표준형(Max 20%)", dict(item_code="HE1010001", amount=250000,
+                                          visit="out", institution="tertiary", gen2_type="late20"),
+         (2, "late"), 200000, 50000, "covered"),
+        ("뇌MRI 250,000 통원·상급 2세대 선택형Ⅱ(비급여 20%)", dict(item_code="HE1010001", amount=250000,
+                                          visit="out", institution="tertiary", gen2_type="sel2"),
+         (2, "late"), 200000, 50000, "covered"),
+        ("뇌MRI 250,000 통원·상급 2세대 모름(하한=정액)", dict(item_code="HE1010001", amount=250000,
+                                          visit="out", institution="tertiary", gen2_type="unknown"),
+         (2, "late"), 230000, 20000, "covered"),
+        # 2세대 입원 600,000원: 통원 한도가 없어 유형별 %가 그대로 갈린다
+        ("뇌MRI 600,000 입원·상급 2세대 전기(10%)", dict(item_code="HE1010001", amount=600000,
+                                          visit="in", institution="tertiary"), (2, "early"), 540000, 60000, "covered"),
+        ("뇌MRI 600,000 입원·상급 2세대 표준형(20%)", dict(item_code="HE1010001", amount=600000,
+                                          visit="in", institution="tertiary", gen2_type="late20"),
+         (2, "late"), 480000, 120000, "covered"),
+        ("뇌MRI 600,000 입원·상급 2세대 선택형Ⅱ(비급여 20%)", dict(item_code="HE1010001", amount=600000,
+                                          visit="in", institution="tertiary", gen2_type="sel2"),
+         (2, "late"), 480000, 120000, "covered"),
         ("뇌MRI 600,000 통원·상급 3세대(특약 30%)", dict(item_code="HE1010001", amount=600000,
                                                   visit="out", institution="tertiary"), 3, 420000, 180000, "covered"),
         ("뇌MRI 600,000 통원·상급 4세대(회당 20만 한도)", dict(item_code="HE1010001", amount=600000,
@@ -285,16 +321,42 @@ def main() -> int:
                                        visit="out", institution="tertiary"), 1, 36658, 5000, "covered"),
         ("도수치료 1회 통원·상급 5세대(건보 95% 연동)", dict(item_code="MX1220000", amount=None, rounds=1,
                                                     visit="out", institution="tertiary"), 5, 2083, 39575, "covered"),
-        ("도수치료 1회 통원·의원 2세대 선택형Ⅱ(급여 90%)", dict(item_code="MX1220000", amount=None, rounds=1,
-                                                     visit="out", institution="clinic", gen2_type="select2"),
-         2, 31658, 10000, "covered"),
+        ("도수치료 1회 통원·의원 2세대 전기(관리급여 정액만)", dict(item_code="MX1220000", amount=None, rounds=1,
+                                                     visit="out", institution="clinic", gen2_type="early"),
+         (2, "early"), 31658, 10000, "covered"),
+        ("도수치료 1회 통원·의원 2세대 표준형(관리급여 20%·외래공제 하한)", dict(item_code="MX1220000", amount=None, rounds=1,
+                                                     visit="out", institution="clinic", gen2_type="late20"),
+         (2, "late"), 31658, 10000, "covered"),
+        # 도수치료 10회 통원·의원: 관리급여 유형별 %가 갈린다(정액만 1만 / 표준형 83,315 / 선택형Ⅱ 41,658)
+        ("도수치료 10회 통원·의원 2세대 전기(관리급여 정액만)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="out", institution="clinic", gen2_type="early"),
+         (2, "early"), 406575, 10000, "covered"),
+        ("도수치료 10회 통원·의원 2세대 표준형(관리급여 20%)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="out", institution="clinic", gen2_type="late20"),
+         (2, "late"), 333260, 83315, "covered"),
+        ("도수치료 10회 통원·의원 2세대 선택형Ⅱ(관리급여 10%)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="out", institution="clinic", gen2_type="sel2"),
+         (2, "late"), 374917, 41658, "covered"),
+        ("도수치료 10회 통원·의원 2세대 모름(하한=정액)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="out", institution="clinic", gen2_type="unknown"),
+         (2, "late"), 406575, 10000, "covered"),
+        ("도수치료 10회 입원·상급 2세대 전기(관리급여 10%)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="in", institution="tertiary", gen2_type="early"),
+         (2, "early"), 374917, 41658, "covered"),
+        ("도수치료 10회 입원·상급 2세대 표준형(관리급여 20%)", dict(item_code="MX1220000", amount=None, rounds=10,
+                                                     visit="in", institution="tertiary", gen2_type="late20"),
+         (2, "late"), 333260, 83315, "covered"),
         ("뇌MRI 1,000,000 입원 상급 5세대 중증·연 500만 상한 초과분", dict(
             item_code="HE1010001", amount=1000000, visit="in", institution="tertiary",
             severe=True, severe_cum=4900000), 5, 900000, 100000, "covered"),
         ("직접입력 0원", dict(item_code="direct", amount=0, visit="out", institution="tertiary"),
          4, 0, 0, "covered"),
-        ("2세대 통원 의원 공제 1만(금액 30,000 → 20%=6천 < 1만)", dict(
-            item_code="EB4410000", amount=30000, visit="out", institution="clinic"), 2, 20000, 10000, "covered"),
+        ("2세대 전기 통원 의원 공제 1만(금액 30,000 → 정액 1만만 적용)", dict(
+            item_code="EB4410000", amount=30000, visit="out", institution="clinic"), (2, "early"),
+         20000, 10000, "covered"),
+        ("2세대 표준형 통원 의원 공제 1만(금액 30,000 → 20%=6천 < 1만)", dict(
+            item_code="EB4410000", amount=30000, visit="out", institution="clinic", gen2_type="late20"),
+         (2, "late"), 20000, 10000, "covered"),
         ("3세대 기본 비급여 통원 의원(20% vs 1만)", dict(item_code="EB4410000", amount=30000,
                                               visit="out", institution="clinic"), 3, 20000, 10000, "covered"),
     ]
@@ -686,6 +748,21 @@ def main() -> int:
         ok("2세대 통원 6회 → 연 144,000원 절약(최소공제 동일)",
            (g2["delta"], g2["oop_cur"], g2["oop5"]) == (144000, 60000, 60000),
            str({k: g2[k] for k in ("delta", "oop_cur", "oop5")}))
+        g2e = S.compute({"gen": 2, "pcur": 24000, "out_cov": 1200000, "out_visits": 6,
+                         "gen2_type": "early"})
+        ok("2세대 전기(10%) 통원 6회 → 부담 120,000원·Δ 24,000원(보류)",
+           (g2e["oop_cur"], g2e["delta"], g2e["verdict"]) == (120000, 24000, "hold"),
+           str({k: g2e[k] for k in ("delta", "oop_cur", "verdict")}))
+        g2l = S.compute({"gen": 2, "pcur": 24000, "out_cov": 1200000, "out_visits": 6,
+                         "gen2_type": "late20"})
+        ok("2세대 후기 20%형 통원 6회 → 부담 240,000원·Δ 144,000원(절약)",
+           (g2l["oop_cur"], g2l["delta"], g2l["verdict"]) == (240000, 144000, "save"),
+           str({k: g2l[k] for k in ("delta", "oop_cur", "verdict")}))
+        g2s = S.compute({"gen": 2, "pcur": 24000, "out_cov": 1200000, "out_visits": 6,
+                         "gen2_type": "sel2"})
+        ok("2세대 선택형Ⅱ 통원 6회 → 급여 10%라 전기와 같은 부담 120,000원·Δ 24,000원(보류)",
+           (g2s["oop_cur"], g2s["delta"], g2s["verdict"]) == (120000, 24000, "hold"),
+           str({k: g2s[k] for k in ("delta", "oop_cur", "verdict")}))
         ok("1세대 자기부담률 미입력 → 계산 보류", S.compute({"gen": 1, "pcur": 24000})["hold"] == "gen1_rate", "")
         g3 = S.compute({"gen": 1, "pcur": 24000, "gen1_rate": 20, "mild": 600000})
         ok("1세대 20%·비중증 60만 → 판단 보류(|Δ|≤5만)", (g3["delta"], g3["verdict"]) == (-36000, "hold"),
