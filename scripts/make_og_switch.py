@@ -26,12 +26,12 @@ FONT_CANDIDATES = [
     "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
 ]
 
-TEAL = (15, 118, 110)
-TEAL_INK = (11, 93, 86)
-NAVY = (15, 41, 66)
-INK = (16, 24, 40)
-INK2 = (52, 64, 84)
-MUTED = (102, 112, 133)
+TEAL = (76, 92, 62)
+TEAL_INK = (76, 92, 62)
+NAVY = (76, 92, 62)
+INK = (47, 54, 42)
+INK2 = (58, 66, 52)
+MUTED = (110, 116, 98)
 
 
 def font(size: int) -> ImageFont.FreeTypeFont:
@@ -52,13 +52,13 @@ def gradient(w: int, h: int, top: tuple, bottom: tuple) -> Image.Image:
 
 def main() -> int:
     W, H = 1200, 630
-    img = gradient(W, H, (255, 255, 255), (230, 244, 241)).convert("RGB")
+    img = gradient(W, H, (255, 253, 247), (232, 236, 220)).convert("RGB")
     d = ImageDraw.Draw(img)
     # 좌상단 포인트 블롭
     blob = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     bd = ImageDraw.Draw(blob)
-    bd.ellipse((820, -180, 1320, 220), fill=(20, 184, 166, 38))
-    bd.ellipse((-140, 380, 360, 780), fill=(29, 78, 216, 22))
+    bd.ellipse((820, -180, 1320, 220), fill=(113, 131, 95, 38))
+    bd.ellipse((-140, 380, 360, 780), fill=(157, 184, 154, 26))
     img = Image.alpha_composite(img.convert("RGBA"), blob).convert("RGB")
     d = ImageDraw.Draw(img)
 
@@ -66,9 +66,9 @@ def main() -> int:
 
     # 로고 마크
     d.rounded_rectangle((72, 60, 128, 116), radius=15, fill=NAVY)
-    d.line((100, 74, 100, 102), fill=(20, 184, 166), width=8)
-    d.line((86, 88, 114, 88), fill=(20, 184, 166), width=8)
-    d.text((146, 72), "K-MediCheck · 메디컬 비급여 시세 파인더", font=font(26), fill=INK2)
+    d.line((100, 74, 100, 102), fill=(220, 229, 200), width=8)
+    d.line((86, 88, 114, 88), fill=(220, 229, 200), width=8)
+    d.text((146, 72), "K-MediCheck · 내 병원비 계산기", font=font(26), fill=INK2)
 
     # 제목
     d.text((72, 168), "실손 5세대 전환 손익", font=font(62), fill=NAVY,
@@ -87,17 +87,17 @@ def main() -> int:
         f = font(22)
         tw = d.textlength(c, font=f)
         d.rounded_rectangle((x, 500, x + tw + 28, 542), radius=21, fill=(255, 255, 255),
-                            outline=(191, 227, 221), width=1)
+                            outline=(201, 210, 180), width=1)
         d.text((x + 14, 508), c, font=f, fill=TEAL_INK)
         x += tw + 40
 
     # 하단 바
     d.rectangle((0, H - 76, W, H), fill=NAVY)
-    d.text((72, H - 50), "medical-finder-kr.pages.dev", font=font(30), fill=(255, 255, 255),
+    d.text((72, H - 50), "kr.kmedicheck.com", font=font(30), fill=(255, 255, 255),
            stroke_width=1, stroke_fill=(255, 255, 255))
     right = "참고용 추정치 · 약관 확인 · 금융감독원 1332"
     rw = d.textlength(right, font=font(22))
-    d.text((W - 72 - rw, H - 44), right, font=font(22), fill=(167, 196, 191))
+    d.text((W - 72 - rw, H - 44), right, font=font(22), fill=(201, 210, 180))
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     img.save(OUT, "PNG", optimize=True)

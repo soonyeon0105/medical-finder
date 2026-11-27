@@ -3,44 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>실손·비급여 해설 가이드 8편 · 이용 안내 · 메디컬 비급여 시세 파인더</title>
+<title>실손·비급여 해설 가이드 8편 · 이용 안내 · 내 병원비 계산기</title>
 <meta name="description" content="실손 세대 비교부터 비급여 시세 읽기·관리급여 95%·지역별 차이·납부와 청구·MRI·치과·도수치료까지 해설 가이드 8편과 데이터 출처·공개 범위·계산의 가정을 함께 안내합니다.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://kr.kmedicheck.com/ko/guide/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="메디컬 비급여 시세 파인더">
-<meta property="og:title" content="실손·비급여 해설 가이드 8편 · 이용 안내 · 메디컬 비급여 시세 파인더">
+<meta property="og:site_name" content="내 병원비 계산기">
+<meta property="og:title" content="실손·비급여 해설 가이드 8편 · 이용 안내 · 내 병원비 계산기">
 <meta property="og:description" content="실손 세대 비교부터 비급여 시세 읽기·관리급여 95%·지역별 차이·납부와 청구·MRI·치과·도수치료까지 해설 가이드 8편과 데이터 출처·공개 범위·계산의 가정을 함께 안내합니다.">
 <meta property="og:url" content="https://kr.kmedicheck.com/ko/guide/">
 <meta property="og:locale" content="ko_KR">
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8f7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101613">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf5ec">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1d211a">
 <meta name="naver-site-verification" content="65f0d284f2bc3f6c8cf5590d03848e4e70783bae">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css?v=26419866">
-<link rel="stylesheet" href="/assets/style.css?v=0bf0750d">
-<!-- Google Analytics 4 (GA4) · 방문 통계 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EQ04J49YZ"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
-</script>
+<link rel="stylesheet" href="/assets/style.css?v=382353cb">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-THM2WBPJ');</script>
+<!-- End Google Tag Manager -->
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "홈", "item": "https://kr.kmedicheck.com/ko/"}, {"@type": "ListItem", "position": 2, "name": "가이드", "item": "https://kr.kmedicheck.com/ko/guide/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "가격은 언제 갱신되나요?", "acceptedAnswer": {"@type": "Answer", "text": "심평원 비급여 공개 자료는 연 1회(매년 9월) 전면 갱신되고, 기관 변경 보고분이 수시 반영됩니다. 이 사이트는 수집 파이프라인을 주기적으로 실행해 갱신하며, 화면에 오픈API 조회일과 자료 기준을 함께 표시합니다."}}, {"@type": "Question", "name": "왜 의원 가격은 없나요?", "acceptedAnswer": {"@type": "Answer", "text": "공공데이터포털 15001700(비급여진료비정보조회서비스)은 의료법에 따라 <b>병원급 이상</b> 기관의 비급여만 제공합니다. 의원·치과의원·한의원의 <b>개별 기관 가격</b>은 공개 API 대상이 아니어서 표시하지 않습니다. 대신 전국 의원급 <b>평균·중간값</b>만 통계청 KOSIS(승인번호 354006) 공개 통계표에서 받아 참고로 보여 줍니다."}}, {"@type": "Question", "name": "치료재료·판독료가 포함된 가격인가요?", "acceptedAnswer": {"@type": "Answer", "text": "오픈API의 상세설명(<code>cmmtTxt</code>)은 943개 코드 중 1건만 값이 있어 포함 여부를 단정할 수 없습니다. 그래서 화면에는 '치료재료·장비(1.5T/3.0T)·판독료 포함 여부는 병원마다 달라 방문 전 유선 확인 필요'로 안내합니다."}}, {"@type": "Question", "name": "계산 결과를 보험금 청구에 그대로 쓸 수 있나요?", "acceptedAnswer": {"@type": "Answer", "text": "아니요. 제도 기준 추정치이며, 실제 지급액은 가입 약관과 청구 이력에 따라 달라집니다. 정확한 금액은 보험사에 문의하세요."}}]}</script>
 </head>
 <body>
 
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="/ko/"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7.5" fill="#0F2942"/><path d="M16 7.4V24.6M7.4 16H20.4L26.6 10.4" fill="none" stroke="#14B8A6" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt">메디컬 비급여 시세 파인더</span><span class="txt-short">메디컬파인더</span></a>
-    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span></a><a href="/ko/switch-gen5/"><span class="full">5세대 전환 손익</span><span class="abbr">전환</span></a><a href="/ko/items/"><span class="full">비급여 항목</span><span class="abbr">항목</span></a><a href="/ko/regions/"><span class="full">지역별 시세</span><span class="abbr">지역</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span></a><a href="/ko/guide/" aria-current="page"><span class="full">가이드</span><span class="abbr">가이드</span></a></nav>
+    <a class="logo" href="/ko/"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7.5" fill="#4C5C3E"/><path d="M16 7.4V24.6M7.4 16H20.4L26.6 10.4" fill="none" stroke="#DCE5C8" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt">내 병원비 계산기</span><span class="txt-short">내 병원비 계산기</span></a>
+    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span><span class="mini">계산기</span></a><a href="/ko/switch-gen5/"><span class="full">5세대 전환 손익</span><span class="abbr">세대전환</span><span class="mini">세대별전환</span></a><a href="/ko/items/"><span class="full">비급여 가격</span><span class="abbr">비급여 가격</span><span class="mini">비급여 가격</span></a><a href="/ko/regions/"><span class="full">지역별 시세</span><span class="abbr">지역별</span><span class="mini">지역별</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span><span class="mini">세대별</span></a><a href="/ko/guide/" aria-current="page"><span class="full">가이드</span><span class="abbr">가이드</span><span class="mini">가이드</span></a></nav>
   </div>
 </header>
-<nav class="breadcrumb" aria-label="위치"><div class="wrap"><a href="/ko/">홈</a><span>›</span><a href="/ko/guide/">가이드</a></div></nav>
+<nav class="breadcrumb" aria-label="위치"><div class="wrap"><a href="/ko/">홈</a><span class="sep">›</span><a href="/ko/guide/">가이드</a></div></nav>
 <main id="main">
 <div class="scope-strip"><div class="wrap">병원급 이상 심평원 공개 가격 기준(공공누리 제1유형) · 동네 의원 개별 가격은 공개 범위 외이므로 방문 전 확인 (참고용 전국 의원 평균·중간값은 통계청 KOSIS 통계 기준)</div></div>
 
@@ -148,7 +147,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
   <div class="wrap">
     <div class="cols">
       <div>
-        <b>메디컬 비급여 시세 파인더</b><br>
+        <b>내 병원비 계산기</b><br>
         병원급 이상 비급여 공개가와 1~5세대 실손 보장액을 함께 계산하는 중립 정보 사이트입니다.
         특정 병원 추천·예약·상담 알선은 하지 않습니다.
       </div>
@@ -173,7 +172,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
         건강보험심사평가원 비급여진료비정보조회서비스<br>
         공공데이터포털 15001700 · 공공누리 제1유형<br>
         통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
-        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-24 05:18 KST</span>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-27 20:04 KST</span>
       </div>
     </div>
     <div class="legal">
@@ -185,13 +184,13 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
       <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
       K-MediCheck 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
-      내 손안에 복지 (9welfare) · 2026-11-24 05:18 KST 빌드.
+      내 손안에 복지 (9welfare) · 2026-11-27 20:04 KST 빌드.
     </div>
   </div>
 </footer>
 <script src="/assets/calc.js?v=0a3c00c8" defer></script>
 <script src="/assets/med-data.js" defer></script>
-<script src="/assets/app.js?v=d2b092bd" defer></script>
+<script src="/assets/app.js?v=8c434fcd" defer></script>
 
 </body>
 </html>

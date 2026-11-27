@@ -102,6 +102,9 @@
     }
 
     // ---------------------------------------------------- 항목 목록
+    // calc_block()이 서버에서 옵션을 이미 렌더링하므로, JS에서 다시 채우기
+    // 전에 비운다. 안 비우면 서버 35개 + JS 35개 = 70개 중복 표시가 된다.
+    while (sel.options.length) { sel.remove(0); }
     CAT.forEach(function (it) {
       var o = el('option', null, it.name + ' (' + it.code + ')');
       o.value = it.code;
@@ -180,7 +183,7 @@
         var badRow = el('tr');
         var badCell = el('td', null, problem);
         badCell.colSpan = 5;
-        badCell.style.color = '#667085';
+        badCell.style.color = '#6e7462';
         badRow.appendChild(badCell);
         tbody.appendChild(badRow);
         summary.innerHTML = '';
@@ -266,18 +269,21 @@
         tbody.appendChild(tr);
       });
 
-      // 요약
+      // 요약 — 보장액과 환자 최종 부담을 나란히 큰 숫자로 (밀크·부이 검수 2026-11-25)
       summary.innerHTML = '';
       var best = res.generations.filter(function (r) { return r.gen === res.summary.best_gen; })[0];
       if (best) {
         var box = el('div', 'best');
-        var left = el('div', 'big', fmt(best.covered));
-        var right = el('div');
-        right.appendChild(el('div', 'lbl', '가장 많이 돌려받는 세대'));
+        var left = el('div');
+        left.appendChild(el('div', 'lbl', '가장 많이 돌려받는 세대'));
+        left.appendChild(el('div', 'big', fmt(best.covered)));
         var who = el('div', 'who');
-        who.innerHTML = '<b>' + best.name + '</b> 기준 · 환자 최종 부담 ' + fmt(best.copay);
-        right.appendChild(who);
+        who.innerHTML = '<b>' + best.name + '</b> 기준';
+        left.appendChild(who);
         box.appendChild(left);
+        var right = el('div', 'copay-box');
+        right.appendChild(el('div', 'lbl', '환자 최종 부담'));
+        right.appendChild(el('div', 'big', fmt(best.copay)));
         box.appendChild(right);
         summary.appendChild(box);
       }
@@ -524,10 +530,12 @@
         slice.forEach(function (r) {
           var tr = document.createElement('tr');
           var loc = region ? String(r[3] || '') : (r[2] || '') + ' ' + (r[3] || '');
+          var hospLabels = ['기관', '종별', '지역', '최저', '최고'];
           [r[0], r[1], loc, fmt(r[4]), fmt(r[5])]
             .forEach(function (v, i) {
               var td = document.createElement('td');
               td.textContent = v === null || v === undefined || v === '' ? '—' : v;
+              td.setAttribute('data-label', hospLabels[i]);
               if (i >= 3) { td.className = 'num'; }
               tr.appendChild(td);
             });

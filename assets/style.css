@@ -4,49 +4,49 @@
    ========================================================================== */
 :root {
   color-scheme: light;
-  /* 디자인 표준화(2026-11-21): 케이메디체크 DESIGN.md v1 토큰을 채택한다.
-     배경 Clinic Paper #F6F8F7 · 헤어라인 Rule #D9E1DE · 표면 radius 10px · 입력 8px. */
-  --bg: #f6f8f7;
-  --bg-soft: #edf1ef;
-  --card: #ffffff;
-  --ink: #14181c;
-  --ink-2: #46505a;
-  --muted: #6d7883;
-  --line: #d9e1de;
-  --line-2: #e7edea;
-  --accent: #0f766e;
-  --accent-solid: #0f766e;  /* 흰 글씨가 얹히는 채움 요소 전용 — 다크에서도 밝아지지 않는다 (밀크 검수 2026-11-24) */
-  --accent-ink: #0b5d56;
-  --accent-soft: #e6f4f1;
-  --brand-line: #c3e2db;
+  /* 디자인 v2 (2026-11-25): 당선 디자인 Lanwell Health 채택 — 크림 배경 · 세이지 그린 ·
+     부드러운 큰 모서리 · 따뜻한 그림자. 표면(카드) radius 20px · 입력 12px.
+     의미 전용 색(blue·violet·red)은 의미를 위해 유지하되 틴트만 크림 톤에 맞췄다. */
+  --bg: #faf5ec;
+  --bg-soft: #f3eddf;
+  --card: #fffdf7;
+  --ink: #2f362a;
+  --ink-2: #4c5546;
+  --muted: #676d5b;
+  --line: #e3dac6;
+  --line-2: #ede6d4;
+  --accent: #71835f;
+  --accent-solid: #4c5c3e;  /* 흰 글씨가 얹히는 채움 요소 전용 — 다크에서도 유지해 대비를 지킨다 */
+  --accent-ink: #4c5c3e;
+  --accent-soft: #e8ecdc;
+  --brand-line: #c9d2b4;
   --blue: #1d4ed8;
   --blue-soft: #e8efff;
   --violet: #6d28d9;
   --violet-soft: #f1eaff;
-  --amber: #b45309;
-  --amber-soft: #fff4e0;
+  --amber: #8a5f31;
+  --amber-soft: #f5ead9;
   --red: #b42318;
-  --red-soft: #fee4e2;
-  /* 다크모드 대응(2026-11-24): 직접 박혀 있던 틴트·라인·표면 색을 토큰으로 끌어올렸다.
-     라이트 값은 기존 하드코딩과 동일하므로 라이트 화면은 바뀌지 않는다. */
-  --header-bg: rgba(255, 255, 255, .92);
-  --tint-green-bg: #f2fbf8;
-  --tint-red-bg: #fff8f7;
-  --red-line: #f6c7c2;
-  --amber-line: #fadba6;
-  --amber-ink-strong: #713f12;
+  --red-soft: #fdecea;
+  /* 틴트·라인·표면 색 토큰 (다크모드에서 값만 교체한다) */
+  --header-bg: rgba(255, 253, 247, .92);
+  --tint-green-bg: #f0f2e6;
+  --tint-red-bg: #fbf1ef;
+  --red-line: #f0cfc9;
+  --amber-line: #ebd3ac;
+  --amber-ink-strong: #6e4e26;
   --blue-line: #cfdcff;
   --blue-ink-strong: #1e3a8a;
   --blue-ink-deep: #172554;
   --violet-line: #ddd6fe;
-  --kosis-bg: #fdfcff;
-  --managed-bg: #f4fbf9;
-  --result-bg: #fcfdff;
-  --teal-ink-2: #0f6b64;
-  --radius: 10px;
-  --radius-sm: 8px;
-  --shadow: 0 1px 2px rgba(20, 24, 28, .05), 0 8px 24px -12px rgba(20, 24, 28, .18);
-  --shadow-sm: 0 1px 2px rgba(20, 24, 28, .06);
+  --kosis-bg: #fbfaf4;
+  --managed-bg: #f0f5ea;
+  --result-bg: #fffefa;
+  --teal-ink-2: #4c5c3e;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 10px 30px rgba(76, 92, 62, .08);
+  --shadow-sm: 0 2px 8px rgba(76, 92, 62, .06);
   --maxw: 1120px;
   --font: "Pretendard Variable", "Pretendard", "Pretendard Fallback",
     -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
@@ -97,17 +97,18 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 
 /* ---------------------------------------------------------------- 프리뷰 배너 */
 .preview-banner {
-  background: #1f2430; color: #ffe9b8; font-size: 12.5px; line-height: 1.45;
-  padding: 9px 16px; text-align: center; border-bottom: 1px solid #000;
+  background: #4c5c3e; color: #f4f1e6; font-size: 12.5px; line-height: 1.45;
+  padding: 9px 16px; text-align: center; border-bottom: 1px solid #3c4a31;
 }
 .preview-banner strong { color: #fff; }
 .preview-banner .pb-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-  background: #ffb020; margin-right: 6px; vertical-align: 1px; }
+  background: #d9b98c; margin-right: 6px; vertical-align: 1px; }
 
 /* ---------------------------------------------------------------- 헤더 */
 /* ---------------------------------------------------------------- 헤더
-   좁은 화면에서 로고 이름 + 메뉴 6개가 한 줄에 안 들어가는 문제(밀크 검수 2026-11-24):
-   400px 미만은 로고 마크만, 375~519px은 축약 이름(메디컬파인더), 520px부터 전체 이름.
+   좁은 화면에서 로고 이름 + 메뉴 6개가 한 줄에 안 들어가는 문제(밀크 검수 2026-11-24, 재발 2026-11-25):
+   520px 미만은 로고 마크만 + 메뉴 축약 라벨(계산기·세대별전환·비급여 가격·지역별·세대별·가이드),
+   520px부터 전체 이름 + 축약 메뉴, 720px부터 전체 메뉴 라벨.
    720~767px은 헤더 여백을 16px로 줄이고 메뉴 패딩을 좁혀 '가이드'까지 보이게 한다.
    그래도 넘치면(폰트 차이 등) JS가 .is-scrollable 클래스를 달아 오른쪽 페이드 단서를 보여준다. */
 .site-header { background: var(--header-bg); backdrop-filter: blur(8px);
@@ -117,7 +118,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
   color: var(--ink); white-space: nowrap; flex: none; }
 .logo .txt { display: none; }
 .logo .txt-short { display: none; font-size: 12px; }
+/* 520px 미만은 로고 마크만(텍스트가 nav 폭을 잠식해 '세대별'·'가이드'가 화면 밖으로 밀리던 문제,
+   밀크·부이 검수 2026-11-25) — 520px부터 전체 이름 표시. */
 .nav a .abbr { display: inline; }
+.nav a .mini { display: none; }
 .nav a .full { display: none; }
 .logo:hover { text-decoration: none; }
 .logo .mark { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
@@ -135,8 +139,11 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .nav.is-scrollable.is-scrolled { -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%); }
 
-@media (min-width: 375px) {
-  .logo .txt-short { display: inline; }
+@media (max-width: 519px) {
+  /* 520px 미만은 메뉴 축약 라벨(계산기·세대별전환·비급여 가격·지역별·세대별·가이드)로 전 메뉴가 한 줄에 들어간다 */
+  .nav a .abbr { display: none; }
+  .nav a .mini { display: inline; }
+  .nav a { font-size: 11.5px; padding: 6px 5px; }
 }
 @media (min-width: 520px) {
   .logo .txt-short { display: none; }
@@ -159,9 +166,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .
 .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
   border-radius: 999px; font-size: 11.5px; font-weight: 700; line-height: 1.5;
   background: var(--bg-soft); color: var(--ink-2); white-space: nowrap; }
-/* 링크 pill(지역 바로가기 등)은 탭 타겟이라 최소 32px 높이로 키운다 (밀크 검수 2026-11-24).
-   44px까지 키우면 칩 줄 레이아웃이 깨져 32px로 타협한다 (WCAG 24px 이상 충족). */
-a.pill { min-height: 32px; padding: 6px 12px; }
+/* 링크 pill(지역 바로가기 등)은 탭 타겟이라 최소 44px 높이로 키운다 (밀크 검수 2026-11-24·25).
+   2026-11-24에는 칩 줄 레이아웃을 우려해 32px로 타협했으나, 교차 재검수에서 32px이 잔여로
+   지적돼 44px로 올린다. span.pill(카드 안 배지)은 대상이 아니다. */
+a.pill { min-height: 44px; padding: 10px 12px; }
 .pill.teal { background: var(--accent-soft); color: var(--accent-ink); }
 .pill.blue { background: var(--blue-soft); color: var(--blue); }
 .pill.violet { background: var(--violet-soft); color: var(--violet); }
@@ -200,17 +208,20 @@ section.calc { scroll-margin-top: 66px; }
 .notice { background: var(--amber-soft); border: 1px solid var(--amber-line); color: var(--amber-ink-strong);
   border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 11px 18px; border-radius: var(--radius); font-weight: 700; font-size: 14.5px;
+  padding: 11px 18px; min-height: 44px; border-radius: var(--radius); font-weight: 700; font-size: 14.5px;
   background: var(--accent-solid); color: #fff; border: 1px solid var(--accent-solid); cursor: pointer; }
-.btn:hover { background: var(--accent-ink); text-decoration: none; }
+.btn:hover { background: #3e4c32; text-decoration: none; }
 .btn.ghost { background: var(--card); color: var(--accent-ink); border-color: var(--brand-line); }
 .btn.ghost:hover { background: var(--accent-soft); }
 .btn.sm { padding: 8px 13px; font-size: 13px; border-radius: var(--radius-sm); }
 
 /* ---------------------------------------------------------------- 히어로 */
-.hero { background: var(--card);
+/* Lanwell 톤: 크림 위에 세이지 틴트가 번지는 부드러운 배경 + 세리프 헤드라인 */
+.hero { background: linear-gradient(180deg, var(--accent-soft) 0%, var(--bg) 88%);
   border-bottom: 1px solid var(--line); padding: 30px 0 26px; }
-.hero h1 { font-size: 27px; letter-spacing: -0.035em; }
+.hero h1 { font-size: 27px; letter-spacing: -0.02em;
+  font-family: "Nanum Myeongjo", "Noto Serif KR", "AppleMyungjo", Georgia, "Times New Roman", serif;
+  font-weight: 700; line-height: 1.34; }
 .hero h1 em { font-style: normal; color: var(--accent-ink); }
 .hero .lede { color: var(--ink-2); font-size: 14.5px; margin-bottom: 16px; }
 .hero .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
@@ -235,7 +246,7 @@ section.calc { scroll-margin-top: 66px; }
 select, input[type="number"], input[type="text"] {
   width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm);
   font-family: inherit; font-size: 15px; font-weight: 600; color: var(--ink); background: var(--card);
-  appearance: none; }
+  appearance: none; min-height: 44px; /* 폼 컨트롤 기본 line-height로는 42px까지만 나와 터치 기준 미달 (밀크 2026-11-25) */ }
 select { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%23667085' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
 select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
@@ -245,17 +256,18 @@ select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1p
 .field-error { margin: 6px 0 0; font-size: 12.5px; font-weight: 700; color: var(--red); line-height: 1.45; }
 input.is-invalid { border-color: var(--red); box-shadow: 0 0 0 3px rgba(180, 35, 24, .12); }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
-.seg button { flex: 1 1 auto; min-width: 0; padding: 9px 10px; border-radius: var(--radius-sm);
+.seg button { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 9px 14px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--card); color: var(--ink-2); font-size: 13.5px;
   font-weight: 700; font-family: inherit; cursor: pointer; }
 .seg button:hover { background: var(--bg-soft); }
 .seg button[aria-pressed="true"] { background: var(--accent-solid); border-color: var(--accent-solid);
-  color: #fff; box-shadow: 0 2px 8px -2px rgba(15, 118, 110, .5); }
+  color: #fff; box-shadow: 0 3px 10px rgba(76, 92, 62, .25); }
 .seg.two { display: grid; grid-template-columns: 1fr 1fr; }
 .two-col { display: grid; grid-template-columns: 1fr; gap: 0 14px; }
 .row-note { font-size: 12px; color: var(--muted); margin: 7px 0 12px; line-height: 1.55; }
-.chip-inline { font-size: 11px; font-weight: 700; color: var(--amber);
-  background: var(--amber-soft); border-radius: 999px; padding: 2px 7px; margin-left: 6px; }
+.chip-inline { display: inline-block; font-size: 11px; font-weight: 700; color: var(--amber);
+  background: var(--amber-soft); border-radius: 999px; padding: 2px 7px; margin-left: 6px;
+  white-space: nowrap; }  /* '심평원 병원급 중간값' 칩이 두 조각으로 쪼개지던 문제(밀크 2026-11-25) */
 .managed-box { border: 1px dashed var(--brand-line); background: var(--managed-bg); border-radius: var(--radius);
   padding: 11px 12px; font-size: 12.5px; color: var(--accent-ink); margin-bottom: 14px; display: none; }
 .managed-box.show { display: block; }
@@ -266,11 +278,15 @@ input.is-invalid { border-color: var(--red); box-shadow: 0 0 0 3px rgba(180, 35,
 .result-head h3 { margin: 0; font-size: 16.5px; }
 .result-head .sub { font-size: 12px; color: var(--muted); }
 .best { display: flex; align-items: center; gap: 12px; background: var(--accent-soft);
-  border: 1px solid var(--brand-line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px; }
+  border: 1px solid var(--brand-line); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 14px;
+  flex-wrap: wrap; }
 .best .big { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--accent-ink); }
 .best .lbl { font-size: 12px; color: var(--teal-ink-2); font-weight: 700; }
 .best .who { font-size: 12.5px; color: var(--ink-2); }
 .best .who b { color: var(--accent-ink); }
+/* 환자 최종 부담을 보장액과 나란히 큰 숫자로 (밀크·부이 검수 2026-11-25) */
+.best .copay-box { margin-left: auto; text-align: right; }
+.best .copay-box .big { color: var(--ink); }
 .cmp-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table.cmp { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
 table.cmp th { text-align: left; font-size: 11.5px; color: var(--muted); font-weight: 700;
@@ -285,10 +301,11 @@ table.cmp tr.is-best td { background: var(--tint-green-bg); }
 .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* 지역·항목 표의 전국 대비 증감률 (build_site.py가 클래스만 찍는다) */
 .pct-up { color: #b91c1c; font-weight: 700; }
-.pct-dn { color: #0f766e; font-weight: 700; }
+.pct-dn { color: #4c5c3e; font-weight: 700; }
 .covered-cell { font-weight: 800; font-size: 15px; color: var(--accent-ink); }
 .is-excluded .covered-cell { color: var(--red); }
-.copay-cell { color: var(--ink-2); }
+.copay-cell { color: var(--ink-2); font-weight: 800; font-size: 15px; }
+/* 환자 최종 부담을 예상 보장액과 같은 크기·굵기로 (밀크·부이 검수 2026-11-25) */
 .rate-cell { font-size: 12px; color: var(--ink-2); font-weight: 600; }
 .badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .badge { font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px;
@@ -305,7 +322,8 @@ table.cmp tr.is-best td { background: var(--tint-green-bg); }
 .warn-list li { margin: 3px 0; }
 .calc-foot { font-size: 11.5px; color: var(--muted); margin-top: 12px; }
 details.rule { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 10px; }
-details.rule summary { cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+details.rule summary { cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--ink-2);
+  min-height: 44px; padding: 12px 0; /* 터치 기준 (밀크 2026-11-25) — marker 유지를 위해 display는 그대로 둔다 */ }
 
 /* ---------------------------------------------------------------- 항목 카드 */
 .item-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
@@ -326,23 +344,29 @@ table.plain th, table.plain td { border: 1px solid var(--line); padding: 9px 10p
   vertical-align: top; }
 table.plain th { background: var(--bg-soft); font-size: 12px; font-weight: 800; white-space: nowrap; }
 table.plain td.num, table.plain th.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* '최저~최고' 범위 셀은 ' ~ '에서만 줄바꿈 (숫자는 .nw로 묶어 중간에 안 잘림) — 데스크톱 카드 안 가로 스크롤 방지 (뮤즈2 #627) */
+table.plain td.num.range { white-space: normal; }
+
+/* 줄바꿈 보호: '·' 앞뒤가 떨어지지 않게 한 덩어리로 묶는다 (지역 h1 'MRI·초음파·도수치료' 등) */
+.nw { white-space: nowrap; }
 
 /* ---------------------------------------------------------------- 본문 섹션 */
-.prose h2 { margin-top: 26px; }
+.prose h2 { margin-top: 26px; text-wrap: balance; }
 .prose h2[id] { scroll-margin-top: 70px; }   /* 가이드 목차 앵커가 고정 헤더에 가리지 않도록 */
 .prose h2:first-child { margin-top: 0; }
-.prose h3 { margin-top: 20px; }
+.prose h3 { margin-top: 20px; text-wrap: balance; }
 .prose .callout { background: var(--card); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0;
   padding: 12px 14px; margin: 12px 0; box-shadow: var(--shadow-sm); font-size: 13.5px; }
 .breadcrumb { font-size: 12px; color: var(--muted); padding: 12px 0 0; }
 .breadcrumb a { color: var(--muted); }
-.breadcrumb span { margin: 0 5px; color: #b6bdcb; }
+.breadcrumb .sep { margin: 0 5px; color: var(--muted); }
 .page-head { padding: 8px 0 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
-.page-head h1 { margin-bottom: 6px; }
+.page-head h1 { margin-bottom: 6px; text-wrap: balance; }
 .page-head .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .faq { border-top: 1px solid var(--line); }
 .faq details { border-bottom: 1px solid var(--line); padding: 12px 0; }
-.faq summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+.faq summary { cursor: pointer; font-weight: 700; font-size: 14px;
+  min-height: 44px; padding: 12px 0; /* 터치 기준 (밀크 2026-11-25) — marker 유지를 위해 display는 그대로 둔다 */ }
 .faq .a { font-size: 13.5px; color: var(--ink-2); margin-top: 8px; }
 .data-status { display: grid; gap: 8px; }
 .data-status .row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
@@ -421,6 +445,7 @@ table.plain td.num, table.plain th.num { text-align: right; font-variant-numeric
   table.cmp td.gen-cell::before { content: none; }
   table.cmp td.gen-cell .g { font-size: 15.5px; }
   table.cmp td.covered-cell { font-size: 16px; }
+  table.cmp td.copay-cell { font-size: 16px; }
   table.cmp td:empty { display: none; }
   .limits { font-size: 11px; }
 }
@@ -438,8 +463,15 @@ table.plain td.num, table.plain th.num { text-align: right; font-variant-numeric
     margin-bottom: 4px; border-bottom: 1px dashed var(--line); background: transparent; }
   table.stack td.num { text-align: left; }
   table.stack td[data-label] { display: flex; justify-content: space-between;
-    align-items: baseline; gap: 10px; }
-  table.stack td[data-label]::before { flex: 0 0 auto; margin-right: auto; }
+    align-items: baseline; gap: 14px; }
+  /* 스택 표 라벨 열: 최소 폭을 확보해 라벨과 긴 값이 붙지 않게 한다 (밀크 2026-11-25) */
+  table.stack td[data-label]::before { flex: 0 0 auto; min-width: 84px; margin-right: auto; }
+  /* 스택 표 값 셀: 공백 없는 긴 기관명(학교법인가톨릭학원가톨릭대학교서울성모병원 등)이
+     셀 밖으로 밀리지 않게, 넘칠 때만 임의 위치에서 끊는다 (밀크 2026-11-25 교차 재검수) */
+  table.stack td[data-label] { overflow-wrap: anywhere; }
+  /* 스택 표 행 제목 링크: 텍스트 줄 높이만 18px라 터치 기준 미달 — 위아래 패딩으로 44px 확보 (밀크 2026-11-25) */
+  /* 2026-11-26 보완: 실기기(뮤즈2 #642)에서 40px로 측정됨 — 폰트 줄 높이에 따라 패딩만으로는 44px이 안 나올 수 있어 min-height로 하한을 고정한다 */
+  table.stack th[scope="row"] a { display: flex; align-items: center; min-height: 44px; }
 }
 
 @media print {
@@ -460,7 +492,7 @@ input[type="search"] {
   width: 100%; padding: 10px 12px; border: 1px solid var(--line);
   border-radius: var(--radius-sm); background: var(--card); font-size: 15px;
   font-family: inherit; color: var(--ink); -webkit-appearance: none; appearance: none;
-}
+  min-height: 44px; /* 터치 기준 (밀크 2026-11-25) */ }
 .hosp-table td, .hosp-table th { font-size: 12.5px; }
 .hosp-table td.num { white-space: nowrap; }
 .hosp-count { font-size: 12px; color: var(--muted); margin: 8px 0; }
@@ -491,6 +523,9 @@ input[type="search"] {
   background: #fff; min-height: 980px;
 }
 @media (max-width: 719px) {
+  /* 모바일에서는 Google Forms 임베드가 세로로 늘어서고 다크에서 흰 블록이 되므로(밀크 2026-11-25)
+     임베드를 숨기고 위의 '문의 폼 열기' 버튼으로만 안내한다 */
+  .form-embed { display: none; }
   .form-embed iframe { min-height: 1100px; }
   .doc .doc-sec p { font-size: 14px; }
 }
@@ -505,7 +540,7 @@ input[type="search"] {
   background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 800; flex: none;
 }
 .seg.five { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-.seg.five button { padding: 10px 2px; font-size: 12.5px; }
+.seg.five button { padding: 10px 2px; font-size: 12.5px; min-height: 44px; }
 input[type="range"] {
   width: 100%; margin: 8px 0 2px; accent-color: var(--accent); height: 22px;
   -webkit-appearance: none; appearance: none; background: transparent;
@@ -515,13 +550,13 @@ input[type="range"]::-webkit-slider-runnable-track {
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none; width: 19px; height: 19px; border-radius: 50%;
-  background: var(--accent); border: 2px solid var(--card); box-shadow: 0 1px 4px rgba(15, 118, 110, .4);
+  background: var(--accent); border: 2px solid var(--card); box-shadow: 0 1px 4px rgba(76, 92, 62, .4);
   margin-top: -8px;
 }
 input[type="range"]::-moz-range-track { height: 5px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line); }
 input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 2px solid var(--card); border-radius: 50%; background: var(--accent); }
 .chip-btn {
-  flex: none; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card);
+  flex: none; min-height: 44px; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card);
   color: var(--ink-2); font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
 }
 .chip-btn[aria-pressed="true"] { background: var(--amber-soft); border-color: var(--amber-line); color: var(--amber); }
@@ -608,53 +643,54 @@ input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border: 2px s
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --bg: #101613;
-    --bg-soft: #1b221e;
-    --card: #171e1b;
-    --ink: #e9eeeb;
-    --ink-2: #b6c0ba;
-    --muted: #8d9991;
-    --line: #2b342f;
-    --line-2: #232b26;
-    --accent: #0d9488;
-    --accent-solid: #0f766e;  /* 채움 버튼·선택 칩은 다크에서도 #0f766e 유지 → 흰 글씨 대비 5.47:1 */
-    --accent-ink: #2dd4bf;
-    --accent-soft: #11302b;
-    --brand-line: #205048;
+    /* Lanwell 다크 변형: 딥 올리브 배경에 밝은 세이지로 크림·세이지 톤을 유지한다 */
+    --bg: #1d211a;
+    --bg-soft: #171a15;
+    --card: #262b21;
+    --ink: #ede9dc;
+    --ink-2: #c6cbb8;
+    --muted: #a9ae9c;
+    --line: #3a4132;
+    --line-2: #2e3428;
+    --accent: #a7bc8e;
+    --accent-solid: #4c5c3e;  /* 채움 버튼·선택 칩은 다크에서도 #4c5c3e 유지 → 흰 글씨 대비 약 7:1 */
+    --accent-ink: #c9dcb0;
+    --accent-soft: #333d2b;
+    --brand-line: #4a5a3a;
     --blue: #8db1ff;
-    --blue-soft: #1c2a4d;
+    --blue-soft: #232e4a;
     --violet: #bda6fb;
-    --violet-soft: #2b2145;
-    --amber: #f2b04e;
-    --amber-soft: #38280e;
+    --violet-soft: #2e2745;
+    --amber: #d9b98c;
+    --amber-soft: #3a3226;
     --red: #ff9a8a;
-    --red-soft: #3c1e1a;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .65);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
-    --header-bg: rgba(16, 22, 19, .88);
-    --tint-green-bg: #122a22;
-    --tint-red-bg: #2e1a16;
-    --red-line: #71362d;
-    --amber-line: #6e5318;
-    --amber-ink-strong: #f6cf8f;
-    --blue-line: #2e4476;
+    --red-soft: #3c2420;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
+    --header-bg: rgba(29, 33, 26, .88);
+    --tint-green-bg: #2c3324;
+    --tint-red-bg: #33231e;
+    --red-line: #6e4238;
+    --amber-line: #6e5a33;
+    --amber-ink-strong: #ebcf9e;
+    --blue-line: #33477a;
     --blue-ink-strong: #b9ccff;
     --blue-ink-deep: #d7e3ff;
-    --violet-line: #4a3d78;
-    --kosis-bg: #1e1930;
-    --managed-bg: #122a24;
-    --result-bg: #131916;
-    --teal-ink-2: #2dd4bf;
+    --violet-line: #4e4276;
+    --kosis-bg: #2a2a22;
+    --managed-bg: #2c3324;
+    --result-bg: #20241c;
+    --teal-ink-2: #c9dcb0;
   }
-  /* --accent-ink 가 밝은 틸이라 흰 글씨 버튼 hover 배경으로는 못 쓴다 */
-  .btn:hover { background: #115e59; }
+  /* --accent-ink 가 밝은 세이지라 흰 글씨 버튼 hover 배경으로는 못 쓴다 */
+  .btn:hover { background: #5c7050; }
   /* 로고 마크(진한 남색 박스)가 어두운 헤더에 묻히지 않게 얇은 테를 두른다 */
-  .logo svg.logo-mark { box-shadow: 0 0 0 1px rgba(163, 196, 188, .5); }
+  .logo svg.logo-mark { box-shadow: 0 0 0 1px rgba(201, 220, 176, .45); }
   /* select 화살표를 어두운 배경에서도 보이게 밝은 획으로 교체 */
   select { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%23a7b3ad' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>"); }
   input.is-invalid { box-shadow: 0 0 0 3px rgba(255, 122, 102, .28); }
   .pct-up { color: #ff9a8a; }
-  .pct-dn { color: #2dd4bf; }
+  .pct-dn { color: #c9dcb0; }
   /* 차트 범례 점 색을 switch-gen5.js 의 다크 팔레트와 맞춘다 */
   .sim-legend .lg-cur::before { background: #8db1ff; }
   .sim-legend .lg-be::before { background: #f2b04e; }

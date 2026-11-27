@@ -16,16 +16,16 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "assets"
 
-TEAL_LIGHT = (20, 184, 166)
-NAVY = (15, 41, 66)
+TEAL_LIGHT = (220, 229, 200)
+NAVY = (76, 92, 62)
 MARK_PATH = "M16 7.4V24.6M7.4 16H20.4L26.6 10.4"
 
 
 def favicon_svg() -> str:
     return (
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="K-MediCheck">'
-        '<rect width="32" height="32" rx="7.5" fill="#0F2942"/>'
-        '<path d="' + MARK_PATH + '" fill="none" stroke="#14B8A6" stroke-width="4.6" '
+        '<rect width="32" height="32" rx="7.5" fill="#4C5C3E"/>'
+        '<path d="' + MARK_PATH + '" fill="none" stroke="#DCE5C8" stroke-width="4.6" '
         'stroke-linecap="round" stroke-linejoin="round"/>'
         "</svg>\n"
     )

@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>실손 5세대 전환 손익 시뮬레이터 · 메디컬 비급여 시세 파인더</title>
+<title>실손 5세대 전환 손익 시뮬레이터 · 내 병원비 계산기</title>
 <meta name="description" content="내 실손 세대와 월 보험료, 연간 급여·비급여 이용 금액을 넣으면 5세대 전환 시 연간 절약·손해와 손익분기점을 계산합니다. 결과를 카드로 저장해 공유할 수 있는 참고용 추정 도구입니다.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://kr.kmedicheck.com/ko/switch-gen5/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="메디컬 비급여 시세 파인더">
-<meta property="og:title" content="실손 5세대 전환 손익 시뮬레이터 · 메디컬 비급여 시세 파인더">
+<meta property="og:site_name" content="내 병원비 계산기">
+<meta property="og:title" content="실손 5세대 전환 손익 시뮬레이터 · 내 병원비 계산기">
 <meta property="og:description" content="내 실손 세대와 월 보험료, 연간 급여·비급여 이용 금액을 넣으면 5세대 전환 시 연간 절약·손해와 손익분기점을 계산합니다. 결과를 카드로 저장해 공유할 수 있는 참고용 추정 도구입니다.">
 <meta property="og:url" content="https://kr.kmedicheck.com/ko/switch-gen5/">
 <meta property="og:locale" content="ko_KR">
@@ -21,33 +21,32 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://kr.kmedicheck.com/assets/og-switch-gen5.png">
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8f7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101613">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf5ec">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1d211a">
 <meta name="naver-site-verification" content="65f0d284f2bc3f6c8cf5590d03848e4e70783bae">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css?v=26419866">
-<link rel="stylesheet" href="/assets/style.css?v=0bf0750d">
-<!-- Google Analytics 4 (GA4) · 방문 통계 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9EQ04J49YZ"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
-</script>
+<link rel="stylesheet" href="/assets/style.css?v=382353cb">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-THM2WBPJ');</script>
+<!-- End Google Tag Manager -->
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "홈", "item": "https://kr.kmedicheck.com/ko/"}, {"@type": "ListItem", "position": 2, "name": "실손 5세대 전환 손익 시뮬레이터", "item": "https://kr.kmedicheck.com/ko/switch-gen5/"}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "이 시뮬레이터는 무엇을 계산하나요?", "acceptedAnswer": {"@type": "Answer", "text": "내 실손 세대와 월 보험료, 연간 급여·비급여 이용 금액을 넣으면 5세대로 전환했을 때의 연간 총비용(보험료 + 자기부담금)을 지금 세대와 비교해 절약·손해 금액과 손익분기점을 보여 줍니다. 전환을 권하는 도구가 아니라 판단 근거를 정리해 주는 중립 계산기입니다."}}, {"@type": "Question", "name": "결과가 실제 보험료·보험금과 다른 이유는 무엇인가요?", "acceptedAnswer": {"@type": "Answer", "text": "공개된 표준 자기부담률과 입력값으로 계산한 참고용 추정치이기 때문입니다. 실제 보장과 보험료는 가입한 상품의 약관·상품설명서에 따르고 보험사·상품마다 다릅니다. 비급여 이용량에 따른 보험료 할증, 관리급여(도수치료 95%), 계약전환 할인·선택형 할인 특약은 1차 계산에 넣지 않고 안내로만 표시합니다."}}, {"@type": "Question", "name": "5세대 보험료를 모르면 어떻게 하나요?", "acceptedAnswer": {"@type": "Answer", "text": "기준 세대별 인하율로 자동 추정합니다. 4세대는 약 30% 인하(기본계약과 특약1만 가입하면 약 50% 수준), 1·2세대는 50% 이상 인하, 3세대는 30~50% 범위로 보고되어 보수적으로 30%를 기본값으로 두었습니다. 인하율은 직접 조절할 수 있고, 추정으로 계산한 값은 결과에 추정치로 표시됩니다."}}, {"@type": "Question", "name": "1세대인데 계산이 되지 않는 이유는 무엇인가요?", "acceptedAnswer": {"@type": "Answer", "text": "1세대는 계약별 자기부담이 달라(생명보험 20%·손해보험 0% 등) 단일 기준을 둘 수 없습니다. 보험증권·약관의 자기부담률을 직접 입력하면 같은 방식으로 계산합니다."}}, {"@type": "Question", "name": "비급여 보험료 할증(차등제)은 왜 반영하지 않았나요?", "acceptedAnswer": {"@type": "Answer", "text": "할증률이 보험사·상품별로 달라(예: 3~5단계 +100/+200/+300%, 회사에 따라 +200/+300/+400%) 단일 값으로 계산할 수 없습니다. 5세대 특약2 차등제의 첫 적용은 2028년 5월 이후 갱신분부터이므로, 이용량에 따라 차기 갱신 시 할증될 수 있다는 점을 안내로만 표시합니다."}}, {"@type": "Question", "name": "관리급여(도수치료 95%)는 어떻게 처리하나요?", "acceptedAnswer": {"@type": "Answer", "text": "관리급여는 급여로 편입되어 실손 급여 담보로 보상됩니다. 5세대 자기부담률은 입원 20%·외래 95%이고, 선택형 할인 특약의 면책 옵션을 고르면 보장에서 제외될 수 있습니다. 도수치료 단가와 횟수는 관리급여 계산기에서 따로 확인하고, 이 시뮬레이터의 금액 계산에는 넣지 않았습니다."}}, {"@type": "Question", "name": "입력한 정보는 어디로 저장되나요?", "acceptedAnswer": {"@type": "Answer", "text": "어디에도 저장되지 않습니다. 계산은 방문자 브라우저 안에서 JavaScript로만 이루어지고 서버로 전송하지 않습니다. 이름·주민번호·보험증권번호·질병 이력·보험사명은 입력받지 않으며, 공유 링크에도 입력값을 담지 않습니다."}}]}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "실손 5세대 전환 손익 시뮬레이터", "url": "https://kr.kmedicheck.com/ko/switch-gen5/", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "inLanguage": "ko", "description": "내 실손 세대와 월 보험료, 연간 의료 이용 금액을 입력하면 5세대 전환 시 연간 절약·손해와 손익분기점을 계산하는 참고용 추정 도구입니다.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}, "publisher": {"@type": "Organization", "name": "K-MediCheck"}}</script>
 </head>
 <body>
 
 <header class="site-header">
   <div class="wrap">
-    <a class="logo" href="/ko/"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7.5" fill="#0F2942"/><path d="M16 7.4V24.6M7.4 16H20.4L26.6 10.4" fill="none" stroke="#14B8A6" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt">메디컬 비급여 시세 파인더</span><span class="txt-short">메디컬파인더</span></a>
-    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span></a><a href="/ko/switch-gen5/"><span class="full">5세대 전환 손익</span><span class="abbr">전환</span></a><a href="/ko/items/"><span class="full">비급여 항목</span><span class="abbr">항목</span></a><a href="/ko/regions/"><span class="full">지역별 시세</span><span class="abbr">지역</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span></a><a href="/ko/guide/"><span class="full">가이드</span><span class="abbr">가이드</span></a></nav>
+    <a class="logo" href="/ko/"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7.5" fill="#4C5C3E"/><path d="M16 7.4V24.6M7.4 16H20.4L26.6 10.4" fill="none" stroke="#DCE5C8" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="txt">내 병원비 계산기</span><span class="txt-short">내 병원비 계산기</span></a>
+    <nav class="nav" aria-label="주요 메뉴"><a href="/ko/calc/"><span class="full">실손 계산기</span><span class="abbr">계산기</span><span class="mini">계산기</span></a><a href="/ko/switch-gen5/"><span class="full">5세대 전환 손익</span><span class="abbr">세대전환</span><span class="mini">세대별전환</span></a><a href="/ko/items/"><span class="full">비급여 가격</span><span class="abbr">비급여 가격</span><span class="mini">비급여 가격</span></a><a href="/ko/regions/"><span class="full">지역별 시세</span><span class="abbr">지역별</span><span class="mini">지역별</span></a><a href="/ko/insurance/"><span class="full">1~5세대 실손</span><span class="abbr">세대별</span><span class="mini">세대별</span></a><a href="/ko/guide/"><span class="full">가이드</span><span class="abbr">가이드</span><span class="mini">가이드</span></a></nav>
   </div>
 </header>
-<nav class="breadcrumb" aria-label="위치"><div class="wrap"><a href="/ko/">홈</a><span>›</span><a href="/ko/switch-gen5/">실손 5세대 전환 손익 시뮬레이터</a></div></nav>
+<nav class="breadcrumb" aria-label="위치"><div class="wrap"><a href="/ko/">홈</a><span class="sep">›</span><a href="/ko/switch-gen5/">실손 5세대 전환 손익 시뮬레이터</a></div></nav>
 <main id="main">
 <div class="scope-strip"><div class="wrap">병원급 이상 심평원 공개 가격 기준(공공누리 제1유형) · 동네 의원 개별 가격은 공개 범위 외이므로 방문 전 확인 (참고용 전국 의원 평균·중간값은 통계청 KOSIS 통계 기준)</div></div>
 
@@ -343,7 +342,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
   <div class="wrap">
     <div class="cols">
       <div>
-        <b>메디컬 비급여 시세 파인더</b><br>
+        <b>내 병원비 계산기</b><br>
         병원급 이상 비급여 공개가와 1~5세대 실손 보장액을 함께 계산하는 중립 정보 사이트입니다.
         특정 병원 추천·예약·상담 알선은 하지 않습니다.
       </div>
@@ -368,7 +367,7 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
         건강보험심사평가원 비급여진료비정보조회서비스<br>
         공공데이터포털 15001700 · 공공누리 제1유형<br>
         통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
-        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-24 05:18 KST</span>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-27 20:04 KST</span>
       </div>
     </div>
     <div class="legal">
@@ -380,13 +379,13 @@ gtag('config', 'G-9EQ04J49YZ', { anonymize_ip: true });
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
       <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
       K-MediCheck 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
-      내 손안에 복지 (9welfare) · 2026-11-24 05:18 KST 빌드.
+      내 손안에 복지 (9welfare) · 2026-11-27 20:04 KST 빌드.
     </div>
   </div>
 </footer>
 <script src="/assets/calc.js?v=0a3c00c8" defer></script>
 <script src="/assets/med-data.js" defer></script>
-<script src="/assets/app.js?v=d2b092bd" defer></script>
-<script src="/assets/switch-gen5.js?v=38576ea9" defer></script>
+<script src="/assets/app.js?v=8c434fcd" defer></script>
+<script src="/assets/switch-gen5.js?v=d658587c" defer></script>
 </body>
 </html>

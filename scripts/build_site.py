@@ -43,15 +43,15 @@ DATA = BASE_DIR / "data"
 ASSETS = BASE_DIR / "assets"
 DIST = BASE_DIR / "dist"
 
-SITE_NAME = "메디컬 비급여 시세 파인더"
-SITE_NAME_SHORT = "메디컬파인더"  # 좁은 화면 헤더용 축약 라벨 (밀크 검수 2026-11-24)
+SITE_NAME = "내 병원비 계산기"
+SITE_NAME_SHORT = "내 병원비 계산기"  # 좁은 화면 헤더용 라벨 — 새 이름이 짧아 전체 이름과 동일 (이름 교체 2026-11-24)
 SITE_BASE = "https://kr.kmedicheck.com"   # --base 로 교체
 OWNER = "내 손안에 복지 (9welfare)"
 
 # ── 브랜딩 (2026-11-17 K-MediCheck 클린 메디컬 톤 통일)
 BRAND = "K-MediCheck"
-COL_TEAL = "#0F766E"
-COL_NAVY = "#0F2942"
+COL_TEAL = "#71835F"
+COL_NAVY = "#4C5C3E"
 MARK_PATH = "M16 7.4V24.6M7.4 16H20.4L26.6 10.4"
 # 구글 폼 (tearsstream52@gmail.com · 2026-11-17 생성 · 응답자 이메일 미수집 · 게시·응답중)
 GOOGLE_FORM_KO = ("https://docs.google.com/forms/d/e/"
@@ -64,7 +64,7 @@ def logo_svg(size: int = 30, cls: str = "logo-mark") -> str:
         f'<svg class="{cls}" width="{size}" height="{size}" viewBox="0 0 32 32" '
         'aria-hidden="true" focusable="false">'
         f'<rect width="32" height="32" rx="7.5" fill="{COL_NAVY}"/>'
-        f'<path d="{MARK_PATH}" fill="none" stroke="#14B8A6" stroke-width="4.6" '
+        f'<path d="{MARK_PATH}" fill="none" stroke="#DCE5C8" stroke-width="4.6" '
         'stroke-linecap="round" stroke-linejoin="round"/></svg>'
     )
 BUILD_TS = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M KST")
@@ -74,16 +74,15 @@ KOSIS_PERIOD = "통계청 KOSIS 2026년(자료갱신 2026-10-23)"
 KOSIS_APPROVAL = "354006"
 
 # ---------------------------------------------------------------- 분석 태그 (GA4)
-GA4_ID = "G-9EQ04J49YZ"
+GA4_ID = "G-9EQ04J49YZ"  # GA4 측정은 GTM 태그가 담당 (아래 스니펫은 GTM으로 교체됨, 2026-11-24)
 GA4_SNIPPET = (
-    "<!-- Google Analytics 4 (GA4) · 방문 통계 -->\n"
-    f'<script async src="https://www.googletagmanager.com/gtag/js?id={GA4_ID}"></script>\n'
-    "<script>\n"
-    "window.dataLayer = window.dataLayer || [];\n"
-    "function gtag(){dataLayer.push(arguments);}\n"
-    "gtag('js', new Date());\n"
-    f"gtag('config', '{GA4_ID}', {{ anonymize_ip: true }});\n"
-    "</script>"
+    "<!-- Google Tag Manager -->\n"
+    "<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\n"
+    "new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\n"
+    "j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n"
+    "'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n"
+    "})(window,document,'script','dataLayer','GTM-THM2WBPJ');</script>\n"
+    "<!-- End Google Tag Manager -->"
 )
 
 PREVIEW = True     # --live 로 끌 수 있다
@@ -100,12 +99,12 @@ NAVER_VERIFY = "65f0d284f2bc3f6c8cf5590d03848e4e70783bae"
 NAVER_VERIFY_FILE = "naver8272c0d9d8609fb2d25fc7ee9ed8f0d9.html"
 
 NAV = [
-    ("/ko/calc/", "실손 계산기", "계산기"),
-    ("/ko/switch-gen5/", "5세대 전환 손익", "전환"),
-    ("/ko/items/", "비급여 항목", "항목"),
-    ("/ko/regions/", "지역별 시세", "지역"),
-    ("/ko/insurance/", "1~5세대 실손", "세대별"),
-    ("/ko/guide/", "가이드", "가이드"),
+    ("/ko/calc/", "실손 계산기", "계산기", "계산기"),
+    ("/ko/switch-gen5/", "5세대 전환 손익", "세대전환", "세대별전환"),
+    ("/ko/items/", "비급여 가격", "비급여 가격", "비급여 가격"),
+    ("/ko/regions/", "지역별 시세", "지역별", "지역별"),
+    ("/ko/insurance/", "1~5세대 실손", "세대별", "세대별"),
+    ("/ko/guide/", "가이드", "가이드", "가이드"),
 ]
 
 SCOPE_LINE = ("병원급 이상 심평원 공개 가격 기준(공공누리 제1유형) · 동네 의원 개별 가격은 공개 범위 외이므로 "
@@ -202,7 +201,7 @@ def breadcrumb_html(crumbs: list[tuple[str, str]]) -> str:
     parts = []
     for i, (href, label) in enumerate(crumbs):
         if i:
-            parts.append('<span>›</span>')
+            parts.append('<span class="sep">›</span>')
         if href:
             parts.append(f'<a href="{esc(href)}">{esc(label)}</a>')
         else:
@@ -220,12 +219,13 @@ def breadcrumb_jsonld(crumbs: list[tuple[str, str]]) -> dict:
 
 def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, str]],
            jsonld: list[dict] | None = None, current: str = "", og_image: str = "",
-           extra_js: str = "") -> str:
+           extra_js: str = "", show_scope: bool = True) -> str:
     canonical = SITE_BASE + path
     nav_html = "".join(
         f'<a href="{esc(href)}"{" aria-current=\"page\"" if href == current else ""}>'
-        f'<span class="full">{esc(label)}</span><span class="abbr">{esc(short)}</span></a>'
-        for href, label, short in NAV)
+        f'<span class="full">{esc(label)}</span><span class="abbr">{esc(short)}</span>'
+        f'<span class="mini">{esc(mini)}</span></a>'
+        for href, label, short, mini in NAV)
     robots = ('<meta name="robots" content="noindex,nofollow">' if PREVIEW
               else '<meta name="robots" content="index,follow">')
     banner = (
@@ -234,7 +234,8 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
         '화면의 금액은 UI 동작 확인용 <strong>예시</strong>이며 실제 심평원 공개 가격이 아닙니다. '
         'data.go.kr 인증키를 연결하면 실제 수집 데이터로 대체됩니다.'
         '</div>' if PREVIEW else "")
-    scope_strip = ('<div class="scope-strip"><div class="wrap">' + SCOPE_LINE + '</div></div>')
+    scope_strip = ('<div class="scope-strip"><div class="wrap">' + SCOPE_LINE + '</div></div>'
+                   if show_scope else "")
     ld = ""
     for obj in (jsonld or []):
         ld += f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
@@ -263,8 +264,8 @@ def layout(path: str, title: str, desc: str, body: str, crumbs: list[tuple[str, 
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}">
 {og_extra}<meta name="color-scheme" content="light dark">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8f7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101613">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf5ec">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1d211a">
 <meta name="naver-site-verification" content="{esc(NAVER_VERIFY)}">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon.ico" sizes="16x16 32x32 48x48">
@@ -574,9 +575,9 @@ def hospital_table(it: dict) -> str:
     sido_opts = "".join(f'<option value="{esc(s)}">{esc(s)}</option>' for s in sidos)
     cl_opts = "".join(f'<option value="{esc(c)}">{esc(c)}</option>' for c in cls)
     rows = "".join(
-        f"<tr><td>{esc(h['name'])}</td><td>{esc(h['clCdNm'])}</td>"
-        f"<td>{esc(h['sido'])} {esc(h['sggu'])}</td><td class=\"num\">{won(h['min'])}</td>"
-        f"<td class=\"num\">{won(h['max'])}</td></tr>" for h in (st.get("hospitals") or [])[:12])
+        f"<tr><td data-label=\"기관\">{esc(h['name'])}</td><td data-label=\"종별\">{esc(h['clCdNm'])}</td>"
+        f"<td data-label=\"지역\">{esc(h['sido'])} {esc(h['sggu'])}</td><td class=\"num\" data-label=\"최저\">{won(h['min'])}</td>"
+        f"<td class=\"num\" data-label=\"최고\">{won(h['max'])}</td></tr>" for h in (st.get("hospitals") or [])[:12])
     return f"""
 <div class="card" data-hosp data-code="{esc(it['code'])}">
   <h3>병원급 기관별 공개가 <span class="pill teal">전수 {st['n']:,}곳</span></h3>
@@ -588,7 +589,7 @@ def hospital_table(it: dict) -> str:
     <input type="search" data-hosp-q placeholder="병원명 검색" aria-label="병원명 검색">
   </div>
   <div class="table-wrap">
-    <table class="plain hosp-table" style="font-size:12.5px">
+    <table class="plain hosp-table stack" style="font-size:12.5px">
       <thead><tr><th scope="col">기관</th><th scope="col">종별</th><th scope="col">지역</th>
         <th scope="col" class="num">최저</th><th scope="col" class="num">최고</th></tr></thead>
       <tbody data-hosp-body>{rows}</tbody>
@@ -730,7 +731,7 @@ def region_hosp_card(slug: str, items: list[dict]) -> str:
     <input type="search" data-hosp-q placeholder="병원명 검색" aria-label="병원명 검색">
   </div>
   <div class="table-wrap">
-    <table class="plain hosp-table" style="font-size:12.5px">
+    <table class="plain hosp-table stack" style="font-size:12.5px">
       <thead><tr><th scope="col">기관</th><th scope="col">종별</th><th scope="col">시·군·구</th>
         <th scope="col" class="num">최저</th><th scope="col" class="num">최고</th></tr></thead>
       <tbody data-hosp-body></tbody>
@@ -861,7 +862,7 @@ def page_region(slug: str, items: list[dict]) -> str:
             f'<td class="num" data-label="기관">{st["n"]:,}곳</td>'
             f'<td class="num" data-label="평균">{won(st["avg"])}</td>'
             f'<td class="num" data-label="중간값">{won(st["median"])}</td>'
-            f'<td class="num" data-label="최저~최고" style="font-size:11.5px">{won(st["min"])} ~ {won(st["max"])}</td>'
+            f'<td class="num range" data-label="최저~최고" style="font-size:12.5px"><span class="nw">{won(st["min"])}</span> ~ <span class="nw">{won(st["max"])}</span></td>'
             f'<td class="num" data-label="전국 대비">{diff_cell}</td></tr>')
 
     # 종별 분포
@@ -938,8 +939,8 @@ def page_region(slug: str, items: list[dict]) -> str:
 <section class="section" style="padding-top:10px">
   <div class="wrap">
     <div class="page-head">
-      <h1>{esc(name)} 비급여 진료비 시세 — MRI·초음파·도수치료 병원급 공개가</h1>
-      <p class="section-lead">{esc(full)} 병원급 이상 기관의 비급여 공개가를 항목별로 모았습니다.
+      <h1>{esc(name)} 비급여 진료비 시세</h1>
+      <p class="section-lead">MRI·초음파·도수치료 항목을 다룹니다. {esc(full)} 병원급 이상 기관의 비급여 공개가를 항목별로 모았습니다.
         기관별 최저·최고가의 중간값을 기준으로 평균·중간값·최저~최고와 전국 평균 대비 차이를 보여 줍니다.</p>
       <div class="meta">
         <span class="pill line">병원급 이상 {d['hospitals']:,}곳</span>
@@ -959,7 +960,7 @@ def page_region(slug: str, items: list[dict]) -> str:
     <div class="card">
       <h2 style="font-size:18px">항목별 시세 (병원급 이상)</h2>
       <div class="table-wrap">
-        <table class="plain stack" style="font-size:12.5px">
+        <table class="plain stack" style="font-size:14px">
           <thead><tr><th scope="col">항목</th><th scope="col">기관</th><th scope="col">평균</th>
             <th scope="col">중간값</th><th scope="col">최저 ~ 최고</th><th scope="col">전국 대비</th></tr></thead>
           <tbody>{''.join(rows)}</tbody>
@@ -995,7 +996,7 @@ def page_region(slug: str, items: list[dict]) -> str:
     <div class="card" style="margin-top:14px">
       <h3>시·군·구별 시세</h3>
       <div class="table-wrap">
-        <table class="plain stack" style="font-size:12.5px">
+        <table class="plain stack" style="font-size:14px">
           <thead><tr><th scope="col">시·군·구</th><th scope="col">공개 기관</th><th scope="col">항목 응답</th>
             <th scope="col">뇌 MRI</th><th scope="col">복부 초음파</th><th scope="col">도수치료</th></tr></thead>
           <tbody>{sg_html or '<tr><td colspan="6">공개된 기관이 없습니다.</td></tr>'}</tbody>
@@ -1049,13 +1050,13 @@ def price_block(item: dict) -> str:
         st = ds["stats"]
         p = st["price"]
         cl = "".join(
-            f"<tr><th scope=\"row\">{esc(k)}</th><td class=\"num\">{v['n']}</td>"
-            f"<td class=\"num\">{won(v['avg'])}</td><td class=\"num\">{won(v['median'])}</td>"
-            f"<td class=\"num\">{won(v['min'])} ~ {won(v['max'])}</td></tr>"
+            f"<tr><th scope=\"row\">{esc(k)}</th><td class=\"num\" data-label=\"기관\">{v['n']}</td>"
+            f"<td class=\"num\" data-label=\"평균\">{won(v['avg'])}</td><td class=\"num\" data-label=\"중간\">{won(v['median'])}</td>"
+            f"<td class=\"num range\" data-label=\"최저~최고\"><span class=\"nw\">{won(v['min'])}</span> ~ <span class=\"nw\">{won(v['max'])}</span></td></tr>"
             for k, v in (st.get("by_clcd") or {}).items())
         sd_rows = "".join(
-            f"<tr><th scope=\"row\">{sido_cell(k)}</th><td class=\"num\">{v['n']}</td>"
-            f"<td class=\"num\">{won(v['avg'])}</td><td class=\"num\">{won(v['median'])}</td></tr>"
+            f"<tr><th scope=\"row\">{sido_cell(k)}</th><td class=\"num\" data-label=\"기관\">{v['n']}</td>"
+            f"<td class=\"num\" data-label=\"평균\">{won(v['avg'])}</td><td class=\"num\" data-label=\"중간\">{won(v['median'])}</td></tr>"
             for k, v in sorted((st.get("by_sido") or {}).items(), key=lambda kv: -kv[1]["n"])[:9])
         if st.get("by_sido"):
             sd_rows += ('<tr><td colspan="4" style="font-size:12px">'
@@ -1082,7 +1083,7 @@ def price_block(item: dict) -> str:
     <div class="kpi"><div class="k">중간 / 최빈</div><div class="v" style="font-size:13.5px">{won(p['median'])} / {won(p['mode'] or 0)}</div></div>
   </div>
   <div class="table-wrap">
-    <table class="plain" style="font-size:12.5px">
+    <table class="plain stack" style="font-size:12.5px">
       <thead><tr><th scope="col">종별</th><th scope="col" class="num">기관</th><th scope="col" class="num">평균</th>
         <th scope="col" class="num">중간</th><th scope="col" class="num">최저~최고</th></tr></thead>
       <tbody>{cl}</tbody>
@@ -1091,7 +1092,7 @@ def price_block(item: dict) -> str:
   <details class="rule" style="margin-top:8px">
     <summary>시도별 요약 보기</summary>
     <div class="table-wrap">
-      <table class="plain" style="font-size:12.5px">
+      <table class="plain stack" style="font-size:12.5px">
         <thead><tr><th scope="col">시도</th><th scope="col" class="num">기관</th><th scope="col" class="num">평균</th><th scope="col" class="num">중간</th></tr></thead>
         <tbody>{sd_rows}</tbody>
       </table>
@@ -1177,8 +1178,8 @@ def compare_table_html(items: list[dict]) -> str:
         c_mid = won(kk.get("median")) if kk else "—"
         rows.append(
             f"<tr><th scope=\"row\"><a href=\"/ko/items/{esc(it['slug'])}/\">{esc(it['name'])}</a></th>"
-            f"<td class=\"num\">{h_avg}<br><span class=\"muted\">{h_n}</span></td>"
-            f"<td class=\"num\">{c_avg}<br><span class=\"muted\">중간 {c_mid}</span></td>"
+            f"<td class=\"num\" data-label=\"병원급 평균 (기관)\"><span>{h_avg}<br><span class=\"muted\">{h_n}</span></span></td>"
+            f"<td class=\"num\" data-label=\"전국 의원급 평균 (중간값)\"><span>{c_avg}<br><span class=\"muted\">중간 {c_mid}</span></span></td>"
             f"<td data-label=\"비고\">{'관리급여 95% 전환' if it['payment'] == '관리급여' else ('전 세대 보장 제외' if len(it.get('excluded_gens') or []) >= 5 else ('일부 세대 보장 제외' if it.get('excluded_gens') else ('5세대 제외' if it['excluded5'] else '비중증 보장')))}</td></tr>")
     return f"""
 <div class="table-wrap">
@@ -1222,7 +1223,7 @@ def page_landing(items: list[dict]) -> str:
     body = f"""
 <section class="hero">
   <div class="wrap">
-    <h1>비급여 진료비, <em>내 실손보험으로</em><br>얼마나 돌려받을까?</h1>
+    <h1>비급여 진료비,<br><em>내 실손보험으로</em><br>얼마나 돌려받을까?</h1>
     <p class="lede">병원급 이상 심평원 공개가와 1~5세대 실손 보장액을 한 화면에서 비교합니다.
       2026년 5월 출시된 <b>5세대 실손</b>과 2026년 7월 <b>도수치료 관리급여 전환</b>까지 반영했습니다.</p>
     <div class="pills">
@@ -1367,7 +1368,7 @@ def page_landing(items: list[dict]) -> str:
     ]
     return layout("/ko/", f"{SITE_NAME} · 1~5세대 실손 계산기와 병원급 이상 비급여 공개가",
                   "병원급 이상 심평원 비급여 공개가와 1~5세대 실손(2026년 5세대·도수치료 관리급여 포함) 보장액을 한 번에 비교하는 계산기.",
-                  body, [("/ko/", "홈")], jsonld, current="/ko/")
+                  body, [("/ko/", "홈")], jsonld, current="/ko/", show_scope=False)
 
 
 def page_calc(items: list[dict]) -> str:
@@ -1416,7 +1417,8 @@ def page_calc(items: list[dict]) -> str:
     jsonld = [breadcrumb_jsonld([("/ko/", "홈"), ("/ko/calc/", "실손 계산기")]), faq_jsonld(faqs)]
     return layout("/ko/calc/", f"실손 1~5세대 보장액 계산기 · {SITE_NAME}",
                   "비급여 진료비를 입력하면 1세대부터 5세대까지 실손 예상 보장액과 환자 최종 부담을 한 번에 비교합니다.",
-                  body, [("/ko/", "홈"), ("/ko/calc/", "실손 계산기")], jsonld, current="/ko/calc/")
+                  body, [("/ko/", "홈"), ("/ko/calc/", "실손 계산기")], jsonld, current="/ko/calc/",
+                  show_scope=False)
 
 
 def _sim_amount_field(key: str, label: str, hint: str = "", maxv: int = 20000000,
@@ -1936,7 +1938,6 @@ def page_item(it: dict, items: list[dict]) -> str:
       <div>
         {price_block(it)}
         {kosis_card(it)}
-        {hospital_table(it)}
         <div class="card">
           <h3>심평원 공식 분류</h3>
           <table class="plain" style="font-size:12.5px">
@@ -1957,6 +1958,7 @@ def page_item(it: dict, items: list[dict]) -> str:
         </div>
       </div>
     </div>
+    <div style="margin-top:14px">{hospital_table(it)}</div>
   </div>
 </section>
 """
@@ -1971,7 +1973,9 @@ def page_item(it: dict, items: list[dict]) -> str:
         proc_ld,
     ]
     return layout(f"/ko/items/{it['slug']}/",
-                  (f"{it['name']} 비급여 가격·실손 보장 · {SITE_NAME}" if not_listed(it)
+                  (f"{it['name']} 관리급여 가격·실손 보장 · {SITE_NAME}" if it.get("payment") == "관리급여" and not_listed(it)
+                   else f"{it['name']} ({it['code']}) 관리급여 가격·실손 보장 · {SITE_NAME}" if it.get("payment") == "관리급여"
+                   else f"{it['name']} 비급여 가격·실손 보장 · {SITE_NAME}" if not_listed(it)
                    else f"{it['name']} ({it['code']}) 비급여 가격·실손 보장 · {SITE_NAME}"),
                   f"{it['name']}의 심평원 공식 분류와 코드, 병원급 공개가·전국 의원급 통계, 실손 세대별 처리({coverage_label(it)})를 정리했습니다.",
                   body, [("/ko/", "홈"), ("/ko/items/", "비급여 항목"), (f"/ko/items/{it['slug']}/", it["name"])],
@@ -2532,7 +2536,7 @@ def _doc_sections(sections: list[tuple[str, list[str]]]) -> str:
 CONTACT_PANEL = f"""      <section class="doc-sec contact-sec">
         <h2>빠른 답변을 위해 필요한 것</h2>
         <ul class="doc-list">
-          <li>문제가 보인 페이지 주소 (예: /ko/items/mri-brain/)</li>
+          <li>문제가 보인 페이지 주소 (예: /ko/items/brain-mri/)</li>
           <li>어떤 값이 어떻게 보여야 하는지</li>
           <li>가격 정정 요청이라면 기관이 공개한 가격과 확인한 곳</li>
         </ul>
@@ -2542,7 +2546,7 @@ CONTACT_PANEL = f"""      <section class="doc-sec contact-sec">
         <p><a class="btn" href="{GOOGLE_FORM_KO}" target="_blank" rel="noopener">문의 폼 열기 ↗</a></p>
         <p class="muted" style="font-size:13px">폼은 Google Forms로 제공되며 새 탭에서 열립니다.</p>
         <div class="form-embed">
-          <iframe src="{GOOGLE_FORM_KO}?embedded=true" title="메디컬 비급여 시세 파인더 문의 폼"
+          <iframe src="{GOOGLE_FORM_KO}?embedded=true" title="내 병원비 계산기 문의 폼"
                   loading="lazy" width="100%" height="980" frameborder="0" marginheight="0"
                   marginwidth="0"><a href="{GOOGLE_FORM_KO}" target="_blank" rel="noopener">문의 폼 열기</a></iframe>
         </div>
@@ -2728,8 +2732,8 @@ def build(out: Path, base: str, live: bool) -> dict:
     write("404.html", f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>페이지를 찾을 수 없습니다 · {esc(SITE_NAME)}</title>
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f8f7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101613">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#faf5ec">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1d211a">
 <link rel="preload" href="/assets/fonts/PretendardVariable.subset.91.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/pretendardvariable-dynamic-subset.css">
 <link rel="stylesheet" href="/assets/style.css"><meta name="robots" content="noindex"></head>

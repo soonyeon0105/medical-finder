@@ -307,8 +307,8 @@
       // 다크모드에서는 어두운 카드 위에서도 읽히는 팔레트로 그린다(공유 이미지 카드는 라이트 고정).
       var DARK = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       var C = DARK
-        ? { bg: 'none', grid: '#26302a', label: '#8d9991', zero: '#5f6f66', axis: '#b6c0ba', curve: '#14b8a6', be: '#f2b04e', cur: '#8db1ff' }
-        : { bg: '#fff', grid: '#eef2f7', label: '#98a2b3', zero: '#94a3b8', axis: '#344054', curve: '#0f766e', be: '#b45309', cur: '#1d4ed8' };
+        ? { bg: 'none', grid: '#333a2c', label: '#a9ae9c', zero: '#77816c', axis: '#c6cbb8', curve: '#a7bc8e', be: '#f2b04e', cur: '#8db1ff' }
+        : { bg: '#fffdf7', grid: '#eee8d8', label: '#8a8f7c', zero: '#a9ae9c', axis: '#3a4234', curve: '#71835f', be: '#b45309', cur: '#1d4ed8' };
       var W = Math.max(280, Math.min(900, (out.clientWidth || 340) - 2));
       var big = W >= 560;
       var H = big ? 260 : 215;
@@ -523,26 +523,26 @@
       cv.width = W; cv.height = H;
       var c = cv.getContext('2d');
       var g = c.createLinearGradient(0, 0, W, H);
-      g.addColorStop(0, '#ffffff');
-      g.addColorStop(0.55, '#f4fbf9');
-      g.addColorStop(1, '#e6f4f1');
+      g.addColorStop(0, '#fffdf7');
+      g.addColorStop(0.55, '#f7f3e6');
+      g.addColorStop(1, '#e8ecdc');
       c.fillStyle = g; c.fillRect(0, 0, W, H);
-      c.fillStyle = '#0f2942'; c.fillRect(0, 0, W, 10);
+      c.fillStyle = '#4c5c3e'; c.fillRect(0, 0, W, 10);
       var res = last || {};
       var ok = res.ok && !res.hold;
       var save = ok && res.verdict === 'save';
       var loss = ok && res.verdict === 'loss';
-      var accent = save ? '#0f766e' : loss ? '#b42318' : '#b45309';
+      var accent = save ? '#4c5c3e' : loss ? '#b42318' : '#9a6b3f';
       // 로고 마크
-      c.fillStyle = '#0f2942';
+      c.fillStyle = '#4c5c3e';
       roundRect(c, 72, 62, 56, 56, 14); c.fill();
-      c.strokeStyle = '#14b8a6'; c.lineWidth = 8; c.lineCap = 'round';
+      c.strokeStyle = '#dce5c8'; c.lineWidth = 8; c.lineCap = 'round';
       c.beginPath(); c.moveTo(100, 76); c.lineTo(100, 104); c.moveTo(86, 90); c.lineTo(114, 90); c.stroke();
-      c.fillStyle = '#344054'; c.font = '600 26px ' + FONT;
-      c.fillText('K-MediCheck · 메디컬 비급여 시세 파인더', 146, 100);
-      c.fillStyle = '#0f2942'; c.font = '800 60px ' + FONT;
+      c.fillStyle = '#3a4234'; c.font = '600 26px ' + FONT;
+      c.fillText('K-MediCheck · 내 병원비 계산기', 146, 100);
+      c.fillStyle = '#2f362a'; c.font = '800 60px ' + FONT;
       c.fillText('실손 5세대 전환 손익', 72, 220);
-      c.fillStyle = '#667085'; c.font = '500 28px ' + FONT;
+      c.fillStyle = '#6e7462'; c.font = '500 28px ' + FONT;
       c.fillText('내 조건으로 계산한 참고용 추정치', 72, 270);
       // 큰 숫자
       var bigTxt = ok ? (save ? '연 ' + won(res.delta) : loss ? '연 ' + won(-res.delta) : '연 ' + won(Math.abs(res.delta)))
@@ -556,13 +556,13 @@
         c.fillText(tagTxt, 72 + bigW + 24, 410);
       }
       // 판단 근거 1줄
-      c.fillStyle = '#344054'; c.font = '600 34px ' + FONT;
+      c.fillStyle = '#3a4234'; c.font = '600 34px ' + FONT;
       wrapText(c, resultOneLine(), 72, 492, W - 144, 44, 2);
       // 하단
-      c.fillStyle = '#0f2942'; c.fillRect(0, H - 84, W, 84);
+      c.fillStyle = '#4c5c3e'; c.fillRect(0, H - 84, W, 84);
       c.fillStyle = '#ffffff'; c.font = '700 30px ' + FONT;
-      c.fillText('medical-finder-kr.pages.dev', 72, H - 34);
-      c.fillStyle = '#a7c4bf'; c.font = '500 22px ' + FONT;
+      c.fillText('kr.kmedicheck.com', 72, H - 34);
+      c.fillStyle = '#c9d2b4'; c.font = '500 22px ' + FONT;
       c.textAlign = 'right';
       c.fillText('참고용 추정치 · 약관 확인 · 금융감독원 1332', W - 72, H - 36);
       c.textAlign = 'left';
