@@ -135,8 +135,23 @@
     if (row.status === 'excluded') {
       sub.textContent = '이 항목은 ' + row.name + '에서 보장 제외라 전액 본인부담입니다(예상 보장액 0원).';
     } else {
-      sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
-        ' · 진료비 ' + won(res.input.amount) + ' 중 내가 내는 금액입니다.';
+      // 관리급여 항목은 보장액+부담의 합이 진료비의 95%(건강보험 본인부담)라,
+      // '진료비 중 내가 내는 금액'만 쓰면 합계가 안 맞는 것처럼 보인다 (인스팅트 #1215 ②).
+      // 남은 5%는 공단 부담임을 밝혀 둔다. 1회 건강보험 본인부담과 10회 최종 부담이
+      // 우연히 같은 숫자(41,658원)라 헷갈리므로 횟수도 함께 적는다.
+      var items = (window.MED_CATALOG && window.MED_CATALOG.items) || [];
+      var it = null;
+      items.forEach(function (x) { if (x.code === st.item_code) { it = x; } });
+      if (it && it.payment === '관리급여') {
+        var burden95 = row.covered + row.copay;
+        var insurer = res.input.amount - burden95;
+        sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
+          ' · ' + st.rounds + '회 진료비 ' + won(res.input.amount) + ' 중 건강보험 본인부담 ' + won(burden95) +
+          '(95%)에서 내가 내는 금액입니다. 나머지 ' + won(insurer) + '(5%)은 공단이 부담합니다.';
+      } else {
+        sub.textContent = '예상 보장액 ' + won(row.covered) + ' · 자기부담 기준 ' + row.rate_label +
+          ' · 진료비 ' + won(res.input.amount) + ' 중 내가 내는 금액입니다.';
+      }
     }
   }
 
