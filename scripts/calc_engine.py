@@ -221,6 +221,7 @@ def _limits_for(gen: int, ctx: dict, item: dict, sub: str | None = None) -> list
         notes.append("세대 표준형 기준 · 상품별 약관(한도·자기부담) 차이 있음")
     elif gen == 2:
         notes.append("통원 보상한도: 외래 1일 25만원 · 처방조제 1일 5만원 · 연간 180회 (표준약관 기준)")
+        notes.append("입원 보상한도: 연간 5,000만원 (표준약관 기준)")
         if managed:
             notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(표준형은 80%)")
         if sub == "early":
