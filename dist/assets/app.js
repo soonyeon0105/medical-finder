@@ -129,8 +129,9 @@
         chip.style.display = '';
         managedBox.classList.add('show');
         managedBox.innerHTML = '<b>도수치료는 2026.7.1부터 관리급여(선별급여)</b>입니다. ' +
-          '1회 ' + fmt(MedCalc.MANAGED_UNIT_PRICE) + ' (종별 동일·종별가산 없음), 본인부담률 95% — ' +
-          '1회 환자 부담 <b>' + fmt(Math.floor((MedCalc.MANAGED_UNIT_PRICE * 95 + 50) / 100)) + '</b>. ' +
+          '1회 ' + fmt(MedCalc.MANAGED_UNIT_PRICE) + ' (종별 동일·종별가산 없음), 건강보험 본인부담률 95% — ' +
+          '1회 건강보험 본인부담 <b>' + fmt(Math.floor((MedCalc.MANAGED_UNIT_PRICE * 95 + 50) / 100)) + '</b>. ' +
+          '실손(2·3세대)은 그 본인부담금의 90%를 보장합니다. ' +
           '비급여 특약이 아니라 <b>급여</b>로 계산합니다.';
       } else {
         roundsRow.style.display = 'none';
@@ -148,6 +149,15 @@
         if (it && resetAmount) { state.amount = defAmount(it); }
         else if (!it && resetAmount) { state.amount = 300000; }
         amountInput.value = isFinite(state.amount) ? state.amount : '';
+      }
+      // 2세대 가입유형 라벨: 관리급여 항목은 표준형도 급여 90%라 '급여 80%' 표기는 틀린다
+      // (인스팅트 #1206 ③). 항목이 바뀌면 라벨을 다시 맞춘다. 값은 그대로 'standard'.
+      var g2sel = $(root, '#gen2-select');
+      if (g2sel) {
+        var stdOpt = g2sel.querySelector('option[value="standard"]');
+        if (stdOpt) {
+          stdOpt.textContent = (it && it.payment === '관리급여') ? '표준형 (급여 90%)' : '표준형 (급여 80%)';
+        }
       }
       if (hint) {
         if (it) {
@@ -434,7 +444,8 @@
   //  ② 지역 페이지: data-hosp data-region=시도 + 항목/시군구/검색 필터
   var HOSP_CACHE = null;
   // 병원명 표시용 2자 마스킹: 앞 2자만 보이고 나머지는 ** (가드레일: 병원 실명 금지).
-  // 검색은 원본 이름(r[0]) 기준으로 계속 동작한다.
+  // 빌드 시 /assets/hospitals.json의 이름도 같은 규칙으로 마스킹돼 배포되므로
+  // 검색은 마스킹된 이름(r[0]) 기준으로 동작한다(앞부분 입력으로 찾는다).
   function maskHospName(n) {
     var s = String(n || '').replace(/^\([^)]*\)\s*/, '');
     return s.length > 2 ? s.slice(0, 2) + '**' : s;

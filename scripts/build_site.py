@@ -455,12 +455,13 @@ def calc_block(items: list[dict], default_code: str, heading: str = "1~5세대 �
       <summary>계산 기준 자세히 보기</summary>
       <ul class="limits" style="font-size:12.5px">
         <li>1세대: 입원 100%, 통원 5,000원 공제 후 100% (표준형 기준 · 약관 차이 있음)</li>
-        <li>2세대: 비급여 80% · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액</li>
+        <li>2세대: 비급여 본인부담 20% · 통원 Max(20%, 외래공제)</li>
         <li>3세대: 기본 비급여 20% · 특약(도수·체외충격파·증식·비급여 주사·MRI)은 통원 Max(30%, 2만원)</li>
         <li>4세대: 비급여 입원 30% · 통원 Max(30%, 3만원), 통원 회당 보장 20만원 한도</li>
         <li>5세대: 특약1(중증) 입원 30%·통원 Max(30%, 3만원) / 특약2(비중증) 입원 50%·통원 Max(50%, 5만원),
           제외 항목은 보장 0원</li>
-        <li>도수치료: 2026.7.1부터 관리급여 — 1회 43,850원(종별 동일), 본인부담률 95%로 급여 규칙 적용</li>
+        <li>도수치료: 2026.7.1부터 관리급여 — 1회 43,850원(종별 동일), 본인부담률 95%로 급여 규칙 적용.
+          95%는 건강보험 본인부담률이고, 실손(2·3세대)은 그 본인부담금의 90%를 보장합니다.</li>
       </ul>
     </details>
   </div>
@@ -566,7 +567,8 @@ def kosis_card(it: dict) -> str:
 
 def mask_hosp_name(name: str) -> str:
     """병원명 표시용 2자 마스킹: 앞 2자만 보이고 나머지는 ** (가드레일: 병원 실명 금지).
-    내부 데이터(검색용 원본 이름)는 그대로 둔다."""
+    빌드 시 /assets/hospitals.json(공개 fetch)의 이름도 같은 규칙으로 마스킹한다
+    — 표시·검색 모두 마스킹된 이름 기준(앞부분 입력으로 찾는다). 원본 실명은 data/에만 둔다."""
     n = (name or "").strip()
     n = re.sub(r"^\([^)]*\)\s*", "", n)  # "(의) ..." 같은 법인 구분 접두사는 빼고 마스킹
     return n if len(n) <= 2 else n[:2] + "**"
@@ -2699,7 +2701,17 @@ def build(out: Path, base: str, live: bool) -> dict:
     if og_png.exists():
         shutil.copyfile(og_png, DIST / "assets" / "og-switch-gen5.png")
     if (DATA / "hospitals.json").exists():
-        shutil.copyfile(DATA / "hospitals.json", DIST / "assets" / "hospitals.json")
+        # 가드레일: /assets/hospitals.json은 페이지 로드 시 fetch되는 공개 파일이라
+        # 실명을 그대로 두면 표 마스킹과 별개로 네트워크 payload에 실명이 노출된다
+        # (인스팅트 #1206 ①). 빌드 시점에 이름을 마스킹해 배포한다. 검색은
+        # 마스킹된 이름 기준(앞부분 입력)으로 동작한다.
+        _hs = json.loads((DATA / "hospitals.json").read_text(encoding="utf-8"))
+        for _rows in (_hs.get("items") or {}).values():
+            for _r in _rows:
+                if _r and _r[0]:
+                    _r[0] = mask_hosp_name(_r[0])
+        (DIST / "assets" / "hospitals.json").write_text(
+            json.dumps(_hs, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     med_items = []
     for it in items:
         ds = ds_item(it["code"]) or {}

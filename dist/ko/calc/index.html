@@ -162,12 +162,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       <summary>계산 기준 자세히 보기</summary>
       <ul class="limits" style="font-size:12.5px">
         <li>1세대: 입원 100%, 통원 5,000원 공제 후 100% (표준형 기준 · 약관 차이 있음)</li>
-        <li>2세대: 비급여 80% · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액</li>
+        <li>2세대: 비급여 본인부담 20% · 통원 Max(20%, 외래공제)</li>
         <li>3세대: 기본 비급여 20% · 특약(도수·체외충격파·증식·비급여 주사·MRI)은 통원 Max(30%, 2만원)</li>
         <li>4세대: 비급여 입원 30% · 통원 Max(30%, 3만원), 통원 회당 보장 20만원 한도</li>
         <li>5세대: 특약1(중증) 입원 30%·통원 Max(30%, 3만원) / 특약2(비중증) 입원 50%·통원 Max(50%, 5만원),
           제외 항목은 보장 0원</li>
-        <li>도수치료: 2026.7.1부터 관리급여 — 1회 43,850원(종별 동일), 본인부담률 95%로 급여 규칙 적용</li>
+        <li>도수치료: 2026.7.1부터 관리급여 — 1회 43,850원(종별 동일), 본인부담률 95%로 급여 규칙 적용.
+          95%는 건강보험 본인부담률이고, 실손(2·3세대)은 그 본인부담금의 90%를 보장합니다.</li>
       </ul>
     </details>
   </div>
@@ -219,7 +220,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         건강보험심사평가원 비급여진료비정보조회서비스<br>
         공공데이터포털 15001700 · 공공누리 제1유형<br>
         통계청 KOSIS 승인번호 354006(의원·치과의원 규모, 2026)<br>
-        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-27 20:29 KST</span>
+        <span class="muted">건강보험심사평가원 2026년 비급여 공개 자료 기준 · 오픈API 조회 2026-11-17 · 빌드 2026-11-27 20:55 KST</span>
       </div>
     </div>
     <div class="legal">
@@ -231,13 +232,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
       의료법 제27조에 따라 특정 의료기관의 환자 유인·알선·광고를 하지 않습니다.
       <a href="/ko/privacy/">개인정보처리방침</a> · <a href="/ko/medical-disclaimer/">의료 면책 고지</a><br>
       K-MediCheck 패밀리 — 글로벌 의료 가격 인덱스 <a href="https://kmedicheck.com/en/" rel="noopener" target="_blank">kmedicheck.com</a> ·
-      내 손안에 복지 (9welfare) · 2026-11-27 20:29 KST 빌드.
+      내 손안에 복지 (9welfare) · 2026-11-27 20:55 KST 빌드.
     </div>
   </div>
 </footer>
-<script src="/assets/calc.js?v=edb4fb2e" defer></script>
+<script src="/assets/calc.js?v=02c102e7" defer></script>
 <script src="/assets/med-data.js" defer></script>
-<script src="/assets/app.js?v=0ce61ae8" defer></script>
+<script src="/assets/app.js?v=907c5ebc" defer></script>
 
 </body>
 </html>

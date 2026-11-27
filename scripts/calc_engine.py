@@ -146,17 +146,24 @@ def _limits_for(gen: int, ctx: dict, item: dict) -> list[str]:
         notes.append("세대 표준형 기준 · 상품별 약관(한도·자기부담) 차이 있음")
     elif gen == 2:
         notes.append("통원 회당 보장한도·연간 한도는 상품별 약관 확인 필요")
-        if ctx["gen2_type"] == "select2":
+        if managed:
+            notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(통원 10% 공제)")
+        elif ctx["gen2_type"] == "select2":
             notes.append("선택형Ⅱ: 급여 90% · 비급여 80%")
     elif gen == 3:
         notes.append("비급여 연간 한도·갱신 조건은 약관 확인 필요")
+        if managed:
+            notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 90% 보장(통원 10% 공제)")
     elif gen == 4:
         if not managed:
             notes.append("통원 회당 보장 20만원 한도 적용")
+        else:
+            notes.append("관리급여 95%는 건강보험 본인부담률 — 실손은 그중 80% 보장(입원·통원 20% 공제)")
         notes.append("연간 보장한도 5천만원 · 비급여 이용량 차등할증 대상")
     elif gen == 5:
         if managed:
             notes.append(f"관리급여 본인부담 95% · 1회 {won(MANAGED_UNIT_PRICE)}(종별 동일)")
+            notes.append("실손 보장 5% 수준 — 건강보험 본인부담금의 5%만 보장")
             notes.append(f"연간 {MANAGED_ROUNDS_STD}회(수술·골절 등 예외 {MANAGED_ROUNDS_MAX}회) 한도")
         elif ctx["severe"]:
             notes.append(f"중증 비급여(특약1) 연간 {won(LIMIT5_SEVERE)} 한도 · 통원 회당 20만원")
@@ -178,7 +185,7 @@ def _rate_label(gen: int, ctx: dict, item: dict) -> str:
     if gen == 2:
         if managed:
             return "급여 90%" if visit == "in" else "Max(10%, 외래공제)"
-        return "80%" if visit == "in" else "Max(20%, 외래공제)"
+        return "20%" if visit == "in" else "Max(20%, 외래공제)"
     if gen == 3:
         if item["special3"] and not managed:
             return "20%" if visit == "in" else "Max(30%, 2만원)"
@@ -330,7 +337,7 @@ def _gen_row(gen: int, ctx: dict) -> dict:
         1: "입원 100% 보장 / 통원 5,000원 공제 후 100% (표준형 기준)",
         2: ("관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"
             if managed else
-            "비급여 80% 보장 · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"),
+            "비급여 본인부담 20% · 통원은 20%와 외래공제(의원 1만·병원 1.5만·종합/상급 2만) 중 큰 금액 공제"),
         3: ("관리급여(급여) 항목: 90% 보장 · 통원은 10%와 외래공제 중 큰 금액 공제"
             if managed else
             ("3세대 비급여 특약(도수·체외충격파·증식·비급여 주사·MRI): 통원 Max(30%, 2만원) 공제"

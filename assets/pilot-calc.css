@@ -13,6 +13,8 @@
 /* '모름' 안내 문구 — 본문 최소 13px 기준 (부이 #1192 ②: 11.5px → 13px).
    공용 style.css의 .field .hint(11.5px)보다 세게 잡는다. */
 #pilot-gen-label .hint { font-size: 13px; }
+/* 모름 안내 row-note(세대 선택 아래 '세대를 고르면 결과 맨 위에…')도 13px 이상 (인스팅트 #1206 ④) */
+#pilot-calc .row-note { font-size: 13px; }
 
 /* 항목이 프리셋이므로 항목 선택 드롭다운은 숨기고 한 줄 요약만 보인다
    (밀크 #1164 ① 권고). select 자체는 DOM에 남아 app.js가 그대로 쓴다. */
